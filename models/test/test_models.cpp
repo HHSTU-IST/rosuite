@@ -56,8 +56,9 @@ void test_motion_models() {
   using namespace ros_tracker::models;
 
   MotionRequest cv_request {
-      .state = State {(Vector(4) << 1.0, 2.0, 0.5, -1.0).finished(), 0.0, "map"},
-      .context = ModelContext {.dt = 2.0, .timestamp = 2.0, .frame_id = "map"},
+      State {(Vector(4) << 1.0, 2.0, 0.5, -1.0).finished(), 0.0, "map"},
+      std::nullopt,
+      ModelContext {2.0, 2.0, "map"},
   };
   ConstantVelocityMotionModel cv_model;
   const auto cv_result = cv_model.propagate(cv_request);
@@ -68,8 +69,9 @@ void test_motion_models() {
               "Constant velocity y position should advance by vy * dt.");
 
   MotionRequest ca_request {
-      .state = State {(Vector(6) << 0.0, 0.0, 1.0, 2.0, 0.5, -0.5).finished(), 0.0, "map"},
-      .context = ModelContext {.dt = 2.0, .timestamp = 2.0, .frame_id = "map"},
+      State {(Vector(6) << 0.0, 0.0, 1.0, 2.0, 0.5, -0.5).finished(), 0.0, "map"},
+      std::nullopt,
+      ModelContext {2.0, 2.0, "map"},
   };
   ConstantAccelerationMotionModel ca_model;
   const auto ca_result = ca_model.propagate(ca_request);
@@ -80,8 +82,9 @@ void test_motion_models() {
               "Constant acceleration vy should advance by ay * dt.");
 
   MotionRequest ct_request {
-      .state = State {(Vector(5) << 0.0, 0.0, 10.0, 0.0, 0.0).finished(), 0.0, "map"},
-      .context = ModelContext {.dt = 0.5, .timestamp = 0.5, .frame_id = "map"},
+      State {(Vector(5) << 0.0, 0.0, 10.0, 0.0, 0.0).finished(), 0.0, "map"},
+      std::nullopt,
+      ModelContext {0.5, 0.5, "map"},
   };
   CoordinatedTurnMotionModel ct_model;
   const auto ct_result = ct_model.propagate(ct_request);
@@ -92,8 +95,9 @@ void test_motion_models() {
               "Zero turn-rate coordinated turn should preserve lateral position.");
 
   MotionRequest singer_request {
-      .state = State {(Vector(6) << 0.0, 0.0, 1.0, 0.0, 2.0, 0.0).finished(), 0.0, "map"},
-      .context = ModelContext {.dt = 1.0, .timestamp = 1.0, .frame_id = "map"},
+      State {(Vector(6) << 0.0, 0.0, 1.0, 0.0, 2.0, 0.0).finished(), 0.0, "map"},
+      std::nullopt,
+      ModelContext {1.0, 1.0, "map"},
   };
   SingerMotionModel singer_model(0.5);
   const auto singer_result = singer_model.propagate(singer_request);
@@ -109,9 +113,9 @@ void test_measurement_models() {
   using namespace ros_tracker::models;
 
   MeasurementRequest linear_request {
-      .state = State {(Vector(4) << 3.0, 4.0, 1.0, 2.0).finished(), 0.0, "map"},
-      .context = ModelContext {.timestamp = 1.0, .frame_id = "map"},
-      .sensor_id = "linear_sensor",
+      State {(Vector(4) << 3.0, 4.0, 1.0, 2.0).finished(), 0.0, "map"},
+      ModelContext {0.0, 1.0, "map"},
+      "linear_sensor",
   };
 
   Matrix h(2, 4);
@@ -146,13 +150,14 @@ void test_noise_and_composition() {
   using namespace ros_tracker::models;
 
   MotionRequest motion_request {
-      .state = State {Vector::Zero(4), 0.0, "map"},
-      .context = ModelContext {.dt = 0.1, .timestamp = 0.1, .frame_id = "map"},
+      State {Vector::Zero(4), 0.0, "map"},
+      std::nullopt,
+      ModelContext {0.1, 0.1, "map"},
   };
   MeasurementRequest measurement_request {
-      .state = State {Vector::Zero(4), 0.0, "map"},
-      .context = ModelContext {.timestamp = 0.1, .frame_id = "map"},
-      .sensor_id = "radar",
+      State {Vector::Zero(4), 0.0, "map"},
+      ModelContext {0.0, 0.1, "map"},
+      "radar",
   };
 
   ConstantGaussianProcessNoise process_noise(Matrix::Identity(4, 4));

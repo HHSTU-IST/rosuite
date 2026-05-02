@@ -53,9 +53,9 @@ using core::Vector;
   }
 
   const models::MotionRequest request {
-      .state = estimate.state,
-      .control = std::move(control),
-      .context = context,
+      estimate.state,
+      std::move(control),
+      context,
   };
 
   const auto propagated = model.motion->propagate(request);
@@ -103,9 +103,9 @@ using core::Vector;
   }
 
   const models::MeasurementRequest request {
-      .state = estimate.state,
-      .context = context,
-      .sensor_id = measurement.sensor_id,
+      estimate.state,
+      context,
+      measurement.sensor_id,
   };
 
   const auto predicted_measurement = sensor.measurement->measure(request);
@@ -163,9 +163,9 @@ using core::Vector;
   }
 
   const models::MeasurementRequest request {
-      .state = estimate.state,
-      .context = context,
-      .sensor_id = measurement.sensor_id,
+      estimate.state,
+      context,
+      measurement.sensor_id,
   };
   const auto jacobian = sensor.measurement->state_jacobian(request);
   if (!jacobian.ok()) {

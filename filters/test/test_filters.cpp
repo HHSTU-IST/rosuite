@@ -59,12 +59,12 @@ void test_kalman_filter() {
 
   KalmanFilter filter;
   GaussianEstimate estimate {
-      .state = State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
-      .covariance = Matrix::Identity(4, 4),
+      State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
+      Matrix::Identity(4, 4),
   };
 
   const DynamicSystemModel system = make_constant_velocity_system();
-  const ModelContext predict_context {.dt = 1.0, .timestamp = 1.0, .frame_id = "map"};
+  const ModelContext predict_context {1.0, 1.0, "map"};
   const auto predicted = filter.predict(estimate, system, predict_context);
   expect_true(predicted.ok(), "Kalman prediction should succeed.");
   expect_near(predicted.value().state.value[0], 1.0, 1e-12,
@@ -97,8 +97,8 @@ void test_constant_gain_filter() {
   ConstantGainFilter filter(gain);
 
   GaussianEstimate estimate {
-      .state = State {Vector::Zero(4), 0.0, "map"},
-      .covariance = Matrix::Identity(4, 4),
+      State {Vector::Zero(4), 0.0, "map"},
+      Matrix::Identity(4, 4),
   };
 
   Measurement measurement {
@@ -123,8 +123,8 @@ void test_kalman_filter_extended_with_radar() {
 
   KalmanFilterExtended filter;
   GaussianEstimate estimate {
-      .state = State {(Vector(4) << 2.5, 4.5, 0.8, 1.7).finished(), 0.0, "map"},
-      .covariance = 0.5 * Matrix::Identity(4, 4),
+      State {(Vector(4) << 2.5, 4.5, 0.8, 1.7).finished(), 0.0, "map"},
+      0.5 * Matrix::Identity(4, 4),
   };
 
   SensorModel radar {
@@ -171,9 +171,9 @@ void test_sigma_points() {
   using namespace ros_tracker::filters;
 
   GaussianEstimate estimate {
-      .state = State {(Vector(2) << 1.0, -2.0).finished(), 0.0, "map"},
-      .covariance = (Matrix(2, 2) << 4.0, 1.0,
-                                      1.0, 2.0).finished(),
+      State {(Vector(2) << 1.0, -2.0).finished(), 0.0, "map"},
+      (Matrix(2, 2) << 4.0, 1.0,
+                       1.0, 2.0).finished(),
   };
 
   MerweSigmaPointGenerator generator(0.5, 2.0, 0.0);
@@ -194,16 +194,16 @@ void test_rts_smoother() {
   using namespace ros_tracker::filters;
 
   GaussianEstimate filtered {
-      .state = State {(Vector(2) << 0.0, 1.0).finished(), 0.0, "map"},
-      .covariance = Matrix::Identity(2, 2),
+      State {(Vector(2) << 0.0, 1.0).finished(), 0.0, "map"},
+      Matrix::Identity(2, 2),
   };
   GaussianEstimate predicted_next {
-      .state = State {(Vector(2) << 1.0, 1.0).finished(), 1.0, "map"},
-      .covariance = 2.0 * Matrix::Identity(2, 2),
+      State {(Vector(2) << 1.0, 1.0).finished(), 1.0, "map"},
+      2.0 * Matrix::Identity(2, 2),
   };
   GaussianEstimate smoothed_next {
-      .state = State {(Vector(2) << 0.8, 0.9).finished(), 1.0, "map"},
-      .covariance = 0.5 * Matrix::Identity(2, 2),
+      State {(Vector(2) << 0.8, 0.9).finished(), 1.0, "map"},
+      0.5 * Matrix::Identity(2, 2),
   };
   Matrix transition = Matrix::Identity(2, 2);
 
@@ -224,10 +224,10 @@ void test_unscented_and_cubature_filters() {
   const auto sensor = make_position_sensor();
 
   GaussianEstimate estimate {
-      .state = State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
-      .covariance = Matrix::Identity(4, 4),
+      State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
+      Matrix::Identity(4, 4),
   };
-  const ModelContext context {.dt = 1.0, .timestamp = 1.0, .frame_id = "map"};
+  const ModelContext context {1.0, 1.0, "map"};
 
   KalmanFilterUnscented ukf;
   const auto ukf_predicted = ukf.predict(estimate, system, context);
@@ -266,11 +266,11 @@ void test_kalman_filter_ensemble() {
 
   KalmanFilterEnsemble enkf(128, 42U);
   GaussianEstimate estimate {
-      .state = State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
-      .covariance = 0.5 * Matrix::Identity(4, 4),
+      State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
+      0.5 * Matrix::Identity(4, 4),
   };
   const auto system = make_constant_velocity_system();
-  const ModelContext context {.dt = 1.0, .timestamp = 1.0, .frame_id = "map"};
+  const ModelContext context {1.0, 1.0, "map"};
 
   const auto predicted = enkf.predict(estimate, system, context);
   expect_true(predicted.ok(), "EnKF prediction should succeed.");
@@ -298,12 +298,12 @@ void test_kalman_filter_fading_memory() {
   KalmanFilterFadingMemory fading_memory(1.2);
 
   GaussianEstimate estimate {
-      .state = State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
-      .covariance = Matrix::Identity(4, 4),
+      State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
+      Matrix::Identity(4, 4),
   };
 
   const auto system = make_constant_velocity_system();
-  const ModelContext context {.dt = 1.0, .timestamp = 1.0, .frame_id = "map"};
+  const ModelContext context {1.0, 1.0, "map"};
 
   const auto baseline = classical.predict(estimate, system, context);
   expect_true(baseline.ok(), "Baseline Kalman prediction should succeed.");
@@ -334,8 +334,8 @@ void test_kalman_filter_h_infinity() {
 
   KalmanFilterHInfinity hinf(25.0);
   GaussianEstimate estimate {
-      .state = State {(Vector(4) << 0.8, -0.2, 1.0, 0.0).finished(), 0.0, "map"},
-      .covariance = Matrix::Identity(4, 4),
+      State {(Vector(4) << 0.8, -0.2, 1.0, 0.0).finished(), 0.0, "map"},
+      Matrix::Identity(4, 4),
   };
 
   Measurement measurement {
@@ -361,12 +361,12 @@ void test_particle_filter() {
 
   ParticleFilter pf(256, 42U, 0.3);
   GaussianEstimate estimate {
-      .state = State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
-      .covariance = 0.25 * Matrix::Identity(4, 4),
+      State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
+      0.25 * Matrix::Identity(4, 4),
   };
 
   const auto system = make_constant_velocity_system();
-  const ModelContext context {.dt = 1.0, .timestamp = 1.0, .frame_id = "map"};
+  const ModelContext context {1.0, 1.0, "map"};
   const auto predicted = pf.predict(estimate, system, context);
   expect_true(predicted.ok(), "Particle filter prediction should succeed.");
   expect_near(predicted.value().state.value[0], 1.0, 0.25,

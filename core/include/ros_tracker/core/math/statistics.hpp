@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <numbers>
 #include <vector>
 
 #include <Eigen/Cholesky>
@@ -168,8 +167,9 @@ namespace ros_tracker::core::stats {
 
   const Scalar log_determinant = diagonal.array().log().sum();
   const Scalar dimension = static_cast<Scalar>(sample.size());
+  constexpr Scalar kPi = 3.14159265358979323846;
   const Scalar normalization =
-      dimension * std::log(Scalar {2.0} * std::numbers::pi) + log_determinant;
+      dimension * std::log(Scalar {2.0} * kPi) + log_determinant;
 
   return Scalar {-0.5} * (normalization + mahalanobis.value());
 }

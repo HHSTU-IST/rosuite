@@ -1,0 +1,16 @@
+# General
+.DS_Store
+
+# Thumbnails
+._*
+
+# C++
+*.dSYM
+runs
+build
+
+# custom
+*.pth
+*.pt
+*.exe
+*.lock

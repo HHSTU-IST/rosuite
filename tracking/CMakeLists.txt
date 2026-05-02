@@ -16,7 +16,7 @@ target_link_libraries(
     ros_tracker::filters
 )
 
-target_compile_features(ros_tracker_tracking INTERFACE cxx_std_20)
+target_compile_features(ros_tracker_tracking INTERFACE cxx_std_17)
 
 if(ROS_TRACKER_BUILD_TESTS)
   add_executable(ros_tracker_tracking_tests test/test_tracking.cpp)

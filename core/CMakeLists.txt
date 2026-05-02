@@ -9,7 +9,7 @@ target_include_directories(
 )
 
 target_link_libraries(ros_tracker_core INTERFACE Eigen3::Eigen)
-target_compile_features(ros_tracker_core INTERFACE cxx_std_20)
+target_compile_features(ros_tracker_core INTERFACE cxx_std_17)
 
 if(ROS_TRACKER_BUILD_TESTS)
   add_executable(ros_tracker_core_tests test/test_core.cpp)

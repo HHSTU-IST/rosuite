@@ -57,9 +57,9 @@ class KalmanFilterHInfinity final : public FilterBase {
     }
 
     const models::MeasurementRequest request {
-        .state = estimate.state,
-        .context = context,
-        .sensor_id = measurement.sensor_id,
+        estimate.state,
+        context,
+        measurement.sensor_id,
     };
 
     const auto jacobian = sensor.measurement->state_jacobian(request);

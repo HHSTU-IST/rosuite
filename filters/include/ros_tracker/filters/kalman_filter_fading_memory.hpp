@@ -31,9 +31,9 @@ class KalmanFilterFadingMemory final : public FilterBase {
     }
 
     const models::MotionRequest request {
-        .state = estimate.state,
-        .control = std::move(control),
-        .context = context,
+        estimate.state,
+        std::move(control),
+        context,
     };
 
     const auto propagated = model.motion->propagate(request);

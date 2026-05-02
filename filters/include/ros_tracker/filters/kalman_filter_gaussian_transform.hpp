@@ -127,9 +127,9 @@ using core::Vector;
   }
 
   const models::MotionRequest noise_request {
-      .state = estimate.state,
-      .control = control,
-      .context = context,
+      estimate.state,
+      control,
+      context,
   };
   const auto process_noise = model.process_noise->covariance(noise_request);
   if (!process_noise.ok()) {
@@ -140,9 +140,9 @@ using core::Vector;
       Matrix::Zero(estimate.dimension(), sigma_points.points.cols());
   for (core::Index i = 0; i < sigma_points.points.cols(); ++i) {
     models::MotionRequest request {
-        .state = estimate.state,
-        .control = control,
-        .context = context,
+        estimate.state,
+        control,
+        context,
     };
     request.state.value = sigma_points.points.col(i);
     const auto propagated = model.motion->propagate(request);
@@ -205,9 +205,9 @@ using core::Vector;
   bool initialized = false;
   for (core::Index i = 0; i < sigma_points.points.cols(); ++i) {
     models::MeasurementRequest request {
-        .state = estimate.state,
-        .context = context,
-        .sensor_id = measurement.sensor_id,
+        estimate.state,
+        context,
+        measurement.sensor_id,
     };
     request.state.value = sigma_points.points.col(i);
     const auto predicted = sensor.measurement->measure(request);
@@ -254,9 +254,9 @@ using core::Vector;
   }
 
   const models::MeasurementRequest noise_request {
-      .state = estimate.state,
-      .context = context,
-      .sensor_id = measurement.sensor_id,
+      estimate.state,
+      context,
+      measurement.sensor_id,
   };
   const auto measurement_noise = sensor.measurement_noise->covariance(noise_request);
   if (!measurement_noise.ok()) {

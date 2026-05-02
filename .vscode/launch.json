@@ -12,8 +12,7 @@
             "externalConsole": false,
             "cwd": "${fileDirname}",
             "MIMode": "lldb",
-            "internalConsoleOptions": "openOnSessionStart",
-            // "preLaunchTask": "Build Eigen"
+            "internalConsoleOptions": "openOnSessionStart"
         },
         {
             "name": "Debug Eigen on Windows",
@@ -27,8 +26,7 @@
             "cwd": "${fileDirname}",
             "MIMode": "gdb",
             "miDebuggerPath": "${env:SCOOP}\\apps\\msys2-cn\\current\\ucrt64\\bin\\gdb.exe",
-            "internalConsoleOptions": "openOnSessionStart",
-            // "preLaunchTask": "Build Eigen on Windows"
+            "internalConsoleOptions": "openOnSessionStart"
         }
     ]
 }

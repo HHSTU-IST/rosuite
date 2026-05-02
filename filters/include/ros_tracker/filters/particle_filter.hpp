@@ -125,9 +125,9 @@ class ParticleFilter final : public FilterBase {
 
     core::stats::RandomEngine rng(seed_);
     models::MotionRequest noise_request {
-        .state = {},
-        .control = control,
-        .context = context,
+        core::State {},
+        control,
+        context,
     };
     noise_request.state.value = particles.particles.col(0);
     const auto process_noise = model.process_noise->covariance(noise_request);
@@ -138,9 +138,9 @@ class ParticleFilter final : public FilterBase {
     ParticleSet propagated = particles;
     for (core::Index i = 0; i < particles.size(); ++i) {
       models::MotionRequest request {
-          .state = {},
-          .control = control,
-          .context = context,
+          core::State {},
+          control,
+          context,
       };
       request.state.value = particles.particles.col(i);
       const auto prediction = model.motion->propagate(request);
@@ -182,9 +182,9 @@ class ParticleFilter final : public FilterBase {
 
     for (core::Index i = 0; i < particles.size(); ++i) {
       models::MeasurementRequest request {
-          .state = {},
-          .context = context,
-          .sensor_id = measurement.sensor_id,
+          core::State {},
+          context,
+          measurement.sensor_id,
       };
       request.state.value = particles.particles.col(i);
       const auto predicted = sensor.measurement->measure(request);

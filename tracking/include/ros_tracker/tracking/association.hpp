@@ -27,9 +27,9 @@ namespace detail {
   }
 
   const models::MeasurementRequest request {
-      .state = track.estimate.state,
-      .context = context,
-      .sensor_id = measurement.sensor_id,
+      track.estimate.state,
+      context,
+      measurement.sensor_id,
   };
 
   const auto predicted_measurement = sensor.measurement->measure(request);
