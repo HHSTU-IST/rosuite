@@ -39,6 +39,19 @@ struct SigmaPointSet {
   core::Vector covariance_weights;
 };
 
+struct ParticleSet {
+  core::Matrix particles;
+  std::vector<core::Scalar> weights;
+
+  [[nodiscard]] core::Index dimension() const noexcept {
+    return particles.rows();
+  }
+
+  [[nodiscard]] core::Index size() const noexcept {
+    return particles.cols();
+  }
+};
+
 [[nodiscard]] inline core::Status validate_estimate(
     const GaussianEstimate& estimate) {
   if (estimate.state.dimension() <= 0) {
@@ -53,6 +66,22 @@ struct SigmaPointSet {
   }
 
   return core::validate_covariance(estimate.covariance);
+}
+
+[[nodiscard]] inline core::Status validate_particle_set(
+    const ParticleSet& particle_set) {
+  if (particle_set.particles.rows() <= 0 || particle_set.particles.cols() <= 0) {
+    return core::Status::invalid_argument(
+        "ParticleSet must contain at least one particle.");
+  }
+
+  if (static_cast<core::Index>(particle_set.weights.size()) !=
+      particle_set.particles.cols()) {
+    return core::Status::dimension_mismatch(
+        "Particle weights must match the number of particles.");
+  }
+
+  return core::Status::ok_status();
 }
 
 }  // namespace ros_tracker::filters

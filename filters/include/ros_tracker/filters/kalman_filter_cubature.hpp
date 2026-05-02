@@ -1,18 +1,25 @@
 #pragma once
 
 #include "ros_tracker/filters/filter_base.hpp"
-#include "ros_tracker/filters/kalman_filter_support.hpp"
+#include "ros_tracker/filters/kalman_filter_gaussian_transform.hpp"
+#include "ros_tracker/filters/sigma_points.hpp"
 
 namespace ros_tracker::filters {
 
-class KalmanFilter final : public FilterBase {
+class KalmanFilterCubature final : public FilterBase {
  public:
   [[nodiscard]] core::Result<GaussianEstimate> predict(
       const GaussianEstimate& estimate,
       const models::DynamicSystemModel& model,
       const models::ModelContext& context,
       std::optional<core::ControlInput> control = std::nullopt) const override {
-    return detail::predict_linearized(estimate, model, context, std::move(control));
+    const auto sigma_points = generator_.generate(estimate);
+    if (!sigma_points.ok()) {
+      return sigma_points.status();
+    }
+
+    return detail::predict_from_sigma_points(
+        estimate, sigma_points.value(), model, context, std::move(control));
   }
 
   [[nodiscard]] core::Result<GaussianEstimate> correct(
@@ -20,26 +27,21 @@ class KalmanFilter final : public FilterBase {
       const models::SensorModel& sensor,
       const core::Measurement& measurement,
       const models::ModelContext& context = {}) const override {
-    const auto predicted = detail::linearized_measurement(
-        estimate, sensor, measurement, context);
-    if (!predicted.ok()) {
-      return predicted.status();
+    const auto sigma_points = generator_.generate(estimate);
+    if (!sigma_points.ok()) {
+      return sigma_points.status();
     }
 
-    const auto gain = detail::kalman_gain_from_innovation(
-        predicted.value().cross_covariance,
-        predicted.value().covariance);
-    if (!gain.ok()) {
-      return gain.status();
-    }
-
-    return detail::joseph_update(
-        estimate, sensor, measurement, context, gain.value());
+    return detail::correct_from_sigma_points(
+        estimate, sigma_points.value(), sensor, measurement, context);
   }
 
   [[nodiscard]] std::string_view name() const noexcept override {
-    return "kalman";
+    return "kalman_ckf";
   }
+
+ private:
+  CubaturePointGenerator generator_;
 };
 
 }  // namespace ros_tracker::filters

@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "ros_tracker/filters/filter_base.hpp"
-#include "ros_tracker/filters/kalman_support.hpp"
+#include "ros_tracker/filters/kalman_filter_support.hpp"
 
 namespace ros_tracker::filters {
 

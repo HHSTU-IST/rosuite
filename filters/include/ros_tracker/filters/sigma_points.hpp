@@ -76,4 +76,45 @@ class MerweSigmaPointGenerator {
   core::Scalar kappa_;
 };
 
+class CubaturePointGenerator {
+ public:
+  [[nodiscard]] core::Result<SigmaPointSet> generate(
+      const GaussianEstimate& estimate) const {
+    const core::Status status = validate_estimate(estimate);
+    if (!status.ok()) {
+      return status;
+    }
+
+    Eigen::SelfAdjointEigenSolver<core::Covariance> solver(estimate.covariance);
+    if (solver.info() != Eigen::Success) {
+      return core::Status::numerical_error(
+          "Failed to compute covariance eigendecomposition for cubature points.");
+    }
+
+    const auto sqrt_eigenvalues =
+        solver.eigenvalues().cwiseMax(0.0).cwiseSqrt();
+    const core::Matrix sqrt_covariance =
+        solver.eigenvectors() * sqrt_eigenvalues.asDiagonal();
+    const core::Scalar radius =
+        std::sqrt(static_cast<core::Scalar>(estimate.dimension()));
+
+    SigmaPointSet sigma_points;
+    sigma_points.points =
+        core::Matrix::Zero(estimate.dimension(), 2 * estimate.dimension());
+    sigma_points.mean_weights = core::Vector::Constant(
+        2 * estimate.dimension(),
+        0.5 / static_cast<core::Scalar>(estimate.dimension()));
+    sigma_points.covariance_weights = sigma_points.mean_weights;
+
+    for (core::Index i = 0; i < estimate.dimension(); ++i) {
+      const core::Vector offset = radius * sqrt_covariance.col(i);
+      sigma_points.points.col(i) = estimate.state.value + offset;
+      sigma_points.points.col(i + estimate.dimension()) =
+          estimate.state.value - offset;
+    }
+
+    return sigma_points;
+  }
+};
+
 }  // namespace ros_tracker::filters

@@ -116,12 +116,12 @@ void test_constant_gain_filter() {
               "Constant gain filter should overwrite y position with unit gain.");
 }
 
-void test_extended_kalman_filter_with_radar() {
+void test_kalman_filter_extended_with_radar() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
   using namespace ros_tracker::models;
 
-  ExtendedKalmanFilter filter;
+  KalmanFilterExtended filter;
   GaussianEstimate estimate {
       .state = State {(Vector(4) << 2.5, 4.5, 0.8, 1.7).finished(), 0.0, "map"},
       .covariance = 0.5 * Matrix::Identity(4, 4),
@@ -215,15 +215,190 @@ void test_rts_smoother() {
               "RTS smoothing should not increase covariance trace in this setup.");
 }
 
+void test_unscented_and_cubature_filters() {
+  using namespace ros_tracker::core;
+  using namespace ros_tracker::filters;
+  using namespace ros_tracker::models;
+
+  const auto system = make_constant_velocity_system();
+  const auto sensor = make_position_sensor();
+
+  GaussianEstimate estimate {
+      .state = State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
+      .covariance = Matrix::Identity(4, 4),
+  };
+  const ModelContext context {.dt = 1.0, .timestamp = 1.0, .frame_id = "map"};
+
+  KalmanFilterUnscented ukf;
+  const auto ukf_predicted = ukf.predict(estimate, system, context);
+  expect_true(ukf_predicted.ok(), "UKF prediction should succeed.");
+  expect_near(ukf_predicted.value().state.value[0], 1.0, 1e-8,
+              "UKF prediction should advance x position.");
+
+  Measurement measurement {
+      (Vector(2) << 1.1, 0.1).finished(),
+      1.0,
+      "pos_sensor",
+      "map",
+  };
+  const auto ukf_corrected = ukf.correct(ukf_predicted.value(), sensor, measurement);
+  expect_true(ukf_corrected.ok(), "UKF correction should succeed.");
+  expect_true(ukf_corrected.value().covariance.trace() <
+                  ukf_predicted.value().covariance.trace(),
+              "UKF correction should reduce covariance trace.");
+
+  KalmanFilterCubature ckf;
+  const auto ckf_predicted = ckf.predict(estimate, system, context);
+  expect_true(ckf_predicted.ok(), "CKF prediction should succeed.");
+  expect_near(ckf_predicted.value().state.value[0], 1.0, 1e-8,
+              "CKF prediction should advance x position.");
+  const auto ckf_corrected = ckf.correct(ckf_predicted.value(), sensor, measurement);
+  expect_true(ckf_corrected.ok(), "CKF correction should succeed.");
+  expect_true(ckf_corrected.value().covariance.trace() <
+                  ckf_predicted.value().covariance.trace(),
+              "CKF correction should reduce covariance trace.");
+}
+
+void test_kalman_filter_ensemble() {
+  using namespace ros_tracker::core;
+  using namespace ros_tracker::filters;
+  using namespace ros_tracker::models;
+
+  KalmanFilterEnsemble enkf(128, 42U);
+  GaussianEstimate estimate {
+      .state = State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
+      .covariance = 0.5 * Matrix::Identity(4, 4),
+  };
+  const auto system = make_constant_velocity_system();
+  const ModelContext context {.dt = 1.0, .timestamp = 1.0, .frame_id = "map"};
+
+  const auto predicted = enkf.predict(estimate, system, context);
+  expect_true(predicted.ok(), "EnKF prediction should succeed.");
+  expect_near(predicted.value().state.value[0], 1.0, 0.2,
+              "EnKF prediction mean should stay close to constant-velocity motion.");
+
+  Measurement measurement {
+      (Vector(2) << 1.2, -0.1).finished(),
+      1.0,
+      "pos_sensor",
+      "map",
+  };
+  const auto corrected = enkf.correct(predicted.value(), make_position_sensor(), measurement);
+  expect_true(corrected.ok(), "EnKF correction should succeed.");
+  expect_true(corrected.value().state.value[0] > predicted.value().state.value[0] - 1e-6,
+              "EnKF correction should move the estimate toward the measurement.");
+}
+
+void test_kalman_filter_fading_memory() {
+  using namespace ros_tracker::core;
+  using namespace ros_tracker::filters;
+  using namespace ros_tracker::models;
+
+  KalmanFilter classical;
+  KalmanFilterFadingMemory fading_memory(1.2);
+
+  GaussianEstimate estimate {
+      .state = State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
+      .covariance = Matrix::Identity(4, 4),
+  };
+
+  const auto system = make_constant_velocity_system();
+  const ModelContext context {.dt = 1.0, .timestamp = 1.0, .frame_id = "map"};
+
+  const auto baseline = classical.predict(estimate, system, context);
+  expect_true(baseline.ok(), "Baseline Kalman prediction should succeed.");
+
+  const auto predicted = fading_memory.predict(estimate, system, context);
+  expect_true(predicted.ok(), "Fading-memory Kalman prediction should succeed.");
+  expect_true(predicted.value().covariance.trace() > baseline.value().covariance.trace(),
+              "Fading-memory Kalman prediction should inflate covariance.");
+
+  Measurement measurement {
+      (Vector(2) << 1.2, -0.05).finished(),
+      1.0,
+      "pos_sensor",
+      "map",
+  };
+  const auto corrected =
+      fading_memory.correct(predicted.value(), make_position_sensor(), measurement);
+  expect_true(corrected.ok(), "Fading-memory Kalman correction should succeed.");
+  expect_true(corrected.value().covariance.trace() <
+                  predicted.value().covariance.trace(),
+              "Fading-memory Kalman correction should reduce covariance trace.");
+}
+
+void test_kalman_filter_h_infinity() {
+  using namespace ros_tracker::core;
+  using namespace ros_tracker::filters;
+  using namespace ros_tracker::models;
+
+  KalmanFilterHInfinity hinf(25.0);
+  GaussianEstimate estimate {
+      .state = State {(Vector(4) << 0.8, -0.2, 1.0, 0.0).finished(), 0.0, "map"},
+      .covariance = Matrix::Identity(4, 4),
+  };
+
+  Measurement measurement {
+      (Vector(2) << 1.25, 0.1).finished(),
+      1.0,
+      "pos_sensor",
+      "map",
+  };
+
+  const auto corrected =
+      hinf.correct(estimate, make_position_sensor(), measurement);
+  expect_true(corrected.ok(), "H-infinity Kalman correction should succeed.");
+  expect_true(corrected.value().covariance.trace() < estimate.covariance.trace(),
+              "H-infinity Kalman correction should reduce covariance trace.");
+  expect_true(corrected.value().state.value[0] > estimate.state.value[0],
+              "H-infinity Kalman correction should move the estimate toward the measurement.");
+}
+
+void test_particle_filter() {
+  using namespace ros_tracker::core;
+  using namespace ros_tracker::filters;
+  using namespace ros_tracker::models;
+
+  ParticleFilter pf(256, 42U, 0.3);
+  GaussianEstimate estimate {
+      .state = State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
+      .covariance = 0.25 * Matrix::Identity(4, 4),
+  };
+
+  const auto system = make_constant_velocity_system();
+  const ModelContext context {.dt = 1.0, .timestamp = 1.0, .frame_id = "map"};
+  const auto predicted = pf.predict(estimate, system, context);
+  expect_true(predicted.ok(), "Particle filter prediction should succeed.");
+  expect_near(predicted.value().state.value[0], 1.0, 0.25,
+              "Particle filter prediction mean should stay close to constant-velocity motion.");
+
+  Measurement measurement {
+      (Vector(2) << 1.3, 0.05).finished(),
+      1.0,
+      "pos_sensor",
+      "map",
+  };
+  const auto corrected =
+      pf.correct(predicted.value(), make_position_sensor(), measurement);
+  expect_true(corrected.ok(), "Particle filter correction should succeed.");
+  expect_true(corrected.value().state.value[0] > predicted.value().state.value[0],
+              "Particle filter correction should move the estimate toward the measurement.");
+}
+
 }  // namespace
 
 int main() {
   test_kalman_filter();
   test_constant_gain_filter();
-  test_extended_kalman_filter_with_radar();
+  test_kalman_filter_extended_with_radar();
   test_least_squares();
   test_sigma_points();
   test_rts_smoother();
+  test_unscented_and_cubature_filters();
+  test_kalman_filter_ensemble();
+  test_kalman_filter_fading_memory();
+  test_kalman_filter_h_infinity();
+  test_particle_filter();
 
   if (g_failures != 0) {
     std::cerr << g_failures << " test(s) failed.\n";

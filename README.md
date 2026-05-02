@@ -42,12 +42,13 @@ See [docs/architecture.md](docs/architecture.md) for details.
   - [x] Implement sensor/measurement models for radar and other common observation pipelines
   - [x] Add composition objects that bundle deterministic models with their noise models
   - [x] Add model validation tests for state transition, measurement mapping, and Jacobian correctness
-- [ ] `filters`
+- [x] `filters`
   - [x] Define `FilterBase` and estimator-facing interfaces against abstract models
   - [x] Implement linear estimators: `const_gain`, `kalman`, `lsq`
   - [x] Implement `kalman_ekf`
-  - [ ] Implement nonlinear Kalman-family estimators: `kalman_ukf`, `kalman_ckf`, `kalman_enkf`, `kalman_fm`, `kalman_hinf`
-  - [ ] Implement particle filtering and connect it to reusable resampling utilities
+  - [x] Implement nonlinear Kalman-family estimators: `kalman_ukf`, `kalman_ckf`, `kalman_enkf`
+  - [x] Implement remaining nonlinear Kalman-family estimators: `kalman_fm`, `kalman_hinf`
+  - [x] Implement particle filtering and connect it to reusable resampling utilities
   - [x] Implement `sigma_points` utilities and `smoothers`
 - [ ] `tracking`
   - [ ] Define `Track`, `TrackerBase`, `AssociationStrategy`, and `TrackManager`
@@ -62,11 +63,3 @@ See [docs/architecture.md](docs/architecture.md) for details.
   - [ ] Add `ros/` for node wrappers, launch files, parameters, and RViz integration
   - [ ] Keep all runtime glue and support tooling out of `core`, `models`, `filters`, and `tracking`
   - [ ] Add reproducibility tests for offline scenarios and node-level integration tests for ROS
-- [ ] First implementation milestone
-  - [ ] Build a complete offline single-target pipeline
-  - [ ] Use a constant velocity motion model
-  - [ ] Use a linear measurement model
-  - [ ] Implement a basic linear Kalman filter
-  - [ ] Generate synthetic trajectories and noisy measurements
-  - [ ] Validate the pipeline with an example executable and plotting support
-  - [ ] Delay standalone tracking and ROS runtime expansion until the offline pipeline is stable
