@@ -45,80 +45,44 @@ ros_tracker::models::SensorModel make_position_sensor() {
   };
 }
 
-ros_tracker::tracking::TrackDependencies make_default_dependencies() {
+std::shared_ptr<const ros_tracker::tracking::TrackEstimatorModelHandle>
+make_default_handle() {
   using namespace ros_tracker::filters;
   using namespace ros_tracker::tracking;
 
-  return {
+  return std::make_shared<StaticTrackEstimatorModelHandle>(
       std::make_shared<KalmanFilter>(),
       make_constant_velocity_system(),
       make_position_sensor(),
-  };
+      "kalman_cv");
 }
 
-class SensorAwareTrackManager final : public ros_tracker::tracking::TrackManager {
+class SensorAwareTrackHandleFactory final : public ros_tracker::tracking::TrackHandleFactory {
  public:
-  SensorAwareTrackManager(
-      const ros_tracker::core::Index state_dimension,
-      ros_tracker::core::Covariance initial_covariance)
-      : base_manager_(
-            state_dimension,
-            std::move(initial_covariance),
-            std::vector<ros_tracker::core::Index> {0, 1},
-            1U,
-            2U) {}
-
-  [[nodiscard]] ros_tracker::core::Result<ros_tracker::tracking::Track>
-  initiate_track(
-      const ros_tracker::tracking::TrackId id,
+  [[nodiscard]] ros_tracker::core::Result<
+      std::shared_ptr<const ros_tracker::tracking::TrackEstimatorModelHandle>>
+  make_handle(
       const ros_tracker::core::Measurement& measurement,
-      const ros_tracker::tracking::TrackDependencies& dependencies,
       const ros_tracker::models::ModelContext& context = {}) const override {
-    auto track = base_manager_.initiate_track(id, measurement, dependencies, context);
-    if (!track.ok()) {
-      return track.status();
-    }
+    static_cast<void>(context);
 
     if (measurement.sensor_id == "pf") {
-      track.value().dependencies.filter =
-          std::make_shared<ros_tracker::filters::ParticleFilter>(128, 42U, 0.3);
+      const std::shared_ptr<const ros_tracker::tracking::TrackEstimatorModelHandle>
+          handle =
+              std::make_shared<ros_tracker::tracking::StaticTrackEstimatorModelHandle>(
+          std::make_shared<ros_tracker::filters::ParticleFilter>(128, 42U, 0.3),
+          make_constant_velocity_system(),
+          make_position_sensor(),
+          "particle_cv");
+      return handle;
     }
 
-    return track;
-  }
-
-  [[nodiscard]] ros_tracker::core::Result<ros_tracker::tracking::Track>
-  on_prediction(
-      const ros_tracker::tracking::Track& track,
-      const ros_tracker::filters::GaussianEstimate& predicted_estimate) const override {
-    return base_manager_.on_prediction(track, predicted_estimate);
-  }
-
-  [[nodiscard]] ros_tracker::core::Result<ros_tracker::tracking::Track>
-  on_correction(
-      const ros_tracker::tracking::Track& track,
-      const ros_tracker::filters::GaussianEstimate& corrected_estimate,
-      const ros_tracker::core::Measurement& measurement) const override {
-    return base_manager_.on_correction(track, corrected_estimate, measurement);
-  }
-
-  [[nodiscard]] ros_tracker::core::Result<ros_tracker::tracking::Track>
-  on_missed_detection(
-      const ros_tracker::tracking::Track& track) const override {
-    return base_manager_.on_missed_detection(track);
-  }
-
-  [[nodiscard]] bool should_remove(
-      const ros_tracker::tracking::Track& track) const noexcept override {
-    return base_manager_.should_remove(track);
+    return make_default_handle();
   }
 
   [[nodiscard]] std::string_view name() const noexcept override {
-    return "sensor_aware_manager";
+    return "sensor_aware_factory";
   }
-
- private:
-  ros_tracker::tracking::BasicTrackManager base_manager_;
 };
 
 void test_nearest_neighbor_association() {
@@ -135,7 +99,7 @@ void test_nearest_neighbor_association() {
           State {(Vector(4) << 0.0, 0.0, 0.0, 0.0).finished(), 0.0, "map"},
           Matrix::Identity(4, 4),
       },
-      make_default_dependencies(),
+      make_default_handle(),
       TrackLifecycle::kConfirmed,
       2U,
       2U,
@@ -149,7 +113,7 @@ void test_nearest_neighbor_association() {
           State {(Vector(4) << 10.0, 10.0, 0.0, 0.0).finished(), 0.0, "map"},
           Matrix::Identity(4, 4),
       },
-      make_default_dependencies(),
+      make_default_handle(),
       TrackLifecycle::kConfirmed,
       2U,
       2U,
@@ -267,14 +231,19 @@ void test_multi_target_tracker_per_track_dependencies() {
   using namespace ros_tracker::tracking;
 
   auto association = std::make_shared<NearestNeighborAssociationStrategy>(9.0);
-  auto manager = std::make_shared<SensorAwareTrackManager>(
+  auto manager = std::make_shared<BasicTrackManager>(
       4,
-      4.0 * Matrix::Identity(4, 4));
+      4.0 * Matrix::Identity(4, 4),
+      std::vector<Index> {0, 1},
+      1U,
+      2U);
+  auto handle_factory = std::make_shared<SensorAwareTrackHandleFactory>();
 
   MultiTargetTracker tracker(
-      make_default_dependencies(),
+      make_default_handle(),
       association,
-      manager);
+      manager,
+      handle_factory);
 
   std::vector<Measurement> frame0 {
       Measurement {(Vector(2) << 0.0, 0.0).finished(), 0.0, "kalman", "map"},
@@ -301,11 +270,15 @@ void test_multi_target_tracker_per_track_dependencies() {
   for (const Track& track : tracks1.value()) {
     if (track.source_sensor_id == "pf") {
       saw_particle_track = true;
+      expect_true(track.handle && track.handle->name() == "particle_cv",
+                  "Particle-filter track should keep its own track handle.");
       expect_true(track.estimate.particle_set.has_value(),
                   "Particle-filter track should keep its particle posterior.");
     }
     if (track.source_sensor_id == "kalman") {
       saw_kalman_track = true;
+      expect_true(track.handle && track.handle->name() == "kalman_cv",
+                  "Kalman track should keep its own track handle.");
       expect_true(!track.estimate.particle_set.has_value(),
                   "Kalman-filter track should remain Gaussian-only.");
     }

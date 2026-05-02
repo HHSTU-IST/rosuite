@@ -24,38 +24,110 @@ enum class TrackLifecycle {
   kDeleted,
 };
 
-struct TrackDependencies {
-  std::shared_ptr<const filters::FilterBase> filter;
-  models::DynamicSystemModel system_model;
-  models::SensorModel sensor_model;
+class TrackEstimatorModelHandle {
+ public:
+  virtual ~TrackEstimatorModelHandle() = default;
 
-  [[nodiscard]] bool empty() const noexcept {
-    return !filter &&
-           !system_model.motion &&
-           !system_model.process_noise &&
-           !sensor_model.measurement &&
-           !sensor_model.measurement_noise;
-  }
+  [[nodiscard]] virtual core::Status validate() const = 0;
 
-  [[nodiscard]] core::Status validate() const {
-    if (!filter) {
+  [[nodiscard]] virtual core::Result<filters::GaussianEstimate> predict(
+      const filters::GaussianEstimate& estimate,
+      const models::ModelContext& context,
+      std::optional<core::ControlInput> control = std::nullopt) const = 0;
+
+  [[nodiscard]] virtual core::Result<filters::GaussianEstimate> correct(
+      const filters::GaussianEstimate& estimate,
+      const core::Measurement& measurement,
+      const models::ModelContext& context = {}) const = 0;
+
+  [[nodiscard]] virtual const models::SensorModel& association_sensor_model()
+      const noexcept = 0;
+
+  [[nodiscard]] virtual std::string_view name() const noexcept = 0;
+};
+
+class StaticTrackEstimatorModelHandle final : public TrackEstimatorModelHandle {
+ public:
+  StaticTrackEstimatorModelHandle(
+      std::shared_ptr<const filters::FilterBase> filter,
+      models::DynamicSystemModel system_model,
+      models::SensorModel sensor_model,
+      std::string name = "static_handle")
+      : filter_(std::move(filter)),
+        system_model_(std::move(system_model)),
+        sensor_model_(std::move(sensor_model)),
+        name_(std::move(name)) {}
+
+  [[nodiscard]] core::Status validate() const override {
+    if (!filter_) {
       return core::Status::invalid_argument(
-          "TrackDependencies requires a filter.");
+          "StaticTrackEstimatorModelHandle requires a filter.");
     }
 
-    const core::Status system_status = system_model.validate();
+    const core::Status system_status = system_model_.validate();
     if (!system_status.ok()) {
       return system_status;
     }
 
-    return sensor_model.validate();
+    return sensor_model_.validate();
   }
+
+  [[nodiscard]] core::Result<filters::GaussianEstimate> predict(
+      const filters::GaussianEstimate& estimate,
+      const models::ModelContext& context,
+      std::optional<core::ControlInput> control = std::nullopt) const override {
+    const core::Status status = validate();
+    if (!status.ok()) {
+      return status;
+    }
+
+    return filter_->predict(estimate, system_model_, context, std::move(control));
+  }
+
+  [[nodiscard]] core::Result<filters::GaussianEstimate> correct(
+      const filters::GaussianEstimate& estimate,
+      const core::Measurement& measurement,
+      const models::ModelContext& context = {}) const override {
+    const core::Status status = validate();
+    if (!status.ok()) {
+      return status;
+    }
+
+    return filter_->correct(estimate, sensor_model_, measurement, context);
+  }
+
+  [[nodiscard]] const models::SensorModel& association_sensor_model()
+      const noexcept override {
+    return sensor_model_;
+  }
+
+  [[nodiscard]] std::string_view name() const noexcept override {
+    return name_;
+  }
+
+ private:
+  std::shared_ptr<const filters::FilterBase> filter_;
+  models::DynamicSystemModel system_model_;
+  models::SensorModel sensor_model_;
+  std::string name_;
+};
+
+class TrackHandleFactory {
+ public:
+  virtual ~TrackHandleFactory() = default;
+
+  [[nodiscard]] virtual core::Result<std::shared_ptr<const TrackEstimatorModelHandle>>
+  make_handle(
+      const core::Measurement& measurement,
+      const models::ModelContext& context = {}) const = 0;
+
+  [[nodiscard]] virtual std::string_view name() const noexcept = 0;
 };
 
 struct Track {
   TrackId id {0U};
   filters::GaussianEstimate estimate;
-  TrackDependencies dependencies;
+  std::shared_ptr<const TrackEstimatorModelHandle> handle;
   TrackLifecycle lifecycle {TrackLifecycle::kTentative};
   std::size_t age {0U};
   std::size_t hit_count {0U};
@@ -74,11 +146,14 @@ struct Track {
         "Track age must be at least one.");
   }
 
-  if (!track.dependencies.empty()) {
-    const core::Status dependency_status = track.dependencies.validate();
-    if (!dependency_status.ok()) {
-      return dependency_status;
-    }
+  if (!track.handle) {
+    return core::Status::invalid_argument(
+        "Track requires a per-track estimator/model handle.");
+  }
+
+  const core::Status handle_status = track.handle->validate();
+  if (!handle_status.ok()) {
+    return handle_status;
   }
 
   return filters::validate_estimate(track.estimate);
@@ -116,7 +191,7 @@ class TrackManager {
   [[nodiscard]] virtual core::Result<Track> initiate_track(
       TrackId id,
       const core::Measurement& measurement,
-      const TrackDependencies& dependencies,
+      std::shared_ptr<const TrackEstimatorModelHandle> handle,
       const models::ModelContext& context = {}) const = 0;
 
   [[nodiscard]] virtual core::Result<Track> on_prediction(

@@ -22,8 +22,8 @@ namespace detail {
   }
 
   const models::SensorModel& sensor =
-      track.dependencies.sensor_model.validate().ok()
-          ? track.dependencies.sensor_model
+      track.handle
+          ? track.handle->association_sensor_model()
           : default_sensor;
   const core::Status sensor_status = sensor.validate();
   if (!sensor_status.ok()) {

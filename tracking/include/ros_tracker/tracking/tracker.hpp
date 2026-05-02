@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <memory>
 #include <optional>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -18,21 +19,24 @@ class MultiTargetTracker final : public TrackerBase {
       models::SensorModel sensor_model,
       std::shared_ptr<const AssociationStrategy> association_strategy,
       std::shared_ptr<const TrackManager> track_manager)
-      : default_dependencies_ {
-            std::move(filter),
-            std::move(system_model),
-            std::move(sensor_model),
-        },
-        association_strategy_(std::move(association_strategy)),
-        track_manager_(std::move(track_manager)) {}
+      : MultiTargetTracker(
+            std::make_shared<StaticTrackEstimatorModelHandle>(
+                std::move(filter),
+                std::move(system_model),
+                std::move(sensor_model),
+                "default_track_handle"),
+            std::move(association_strategy),
+            std::move(track_manager)) {}
 
   MultiTargetTracker(
-      TrackDependencies default_dependencies,
+      std::shared_ptr<const TrackEstimatorModelHandle> default_handle,
       std::shared_ptr<const AssociationStrategy> association_strategy,
-      std::shared_ptr<const TrackManager> track_manager)
-      : default_dependencies_(std::move(default_dependencies)),
+      std::shared_ptr<const TrackManager> track_manager,
+      std::shared_ptr<const TrackHandleFactory> handle_factory = nullptr)
+      : default_handle_(std::move(default_handle)),
         association_strategy_(std::move(association_strategy)),
-        track_manager_(std::move(track_manager)) {}
+        track_manager_(std::move(track_manager)),
+        handle_factory_(std::move(handle_factory)) {}
 
   [[nodiscard]] core::Result<std::vector<Track>> step(
       const std::vector<core::Measurement>& measurements,
@@ -46,16 +50,13 @@ class MultiTargetTracker final : public TrackerBase {
     std::vector<Track> predicted_tracks;
     predicted_tracks.reserve(tracks_.size());
     for (const Track& track : tracks_) {
-      const auto dependencies = resolve_dependencies(track);
-      if (!dependencies.ok()) {
-        return dependencies.status();
+      const core::Status track_status = validate_track(track);
+      if (!track_status.ok()) {
+        return track_status;
       }
 
-      const auto predicted_estimate = dependencies.value().filter->predict(
-          track.estimate,
-          dependencies.value().system_model,
-          context,
-          control);
+      const auto predicted_estimate =
+          track.handle->predict(track.estimate, context, control);
       if (!predicted_estimate.ok()) {
         return predicted_estimate.status();
       }
@@ -72,7 +73,7 @@ class MultiTargetTracker final : public TrackerBase {
     const auto association = association_strategy_->associate(
         predicted_tracks,
         measurements,
-        default_dependencies_.sensor_model,
+        default_handle_->association_sensor_model(),
         context);
     if (!association.ok()) {
       return association.status();
@@ -85,20 +86,12 @@ class MultiTargetTracker final : public TrackerBase {
     for (const Association& match : association.value().matches) {
       const Track& predicted_track = predicted_tracks[match.track_index];
       const core::Measurement& measurement = measurements[match.measurement_index];
-      const auto dependencies = resolve_dependencies(predicted_track);
-      if (!dependencies.ok()) {
-        return dependencies.status();
-      }
 
-      const models::SensorModel& sensor_model =
-          dependencies.value().sensor_model.validate().ok()
-              ? dependencies.value().sensor_model
-              : default_dependencies_.sensor_model;
-      const auto corrected_estimate = dependencies.value().filter->correct(
-          predicted_track.estimate,
-          sensor_model,
-          measurement,
-          context);
+      const auto corrected_estimate =
+          predicted_track.handle->correct(
+              predicted_track.estimate,
+              measurement,
+              context);
       if (!corrected_estimate.ok()) {
         return corrected_estimate.status();
       }
@@ -127,10 +120,17 @@ class MultiTargetTracker final : public TrackerBase {
 
     for (const std::size_t unmatched_measurement_index :
          association.value().unmatched_measurements) {
+      const auto handle = make_handle(
+          measurements[unmatched_measurement_index],
+          context);
+      if (!handle.ok()) {
+        return handle.status();
+      }
+
       const auto initiated_track = track_manager_->initiate_track(
           next_track_id_++,
           measurements[unmatched_measurement_index],
-          default_dependencies_,
+          handle.value(),
           context);
       if (!initiated_track.ok()) {
         return initiated_track.status();
@@ -157,6 +157,16 @@ class MultiTargetTracker final : public TrackerBase {
 
  private:
   [[nodiscard]] core::Status validate_dependencies() const {
+    if (!default_handle_) {
+      return core::Status::invalid_argument(
+          "MultiTargetTracker requires a default per-track handle.");
+    }
+
+    const core::Status default_status = default_handle_->validate();
+    if (!default_status.ok()) {
+      return default_status;
+    }
+
     if (!association_strategy_) {
       return core::Status::invalid_argument(
           "MultiTargetTracker requires an association strategy.");
@@ -167,31 +177,39 @@ class MultiTargetTracker final : public TrackerBase {
           "MultiTargetTracker requires a track manager.");
     }
 
-    return default_dependencies_.validate();
+    return core::Status::ok_status();
   }
 
-  [[nodiscard]] core::Result<TrackDependencies> resolve_dependencies(
-      const Track& track) const {
-    if (!track.dependencies.empty()) {
-      const core::Status track_status = track.dependencies.validate();
-      if (!track_status.ok()) {
-        return track_status;
+  [[nodiscard]] core::Result<std::shared_ptr<const TrackEstimatorModelHandle>>
+  make_handle(
+      const core::Measurement& measurement,
+      const models::ModelContext& context) const {
+    if (handle_factory_) {
+      const auto handle = handle_factory_->make_handle(measurement, context);
+      if (!handle.ok()) {
+        return handle.status();
       }
 
-      return track.dependencies;
+      if (!handle.value()) {
+        return core::Status::invalid_argument(
+            "TrackHandleFactory returned a null per-track handle.");
+      }
+
+      const core::Status handle_status = handle.value()->validate();
+      if (!handle_status.ok()) {
+        return handle_status;
+      }
+
+      return handle.value();
     }
 
-    const core::Status default_status = default_dependencies_.validate();
-    if (!default_status.ok()) {
-      return default_status;
-    }
-
-    return default_dependencies_;
+    return default_handle_;
   }
 
-  TrackDependencies default_dependencies_;
+  std::shared_ptr<const TrackEstimatorModelHandle> default_handle_;
   std::shared_ptr<const AssociationStrategy> association_strategy_;
   std::shared_ptr<const TrackManager> track_manager_;
+  std::shared_ptr<const TrackHandleFactory> handle_factory_;
   std::vector<Track> tracks_;
   TrackId next_track_id_ {1U};
 };

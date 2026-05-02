@@ -24,11 +24,16 @@ class BasicTrackManager final : public TrackManager {
   [[nodiscard]] core::Result<Track> initiate_track(
       TrackId id,
       const core::Measurement& measurement,
-      const TrackDependencies& dependencies,
+      std::shared_ptr<const TrackEstimatorModelHandle> handle,
       const models::ModelContext& /*context*/ = {}) const override {
-    const core::Status dependency_status = dependencies.validate();
-    if (!dependency_status.ok()) {
-      return dependency_status;
+    if (!handle) {
+      return core::Status::invalid_argument(
+          "BasicTrackManager requires a per-track estimator/model handle.");
+    }
+
+    const core::Status handle_status = handle->validate();
+    if (!handle_status.ok()) {
+      return handle_status;
     }
 
     if (state_dimension_ <= 0) {
@@ -84,7 +89,7 @@ class BasicTrackManager final : public TrackManager {
     track.estimate.state.timestamp = measurement.timestamp;
     track.estimate.state.frame_id = measurement.frame_id;
     track.estimate.covariance = initial_covariance_;
-    track.dependencies = dependencies;
+    track.handle = std::move(handle);
     track.lifecycle = confirmation_hits_ <= 1U
                           ? TrackLifecycle::kConfirmed
                           : TrackLifecycle::kTentative;
