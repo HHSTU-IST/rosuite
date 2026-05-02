@@ -18,14 +18,13 @@ sim -> core, models, estimation, tracking
 
 Tooling such as plotting and benchmarking should stay outside the core dependency graph.
 
-To improve maintainability, the engineering modules should be simpler than the conceptual layers at the beginning. Instead of creating many top-level packages immediately, start with four modules and keep the finer layers as subdirectories inside them:
+To improve maintainability, the engineering modules should stay close to the conceptual layers while keeping top-level responsibilities explicit:
 
 ```text
 core/
 models/
-pipeline/
-  estimation/
-  tracking/
+filters/
+tracking/
 apps/
   offline/
     sim/
@@ -37,7 +36,8 @@ apps/
 This keeps the architecture clean without over-fragmenting the repository too early:
 
 - keep `core` and `models` separate because they are foundational and stable
-- merge `estimation` and `tracking` into one engineering module named `pipeline`
+- map `estimation` responsibilities into a top-level `filters` module
+- keep `tracking` as its own top-level module because its orchestration concerns differ from filtering
 - merge `sim`, `examples`, and support tooling into `apps/offline`
 - keep ROS integration under `apps/ros` as the only runtime boundary package
 - split modules into standalone packages only after ownership, build times, or dependency isolation clearly require it
@@ -234,14 +234,9 @@ Suggested tests for the redesigned module:
 - Jacobian finite-difference checks where linearization is provided
 - compatibility tests showing the same model works with multiple estimators
 
-### 2.3. `pipeline`
+### 2.3. `filters`
 
-Contains the algorithmic flow above `models`. This module should stay as one engineering package at first, while preserving two conceptual sublayers inside it:
-
-- `pipeline/estimation/`
-- `pipeline/tracking/`
-
-`pipeline/estimation/` contains:
+Contains the state-estimation algorithms above `models`:
 
 - Kalman family filters
 - particle filter
@@ -249,7 +244,11 @@ Contains the algorithmic flow above `models`. This module should stay as one eng
 - smoothers
 - sigma-point implementations
 
-`pipeline/tracking/` contains:
+This module should depend on abstract motion and measurement models rather than ROS-facing types.
+
+### 2.4. `tracking`
+
+Contains the track-oriented orchestration logic above `filters` and `models`:
 
 - data association
 - multi-model switching
@@ -259,9 +258,9 @@ Contains the algorithmic flow above `models`. This module should stay as one eng
 - measurement association strategy, e.g., PDA
 - model management strategy, e.g., IMM
 
-This design reduces top-level package count while keeping the most important boundary intact: estimators consume abstract models, and tracking composes estimators into full tracking behavior.
+This split keeps the main algorithmic boundary explicit: `filters` estimate latent state, while `tracking` composes estimators into full tracking behavior.
 
-### 2.4. `apps`
+### 2.5. `apps`
 
 Contains all boundary-facing and validation-facing code. This module should be split by runtime purpose rather than by small technical categories:
 
@@ -299,8 +298,8 @@ Each engineering module should own its tests, with subdirectories matching the c
 
 - `core`: deterministic math and numerical tests
 - `models`: state transition and measurement mapping tests
-- `pipeline/estimation`: filter convergence and covariance consistency tests
-- `pipeline/tracking`: association and track lifecycle tests
+- `filters`: filter convergence and covariance consistency tests
+- `tracking`: association and track lifecycle tests
 - `apps/offline/sim`: scenario reproducibility tests
 - `apps/ros`: node-level integration tests
 
@@ -321,7 +320,7 @@ In terms of engineering modules, this first milestone only needs:
 
 - `core`
 - `models`
-- `pipeline/estimation`
+- `filters`
 - `apps/offline`
 
-Only after this is stable should the repository expand into `pipeline/tracking` features such as IMM/PDA and into `apps/ros`.
+Only after this is stable should the repository expand into `tracking` features such as IMM/PDA and into `apps/ros`.

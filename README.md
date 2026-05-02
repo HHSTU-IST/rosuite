@@ -15,10 +15,10 @@ The original module list is useful as an algorithm checklist, but it is not yet 
 ## Dependencies
 
 - Core algorithms
-  - C++ 17
+  - C++ 20+
   - Eigen 5.0.0+
 - Build and tests
-  - CMake 4.0.0+
+  - CMake 3.20+
   - CTest
 
 ## Module TODOs
@@ -42,24 +42,25 @@ See [docs/architecture.md](docs/architecture.md) for details.
   - [x] Implement sensor/measurement models for radar and other common observation pipelines
   - [x] Add composition objects that bundle deterministic models with their noise models
   - [x] Add model validation tests for state transition, measurement mapping, and Jacobian correctness
-- [ ] `pipeline`
-  - [ ] Keep `estimation/` and `tracking/` as subdirectories inside one engineering module
-  - [ ] Define `FilterBase` and estimator-facing interfaces against abstract models
-  - [ ] Implement linear estimators: `const_gain`, `kalman`, `lsq`
-  - [ ] Implement nonlinear Kalman-family estimators: `kalman_ekf`, `kalman_ukf`, `kalman_ckf`, `kalman_enkf`, `kalman_fm`, `kalman_hinf`
+- [ ] `filters`
+  - [x] Define `FilterBase` and estimator-facing interfaces against abstract models
+  - [x] Implement linear estimators: `const_gain`, `kalman`, `lsq`
+  - [ ] Implement nonlinear Kalman-family estimators: `kalman_ukf`, `kalman_ckf`, `kalman_enkf`, `kalman_fm`, `kalman_hinf`
+  - [x] Implement `kalman_ekf`
   - [ ] Implement particle filtering and connect it to reusable resampling utilities
-  - [ ] Implement `sigma_points` utilities and `smoothers`
+  - [x] Implement `sigma_points` utilities and `smoothers`
+- [ ] `tracking`
   - [ ] Define `Track`, `TrackerBase`, `AssociationStrategy`, and `TrackManager`
-  - [ ] Add `association/`, `multi_model/`, `fusion/`, and `management/` under `pipeline/tracking/`
-  - [ ] Move `pda` into `pipeline/tracking/association/`
-  - [ ] Move `imm` into `pipeline/tracking/multi_model/`
+  - [ ] Add `association/`, `multi_model/`, `fusion/`, and `management/` under `tracking/`
+  - [ ] Move `pda` into `tracking/association/`
+  - [ ] Move `imm` into `tracking/multi_model/`
   - [ ] Add convergence, consistency, covariance, association, and lifecycle tests
 - [ ] `apps`
   - [ ] Add `offline/sim/` for scenario generation, sensor simulation, and reproducible regression cases
   - [ ] Add `offline/examples/` for minimal demos and benchmark runners
   - [ ] Add `offline/tools/` for plotting and benchmarking helpers
   - [ ] Add `ros/` for node wrappers, launch files, parameters, and RViz integration
-  - [ ] Keep all runtime glue and support tooling out of `core`, `models`, and `pipeline`
+  - [ ] Keep all runtime glue and support tooling out of `core`, `models`, `filters`, and `tracking`
   - [ ] Add reproducibility tests for offline scenarios and node-level integration tests for ROS
 - [ ] First implementation milestone
   - [ ] Build a complete offline single-target pipeline

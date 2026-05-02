@@ -1,0 +1,33 @@
+#pragma once
+
+#include <optional>
+#include <string_view>
+
+#include "ros_tracker/core/result.hpp"
+#include "ros_tracker/core/types.hpp"
+#include "ros_tracker/filters/estimate.hpp"
+#include "ros_tracker/models/composition.hpp"
+#include "ros_tracker/models/model_context.hpp"
+
+namespace ros_tracker::filters {
+
+class FilterBase {
+ public:
+  virtual ~FilterBase() = default;
+
+  [[nodiscard]] virtual core::Result<GaussianEstimate> predict(
+      const GaussianEstimate& estimate,
+      const models::DynamicSystemModel& model,
+      const models::ModelContext& context,
+      std::optional<core::ControlInput> control = std::nullopt) const = 0;
+
+  [[nodiscard]] virtual core::Result<GaussianEstimate> correct(
+      const GaussianEstimate& estimate,
+      const models::SensorModel& sensor,
+      const core::Measurement& measurement,
+      const models::ModelContext& context = {}) const = 0;
+
+  [[nodiscard]] virtual std::string_view name() const noexcept = 0;
+};
+
+}  // namespace ros_tracker::filters
