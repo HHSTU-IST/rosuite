@@ -22,6 +22,12 @@ class MotionModel {
   [[nodiscard]] virtual Result<TransitionResult> propagate(
       const MotionRequest& request) const = 0;
 
+  [[nodiscard]] virtual Result<Matrix> state_jacobian(
+      const MotionRequest& /*request*/) const {
+    return Status::unimplemented(
+        "This motion model does not provide a state Jacobian.");
+  }
+
   [[nodiscard]] virtual std::string_view name() const noexcept = 0;
 
  protected:
@@ -32,12 +38,6 @@ class MotionModel {
 
     return Status::ok_status();
   }
-};
-
-class LinearizableMotionModel : public MotionModel {
- public:
-  [[nodiscard]] virtual Result<Matrix> state_jacobian(
-      const MotionRequest& request) const = 0;
 };
 
 class ProcessNoiseModel {

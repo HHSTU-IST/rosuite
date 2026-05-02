@@ -37,7 +37,7 @@ See [docs/architecture.md](docs/architecture.md) for details.
   - [x] Define stable request/context objects instead of growing positional function signatures
   - [x] Define `MotionModel` and `MeasurementModel` as pure deterministic interfaces
   - [x] Define `ProcessNoiseModel` and `MeasurementNoiseModel` as separate abstractions
-  - [x] Add optional linearization interfaces for EKF-style consumers without burdening all models
+  - [x] Add optional Jacobian support for EKF-style consumers without burdening all models
   - [x] Implement motion models: `const_vel`, `const_acc`, `coord_turn`, `singer`
   - [x] Implement sensor/measurement models for radar and other common observation pipelines
   - [x] Add composition objects that bundle deterministic models with their noise models

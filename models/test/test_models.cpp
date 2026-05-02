@@ -26,7 +26,7 @@ void expect_near(
 }
 
 ros_tracker::core::Matrix finite_difference_jacobian(
-    const ros_tracker::models::LinearizableMeasurementModel& model,
+    const ros_tracker::models::MeasurementModel& model,
     const ros_tracker::models::MeasurementRequest& request,
     const ros_tracker::core::Scalar epsilon = 1e-6) {
   using namespace ros_tracker::core;

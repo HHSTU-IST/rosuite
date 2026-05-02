@@ -171,7 +171,7 @@ class MeasurementNoiseModel {
 };
 ```
 
-Recommended optional extensions for algorithms that need more structure:
+Recommended optional Jacobian support:
 
 ```cpp
 struct Linearization {
@@ -181,18 +181,18 @@ struct Linearization {
   std::optional<Matrix> V;
 };
 
-class LinearizableMotionModel : public MotionModel {
+class MotionModel {
  public:
-  virtual Matrix state_jacobian(const MotionRequest& req) const = 0;
+  virtual Matrix state_jacobian(const MotionRequest& req) const;
 };
 
-class LinearizableMeasurementModel : public MeasurementModel {
+class MeasurementModel {
  public:
-  virtual Matrix state_jacobian(const MeasurementRequest& req) const = 0;
+  virtual Matrix state_jacobian(const MeasurementRequest& req) const;
 };
 ```
 
-This avoids forcing every model to implement Jacobians. A plain particle filter can consume `MotionModel` directly, while EKF-style code can depend on `LinearizableMotionModel` or `LinearizableMeasurementModel`.
+This avoids forcing every model to split into extra interface layers. A plain particle filter can ignore Jacobians, while EKF-style code can call the optional `state_jacobian(...)` method on models that implement it.
 
 Recommended composition objects:
 

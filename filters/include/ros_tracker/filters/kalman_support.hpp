@@ -20,38 +20,24 @@ using core::Scalar;
 using core::Status;
 using core::Vector;
 
-[[nodiscard]] inline Result<const models::LinearizableMotionModel*>
-require_linearizable_motion(const models::DynamicSystemModel& model) {
+[[nodiscard]] inline Status validate_motion_support(
+    const models::DynamicSystemModel& model) {
   const Status validation = model.validate();
   if (!validation.ok()) {
     return validation;
   }
 
-  const auto* linear_model =
-      dynamic_cast<const models::LinearizableMotionModel*>(model.motion.get());
-  if (linear_model == nullptr) {
-    return Status::invalid_argument(
-        "Filter requires a LinearizableMotionModel.");
-  }
-
-  return linear_model;
+  return Status::ok_status();
 }
 
-[[nodiscard]] inline Result<const models::LinearizableMeasurementModel*>
-require_linearizable_measurement(const models::SensorModel& sensor) {
+[[nodiscard]] inline Status validate_measurement_support(
+    const models::SensorModel& sensor) {
   const Status validation = sensor.validate();
   if (!validation.ok()) {
     return validation;
   }
 
-  const auto* linear_model = dynamic_cast<const models::LinearizableMeasurementModel*>(
-      sensor.measurement.get());
-  if (linear_model == nullptr) {
-    return Status::invalid_argument(
-        "Filter requires a LinearizableMeasurementModel.");
-  }
-
-  return linear_model;
+  return Status::ok_status();
 }
 
 [[nodiscard]] inline Result<GaussianEstimate> predict_linearized(
@@ -64,9 +50,9 @@ require_linearizable_measurement(const models::SensorModel& sensor) {
     return estimate_status;
   }
 
-  const auto motion_model = require_linearizable_motion(model);
-  if (!motion_model.ok()) {
-    return motion_model.status();
+  const Status model_status = validate_motion_support(model);
+  if (!model_status.ok()) {
+    return model_status;
   }
 
   const models::MotionRequest request {
@@ -80,7 +66,7 @@ require_linearizable_measurement(const models::SensorModel& sensor) {
     return propagated.status();
   }
 
-  const auto jacobian = motion_model.value()->state_jacobian(request);
+  const auto jacobian = model.motion->state_jacobian(request);
   if (!jacobian.ok()) {
     return jacobian.status();
   }
@@ -114,9 +100,9 @@ require_linearizable_measurement(const models::SensorModel& sensor) {
     return estimate_status;
   }
 
-  const auto measurement_model = require_linearizable_measurement(sensor);
-  if (!measurement_model.ok()) {
-    return measurement_model.status();
+  const Status sensor_status = validate_measurement_support(sensor);
+  if (!sensor_status.ok()) {
+    return sensor_status;
   }
 
   const models::MeasurementRequest request {
@@ -130,7 +116,7 @@ require_linearizable_measurement(const models::SensorModel& sensor) {
     return predicted_measurement.status();
   }
 
-  const auto jacobian = measurement_model.value()->state_jacobian(request);
+  const auto jacobian = sensor.measurement->state_jacobian(request);
   if (!jacobian.ok()) {
     return jacobian.status();
   }
@@ -174,9 +160,9 @@ require_linearizable_measurement(const models::SensorModel& sensor) {
     return predicted.status();
   }
 
-  const auto measurement_model = require_linearizable_measurement(sensor);
-  if (!measurement_model.ok()) {
-    return measurement_model.status();
+  const Status sensor_status = validate_measurement_support(sensor);
+  if (!sensor_status.ok()) {
+    return sensor_status;
   }
 
   const models::MeasurementRequest request {
@@ -184,7 +170,7 @@ require_linearizable_measurement(const models::SensorModel& sensor) {
       .context = context,
       .sensor_id = measurement.sensor_id,
   };
-  const auto jacobian = measurement_model.value()->state_jacobian(request);
+  const auto jacobian = sensor.measurement->state_jacobian(request);
   if (!jacobian.ok()) {
     return jacobian.status();
   }

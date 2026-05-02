@@ -4,7 +4,7 @@
 
 namespace ros_tracker::models {
 
-class LinearMeasurementModel final : public LinearizableMeasurementModel {
+class LinearMeasurementModel final : public MeasurementModel {
  public:
   explicit LinearMeasurementModel(
       Matrix observation_matrix,

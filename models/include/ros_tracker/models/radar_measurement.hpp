@@ -6,7 +6,7 @@
 
 namespace ros_tracker::models {
 
-class RadarMeasurementModel final : public LinearizableMeasurementModel {
+class RadarMeasurementModel final : public MeasurementModel {
  public:
   explicit RadarMeasurementModel(const core::Scalar range_epsilon = 1e-9)
       : range_epsilon_(range_epsilon) {}

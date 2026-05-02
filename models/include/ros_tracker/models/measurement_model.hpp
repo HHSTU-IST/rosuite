@@ -20,13 +20,13 @@ class MeasurementModel {
   [[nodiscard]] virtual Result<MeasurementResult> measure(
       const MeasurementRequest& request) const = 0;
 
-  [[nodiscard]] virtual std::string_view name() const noexcept = 0;
-};
-
-class LinearizableMeasurementModel : public MeasurementModel {
- public:
   [[nodiscard]] virtual Result<Matrix> state_jacobian(
-      const MeasurementRequest& request) const = 0;
+      const MeasurementRequest& /*request*/) const {
+    return Status::unimplemented(
+        "This measurement model does not provide a state Jacobian.");
+  }
+
+  [[nodiscard]] virtual std::string_view name() const noexcept = 0;
 };
 
 class MeasurementNoiseModel {

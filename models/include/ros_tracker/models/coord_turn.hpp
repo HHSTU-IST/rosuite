@@ -6,7 +6,7 @@
 
 namespace ros_tracker::models {
 
-class CoordinatedTurnMotionModel final : public LinearizableMotionModel {
+class CoordinatedTurnMotionModel final : public MotionModel {
  public:
   explicit CoordinatedTurnMotionModel(const core::Scalar turn_rate_epsilon = 1e-6)
       : turn_rate_epsilon_(turn_rate_epsilon) {}

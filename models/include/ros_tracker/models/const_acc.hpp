@@ -4,7 +4,7 @@
 
 namespace ros_tracker::models {
 
-class ConstantAccelerationMotionModel final : public LinearizableMotionModel {
+class ConstantAccelerationMotionModel final : public MotionModel {
  public:
   [[nodiscard]] Result<TransitionResult> propagate(
       const MotionRequest& request) const override {

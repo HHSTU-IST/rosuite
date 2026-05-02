@@ -6,7 +6,7 @@
 
 namespace ros_tracker::models {
 
-class SingerMotionModel final : public LinearizableMotionModel {
+class SingerMotionModel final : public MotionModel {
  public:
   explicit SingerMotionModel(const core::Scalar maneuver_decay)
       : maneuver_decay_(maneuver_decay) {}
