@@ -14,25 +14,24 @@ The original module list is useful as an algorithm checklist, but it is not yet 
 
 ## Dependencies
 
-- C++ core
+- Core algorithms
   - C++ 20+
   - Eigen 5.0.0+
-  - Catch2 3.14.0+
-- Python wrapper
-  - Python 3.12+
-  - PyBind11 3.0.0+
+- Build and tests
+  - CMake 3.20+
+  - CTest
 
 ## Module TODOs
 
-Architecture reference: keep the conceptual flow `core -> models -> estimation -> tracking -> ros/examples`, but simplify the engineering layout into four top-level modules: `core`, `models`, `pipeline`, and `apps`. See [docs/architecture.md](docs/architecture.md) for details.
+See [docs/architecture.md](docs/architecture.md) for details.
 
-- [ ] `core`
-  - [ ] Define shared foundational types such as `State`, `Measurement`, and common error/status handling
-  - [ ] Add reusable math helpers and linear algebra wrappers
-  - [ ] Add numerical utilities such as ODE solvers and quadrature helpers
-  - [ ] Add random, Bayesian, and statistical utilities
-  - [ ] Add resampling helpers that can be reused by particle-based estimators
-  - [ ] Add deterministic unit tests for math, numerics, and stats modules
+- [x] `core`
+  - [x] Define shared foundational types such as `State`, `Measurement`, and common error/status handling
+  - [x] Add reusable math helpers and linear algebra wrappers
+  - [x] Add numerical utilities such as ODE solvers and quadrature helpers
+  - [x] Add random, Bayesian, and statistical utilities
+  - [x] Add resampling helpers that can be reused by particle-based estimators
+  - [x] Add deterministic unit tests for math, numerics, and stats modules
 - [ ] `models`
   - [ ] Split the package into `common`, `motion`, `measurement`, `noise`, and `composition`
   - [ ] Define stable request/context objects instead of growing positional function signatures
