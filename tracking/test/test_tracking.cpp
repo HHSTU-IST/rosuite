@@ -183,11 +183,104 @@ void test_multi_target_tracker_lifecycle() {
               "Remaining active track should stay confirmed.");
 }
 
+void test_multi_model_estimator() {
+  using namespace ros_tracker::core;
+  using namespace ros_tracker::filters;
+  using namespace ros_tracker::tracking;
+
+  auto shared_filter = std::make_shared<KalmanFilter>();
+
+  std::vector<ModelBankEntry> model_bank {
+      ModelBankEntry {
+          "low_q",
+          {
+              std::make_shared<ros_tracker::models::ConstantVelocityMotionModel>(),
+              std::make_shared<ros_tracker::models::ConstantGaussianProcessNoise>(
+                  0.01 * Matrix::Identity(4, 4)),
+          },
+          shared_filter,
+      },
+      ModelBankEntry {
+          "high_q",
+          {
+              std::make_shared<ros_tracker::models::ConstantVelocityMotionModel>(),
+              std::make_shared<ros_tracker::models::ConstantGaussianProcessNoise>(
+                  0.5 * Matrix::Identity(4, 4)),
+          },
+          shared_filter,
+      },
+  };
+
+  Matrix transition(2, 2);
+  transition << 0.95, 0.05,
+                0.10, 0.90;
+  InteractingMultipleModelEstimator imm(model_bank, transition);
+
+  GaussianEstimate seed {
+      State {(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
+      Matrix::Identity(4, 4),
+  };
+  const auto initialized = imm.initialize(seed, {0.8, 0.2});
+  expect_true(initialized.ok(), "IMM initialization should succeed.");
+  expect_true(initialized.value().modes.size() == 2U,
+              "IMM should keep one hypothesis per model.");
+
+  Measurement measurement {
+      (Vector(2) << 1.1, -0.05).finished(),
+      1.0,
+      "pos",
+      "map",
+  };
+  const auto updated = imm.step(
+      initialized.value(),
+      make_position_sensor(),
+      measurement,
+      ros_tracker::models::ModelContext {1.0, 1.0, "map"});
+  expect_true(updated.ok(), "IMM predict-correct step should succeed.");
+  expect_true(updated.value().merged_estimate.state.value[0] > 0.5,
+              "IMM merged estimate should move toward the new measurement.");
+
+  Scalar probability_sum = 0.0;
+  for (const auto& mode : updated.value().modes) {
+    probability_sum += mode.probability;
+  }
+  expect_true(std::abs(probability_sum - 1.0) < 1e-9,
+              "IMM mode probabilities should stay normalized.");
+}
+
+void test_covariance_intersection_fusion() {
+  using namespace ros_tracker::core;
+  using namespace ros_tracker::filters;
+  using namespace ros_tracker::tracking;
+
+  CovarianceIntersectionFuser fuser;
+  GaussianEstimate estimate_a {
+      State {(Vector(4) << 1.0, 0.0, 0.5, 0.0).finished(), 1.0, "map"},
+      1.5 * Matrix::Identity(4, 4),
+  };
+  GaussianEstimate estimate_b {
+      State {(Vector(4) << 1.4, 0.2, 0.4, 0.0).finished(), 1.2, "map"},
+      0.8 * Matrix::Identity(4, 4),
+  };
+
+  const auto fused = fuser.fuse_pair(estimate_a, estimate_b);
+  expect_true(fused.ok(), "Covariance intersection should succeed.");
+  expect_true(std::abs(fused.value().state.value[0] - estimate_b.state.value[0]) <=
+                  std::abs(estimate_a.state.value[0] - estimate_b.state.value[0]) + 1e-9,
+              "Covariance intersection mean should stay no farther from the more certain estimate than the inputs are from each other.");
+  expect_true(fused.value().covariance.trace() <= estimate_a.covariance.trace() + 1e-9,
+              "Covariance intersection should not be looser than the worst input covariance.");
+  expect_true(fused.value().covariance.trace() <= estimate_b.covariance.trace() + 1e-9,
+              "Covariance intersection should stay conservative relative to the best input covariance.");
+}
+
 }  // namespace
 
 int main() {
   test_nearest_neighbor_association();
   test_multi_target_tracker_lifecycle();
+  test_multi_model_estimator();
+  test_covariance_intersection_fusion();
 
   if (g_failures != 0) {
     std::cerr << g_failures << " test(s) failed.\n";
