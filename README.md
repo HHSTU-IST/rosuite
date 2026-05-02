@@ -79,13 +79,13 @@ See [docs/architecture.md](docs/architecture.md) for details.
     - Covariance-intersection-based Gaussian estimate fusion for conservative track-to-track combination.
   - [x] `test`
     - Association, lifecycle, multi-model, and fusion regression tests for the current orchestration layer.
-- [ ] `apps`
-  - Offline simulation/tools/examples and ROS2 runtime wrappers that stay outside the algorithmic core.
-  - [ ] `offline/sim`
-    - Scenario generation, target maneuvers, sensor simulation, clutter, and reproducible regression cases.
-  - [ ] `offline/tools`
-    - Plotting, metrics, and benchmarking helpers that consume offline outputs.
-  - [ ] `offline/examples`
-    - Minimal demos, benchmark runners, and end-to-end tracker examples.
-  - [ ] `ros`
-    - Node wrappers, launch files, parameters, message adaptation, and RViz-facing runtime integration.
+- [x] `apps`
+  - Offline simulation/tools/examples and ROS2-facing boundary wrappers that stay outside the algorithmic core.
+  - [x] `offline/sim`
+    - Scenario generation, measurement synthesis, optional clutter, and reproducible regression cases for constant-velocity position-tracking workflows.
+  - [x] `offline/tools`
+    - Tracking metrics, estimate extraction, and lightweight benchmarking helpers over offline runs.
+  - [x] `offline/examples`
+    - Minimal end-to-end Kalman/tracker example wiring together simulation, tracking, and metrics.
+  - [x] `ros`
+    - Dependency-light tracker-node adapter, parameter bundle, and track-message conversion layer that can be bound to ROS2 transport later.
