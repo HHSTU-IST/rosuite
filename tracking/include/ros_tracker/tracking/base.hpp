@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <cstddef>
 #include <memory>
 #include <optional>
@@ -139,6 +140,41 @@ struct Track {
     return estimate.dimension();
   }
 };
+
+struct MeasurementBatchSummary {
+  core::Scalar timestamp {0.0};
+  std::string frame_id;
+};
+
+[[nodiscard]] inline core::Result<MeasurementBatchSummary>
+summarize_measurement_batch(
+    const std::vector<core::Measurement>& measurements) {
+  MeasurementBatchSummary summary;
+  if (measurements.empty()) {
+    return summary;
+  }
+
+  summary.timestamp = measurements.front().timestamp;
+  summary.frame_id = measurements.front().frame_id;
+
+  for (std::size_t i = 1; i < measurements.size(); ++i) {
+    if (std::abs(measurements[i].timestamp - summary.timestamp) > 1e-9) {
+      return core::Status::invalid_argument(
+          "All measurements in a batch must share the same timestamp.");
+    }
+
+    if (!measurements[i].frame_id.empty()) {
+      if (summary.frame_id.empty()) {
+        summary.frame_id = measurements[i].frame_id;
+      } else if (measurements[i].frame_id != summary.frame_id) {
+        return core::Status::invalid_argument(
+            "All measurements in a batch must share the same frame_id.");
+      }
+    }
+  }
+
+  return summary;
+}
 
 [[nodiscard]] inline core::Status validate_track(const Track& track) {
   if (track.age == 0U) {

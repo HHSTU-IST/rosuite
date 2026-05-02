@@ -100,6 +100,15 @@ void test_ros_adapter() {
               "ROS adapter should publish one track for one initialized target.");
   expect_true(message.value().tracks.front().lifecycle == "confirmed",
               "ROS adapter should expose the track lifecycle as a string.");
+
+  std::vector<Measurement> inconsistent_measurements {
+      Measurement {(Vector(2) << 1.0, 0.0).finished(), 2.0, "ros_sensor", "map"},
+      Measurement {(Vector(2) << 1.5, 0.2).finished(), 2.1, "ros_sensor", "map"},
+  };
+  const auto inconsistent_message =
+      adapter.process_measurements(inconsistent_measurements);
+  expect_true(!inconsistent_message.ok(),
+              "ROS adapter should reject a measurement batch with inconsistent timestamps.");
 }
 
 }  // namespace

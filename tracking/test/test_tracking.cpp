@@ -153,6 +153,31 @@ void test_nearest_neighbor_association() {
               "Nearest-neighbor association should pair the second track with the second measurement.");
 }
 
+void test_global_assignment_solver_interface() {
+  using namespace ros_tracker::tracking;
+
+  AssociationProblem problem;
+  problem.track_count = 2U;
+  problem.measurement_count = 2U;
+  problem.candidates = {
+      AssociationCandidate {0U, 0U, 1.0},
+      AssociationCandidate {0U, 1U, 2.0},
+      AssociationCandidate {1U, 0U, 1.5},
+  };
+
+  GreedyAssociationAssignmentSolver greedy_solver;
+  const auto greedy = greedy_solver.solve(problem);
+  expect_true(greedy.ok(), "Greedy assignment solver should succeed.");
+  expect_true(greedy.value().matches.size() == 1U,
+              "Greedy assignment should settle for one match in this ambiguous problem.");
+
+  OptimalAssociationAssignmentSolver optimal_solver;
+  const auto optimal = optimal_solver.solve(problem);
+  expect_true(optimal.ok(), "Optimal assignment solver should succeed.");
+  expect_true(optimal.value().matches.size() == 2U,
+              "Optimal assignment should find the globally best two-match solution.");
+}
+
 void test_multi_target_tracker_lifecycle() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -213,8 +238,11 @@ void test_multi_target_tracker_lifecycle() {
   expect_true(tracks2.value().size() == 2U,
               "Tracker should keep a track alive after one missed detection.");
 
+  std::vector<Measurement> frame3 {
+      Measurement {(Vector(2) << 2.0, 0.0).finished(), 3.0, "pos", "map"},
+  };
   const auto tracks3 = tracker.step(
-      frame2,
+      frame3,
       ros_tracker::models::ModelContext {1.0, 3.0, "map"});
   expect_true(tracks3.ok(), "Tracker should process another frame after a miss.");
   expect_true(tracks3.value().size() == 1U,
@@ -223,6 +251,16 @@ void test_multi_target_tracker_lifecycle() {
               "Tracker should prune the missed track instead of the active one.");
   expect_true(tracks3.value()[0].lifecycle == TrackLifecycle::kConfirmed,
               "Remaining active track should stay confirmed.");
+
+  std::vector<Measurement> inconsistent_frame {
+      Measurement {(Vector(2) << 4.0, 0.0).finished(), 4.0, "pos", "map"},
+      Measurement {(Vector(2) << 14.0, 10.0).finished(), 4.0, "pos", "odom"},
+  };
+  const auto inconsistent_tracks = tracker.step(
+      inconsistent_frame,
+      ros_tracker::models::ModelContext {1.0, 4.0, "map"});
+  expect_true(!inconsistent_tracks.ok(),
+              "Tracker should reject a measurement batch with inconsistent frame_id values.");
 }
 
 void test_multi_target_tracker_per_track_dependencies() {
@@ -384,6 +422,7 @@ void test_covariance_intersection_fusion() {
 
 int main() {
   test_nearest_neighbor_association();
+  test_global_assignment_solver_interface();
   test_multi_target_tracker_lifecycle();
   test_multi_target_tracker_per_track_dependencies();
   test_multi_model_estimator();

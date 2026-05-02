@@ -80,12 +80,17 @@ class TrackerNodeAdapter {
           "TrackerNodeAdapter requires a tracker instance.");
     }
 
+    const auto batch_summary = tracking::summarize_measurement_batch(measurements);
+    if (!batch_summary.ok()) {
+      return batch_summary.status();
+    }
+
     core::Scalar timestamp = 0.0;
     std::string frame_id = parameters_.frame_id;
     if (!measurements.empty()) {
-      timestamp = measurements.front().timestamp;
-      if (!measurements.front().frame_id.empty()) {
-        frame_id = measurements.front().frame_id;
+      timestamp = batch_summary.value().timestamp;
+      if (!batch_summary.value().frame_id.empty()) {
+        frame_id = batch_summary.value().frame_id;
       }
     }
 

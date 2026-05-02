@@ -47,6 +47,25 @@ class MultiTargetTracker final : public TrackerBase {
       return dependency_status;
     }
 
+    const auto batch_summary = summarize_measurement_batch(measurements);
+    if (!batch_summary.ok()) {
+      return batch_summary.status();
+    }
+
+    if (!measurements.empty()) {
+      if (std::abs(batch_summary.value().timestamp - context.timestamp) > 1e-9) {
+        return core::Status::invalid_argument(
+            "MultiTargetTracker context timestamp must match the measurement batch timestamp.");
+      }
+
+      if (!batch_summary.value().frame_id.empty() &&
+          !context.frame_id.empty() &&
+          batch_summary.value().frame_id != context.frame_id) {
+        return core::Status::invalid_argument(
+            "MultiTargetTracker context frame_id must match the measurement batch frame_id.");
+      }
+    }
+
     std::vector<Track> predicted_tracks;
     predicted_tracks.reserve(tracks_.size());
     for (const Track& track : tracks_) {

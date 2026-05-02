@@ -2,8 +2,6 @@
 
 ROS Tracker is a ROS2 object tracking project written in C++17.
 
-The original module list is useful as an algorithm checklist, but it is not yet a structure that scales well for implementation, testing, or ROS2 integration. This document proposes a more maintainable project layout based on layered responsibilities and multiple packages.
-
 ## Design Goals
 
 - Separate core algorithms from ROS2 runtime code
