@@ -246,8 +246,8 @@ This split keeps the main algorithmic boundary explicit: `filters` estimate late
 Contains all boundary-facing and validation-facing code. This module should be split by runtime purpose rather than by small technical categories:
 
 - `apps/offline/sim/`: trajectory generation, maneuver injection, sensor simulation, clutter, repeatable scenarios
-- `apps/offline/examples/`: minimal demos, radar demos, IMM comparisons, benchmark runners
 - `apps/offline/tools/`: plotting and benchmarking helpers
+- `apps/offline/examples/`: minimal demos, radar demos, IMM comparisons, benchmark runners
 - `apps/ros/`: node wrappers, subscriptions, publications, launch files, parameters, RViz integration
 
 This keeps validation and runtime glue out of the algorithmic modules while avoiding separate top-level packages for every support concern.
