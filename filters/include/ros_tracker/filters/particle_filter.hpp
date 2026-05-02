@@ -4,9 +4,9 @@
 #include <optional>
 #include <vector>
 
-#include "ros_tracker/core/stats/random.hpp"
-#include "ros_tracker/core/stats/statistics.hpp"
-#include "ros_tracker/core/utils/resampling.hpp"
+#include "ros_tracker/core/math/random.hpp"
+#include "ros_tracker/core/math/resampling.hpp"
+#include "ros_tracker/core/math/statistics.hpp"
 #include "ros_tracker/filters/filter_base.hpp"
 
 namespace ros_tracker::filters {

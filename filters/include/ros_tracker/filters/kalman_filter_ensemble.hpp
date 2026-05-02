@@ -5,7 +5,7 @@
 
 #include <Eigen/Cholesky>
 
-#include "ros_tracker/core/stats/random.hpp"
+#include "ros_tracker/core/math/random.hpp"
 #include "ros_tracker/filters/filter_base.hpp"
 #include "ros_tracker/filters/kalman_filter_gaussian_transform.hpp"
 

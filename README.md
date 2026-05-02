@@ -45,9 +45,8 @@ See [docs/architecture.md](docs/architecture.md) for details.
 - [x] `filters`
   - [x] Define `FilterBase` and estimator-facing interfaces against abstract models
   - [x] Implement linear estimators: `const_gain`, `kalman`, `lsq`
-  - [x] Implement `kalman_ekf`
+  - [x] Implement nonlinear Kalman-family estimators: `kalman_ekf`, `kalman_fm`, `kalman_hinf`
   - [x] Implement nonlinear Kalman-family estimators: `kalman_ukf`, `kalman_ckf`, `kalman_enkf`
-  - [x] Implement remaining nonlinear Kalman-family estimators: `kalman_fm`, `kalman_hinf`
   - [x] Implement particle filtering and connect it to reusable resampling utilities
   - [x] Implement `sigma_points` utilities and `smoothers`
 - [ ] `tracking`

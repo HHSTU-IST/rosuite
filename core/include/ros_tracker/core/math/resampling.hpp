@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <vector>
 
-#include "ros_tracker/core/stats/statistics.hpp"
+#include "ros_tracker/core/math/statistics.hpp"
 
 namespace ros_tracker::core::utils {
 

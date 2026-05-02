@@ -4,78 +4,66 @@
 
 #include "ros_tracker/core/result.hpp"
 
-namespace ros_tracker::core
-{
+namespace ros_tracker::core {
 
-  using Scalar = double;
-  using Vector = Eigen::VectorXd;
-  using Matrix = Eigen::MatrixXd;
-  using Covariance = Eigen::MatrixXd;
-  using Index = Eigen::Index;
+using Scalar = double;
+using Vector = Eigen::VectorXd;
+using Matrix = Eigen::MatrixXd;
+using Covariance = Eigen::MatrixXd;
+using Index = Eigen::Index;
 
-  [[nodiscard]] inline bool is_square(const Matrix &matrix) noexcept
-  {
-    return matrix.rows() == matrix.cols();
+[[nodiscard]] inline bool is_square(const Matrix& matrix) noexcept {
+  return matrix.rows() == matrix.cols();
+}
+
+[[nodiscard]] inline bool is_symmetric(
+    const Matrix& matrix,
+    const Scalar tolerance = 1e-9) noexcept {
+  if (!is_square(matrix)) {
+    return false;
   }
 
-  [[nodiscard]] inline bool is_symmetric(
-      const Matrix &matrix,
-      const Scalar tolerance = 1e-9) noexcept
-  {
-    if (!is_square(matrix))
-    {
-      return false;
-    }
+  return matrix.isApprox(matrix.transpose(), tolerance);
+}
 
-    return matrix.isApprox(matrix.transpose(), tolerance);
+[[nodiscard]] inline Matrix symmetrize(const Matrix& matrix) {
+  return Scalar {0.5} * (matrix + matrix.transpose());
+}
+
+[[nodiscard]] inline Status validate_covariance(
+    const Covariance& covariance,
+    const Scalar tolerance = 1e-9) {
+  if (!is_square(covariance)) {
+    return Status::dimension_mismatch("Covariance matrix must be square.");
   }
 
-  [[nodiscard]] inline Matrix symmetrize(const Matrix &matrix)
-  {
-    return Scalar{0.5} * (matrix + matrix.transpose());
+  if (!is_symmetric(covariance, tolerance)) {
+    return Status::invalid_argument("Covariance matrix must be symmetric.");
   }
 
-  [[nodiscard]] inline Status validate_covariance(
-      const Covariance &covariance,
-      const Scalar tolerance = 1e-9)
-  {
-    if (!is_square(covariance))
-    {
-      return Status::dimension_mismatch("Covariance matrix must be square.");
-    }
-
-    if (!is_symmetric(covariance, tolerance))
-    {
-      return Status::invalid_argument("Covariance matrix must be symmetric.");
-    }
-
-    Eigen::SelfAdjointEigenSolver<Covariance> solver(covariance);
-    if (solver.info() != Eigen::Success)
-    {
-      return Status::numerical_error(
-          "Failed to compute covariance eigenvalues.");
-    }
-
-    const auto min_eigenvalue = solver.eigenvalues().minCoeff();
-    if (min_eigenvalue < -tolerance)
-    {
-      return Status::invalid_argument(
-          "Covariance matrix must be positive semi-definite.");
-    }
-
-    return Status::ok_status();
+  Eigen::SelfAdjointEigenSolver<Covariance> solver(covariance);
+  if (solver.info() != Eigen::Success) {
+    return Status::numerical_error(
+        "Failed to compute covariance eigenvalues.");
   }
 
-  [[nodiscard]] inline Result<Covariance> diagonal_covariance(
-      const Vector &variances)
-  {
-    if ((variances.array() < Scalar{0.0}).any())
-    {
-      return Status::invalid_argument(
-          "Diagonal covariance variances must be non-negative.");
-    }
-
-    return variances.asDiagonal().toDenseMatrix();
+  const auto min_eigenvalue = solver.eigenvalues().minCoeff();
+  if (min_eigenvalue < -tolerance) {
+    return Status::invalid_argument(
+        "Covariance matrix must be positive semi-definite.");
   }
 
-} // namespace ros_tracker::core
+  return Status::ok_status();
+}
+
+[[nodiscard]] inline Result<Covariance> diagonal_covariance(
+    const Vector& variances) {
+  if ((variances.array() < Scalar {0.0}).any()) {
+    return Status::invalid_argument(
+        "Diagonal covariance variances must be non-negative.");
+  }
+
+  return variances.asDiagonal().toDenseMatrix();
+}
+
+}  // namespace ros_tracker::core
