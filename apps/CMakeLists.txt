@@ -1,23 +1,27 @@
-add_library(ros_tracker_apps INTERFACE)
+add_library(
+  ros_tracker_apps
+  STATIC
+    src/ros.cpp
+)
 add_library(ros_tracker::apps ALIAS ros_tracker_apps)
 
 target_include_directories(
   ros_tracker_apps
-  INTERFACE
+  PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(
   ros_tracker_apps
-  INTERFACE
+  PUBLIC
     ros_tracker::core
     ros_tracker::models
     ros_tracker::filters
     ros_tracker::tracking
 )
 
-target_compile_features(ros_tracker_apps INTERFACE cxx_std_17)
+target_compile_features(ros_tracker_apps PUBLIC cxx_std_17)
 
 add_executable(
   ros_tracker_offline_example

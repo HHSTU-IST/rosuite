@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cmath>
 #include <cstddef>
 #include <memory>
 #include <optional>
@@ -8,11 +7,11 @@
 #include <string_view>
 #include <vector>
 
-#include "ros_tracker/filters/filter_base.hpp"
 #include "ros_tracker/core/result.hpp"
 #include "ros_tracker/core/status.hpp"
 #include "ros_tracker/core/types.hpp"
 #include "ros_tracker/filters/estimate.hpp"
+#include "ros_tracker/filters/filter_base.hpp"
 #include "ros_tracker/models/base.hpp"
 
 namespace ros_tracker::tracking {
@@ -53,58 +52,24 @@ class StaticTrackEstimatorModelHandle final : public TrackEstimatorModelHandle {
       std::shared_ptr<const filters::FilterBase> filter,
       models::DynamicSystemModel system_model,
       models::SensorModel sensor_model,
-      std::string name = "static_handle")
-      : filter_(std::move(filter)),
-        system_model_(std::move(system_model)),
-        sensor_model_(std::move(sensor_model)),
-        name_(std::move(name)) {}
+      std::string name = "static_handle");
 
-  [[nodiscard]] core::Status validate() const override {
-    if (!filter_) {
-      return core::Status::invalid_argument(
-          "StaticTrackEstimatorModelHandle requires a filter.");
-    }
-
-    const core::Status system_status = system_model_.validate();
-    if (!system_status.ok()) {
-      return system_status;
-    }
-
-    return sensor_model_.validate();
-  }
+  [[nodiscard]] core::Status validate() const override;
 
   [[nodiscard]] core::Result<filters::GaussianEstimate> predict(
       const filters::GaussianEstimate& estimate,
       const models::ModelContext& context,
-      std::optional<core::ControlInput> control = std::nullopt) const override {
-    const core::Status status = validate();
-    if (!status.ok()) {
-      return status;
-    }
-
-    return filter_->predict(estimate, system_model_, context, std::move(control));
-  }
+      std::optional<core::ControlInput> control = std::nullopt) const override;
 
   [[nodiscard]] core::Result<filters::GaussianEstimate> correct(
       const filters::GaussianEstimate& estimate,
       const core::Measurement& measurement,
-      const models::ModelContext& context = {}) const override {
-    const core::Status status = validate();
-    if (!status.ok()) {
-      return status;
-    }
-
-    return filter_->correct(estimate, sensor_model_, measurement, context);
-  }
+      const models::ModelContext& context = {}) const override;
 
   [[nodiscard]] const models::SensorModel& association_sensor_model()
-      const noexcept override {
-    return sensor_model_;
-  }
+      const noexcept override;
 
-  [[nodiscard]] std::string_view name() const noexcept override {
-    return name_;
-  }
+  [[nodiscard]] std::string_view name() const noexcept override;
 
  private:
   std::shared_ptr<const filters::FilterBase> filter_;
@@ -146,54 +111,10 @@ struct MeasurementBatchSummary {
   std::string frame_id;
 };
 
-[[nodiscard]] inline core::Result<MeasurementBatchSummary>
-summarize_measurement_batch(
-    const std::vector<core::Measurement>& measurements) {
-  MeasurementBatchSummary summary;
-  if (measurements.empty()) {
-    return summary;
-  }
+[[nodiscard]] core::Result<MeasurementBatchSummary> summarize_measurement_batch(
+    const std::vector<core::Measurement>& measurements);
 
-  summary.timestamp = measurements.front().timestamp;
-  summary.frame_id = measurements.front().frame_id;
-
-  for (std::size_t i = 1; i < measurements.size(); ++i) {
-    if (std::abs(measurements[i].timestamp - summary.timestamp) > 1e-9) {
-      return core::Status::invalid_argument(
-          "All measurements in a batch must share the same timestamp.");
-    }
-
-    if (!measurements[i].frame_id.empty()) {
-      if (summary.frame_id.empty()) {
-        summary.frame_id = measurements[i].frame_id;
-      } else if (measurements[i].frame_id != summary.frame_id) {
-        return core::Status::invalid_argument(
-            "All measurements in a batch must share the same frame_id.");
-      }
-    }
-  }
-
-  return summary;
-}
-
-[[nodiscard]] inline core::Status validate_track(const Track& track) {
-  if (track.age == 0U) {
-    return core::Status::invalid_argument(
-        "Track age must be at least one.");
-  }
-
-  if (!track.handle) {
-    return core::Status::invalid_argument(
-        "Track requires a per-track estimator/model handle.");
-  }
-
-  const core::Status handle_status = track.handle->validate();
-  if (!handle_status.ok()) {
-    return handle_status;
-  }
-
-  return filters::validate_estimate(track.estimate);
-}
+[[nodiscard]] core::Status validate_track(const Track& track);
 
 struct Association {
   std::size_t track_index {0U};

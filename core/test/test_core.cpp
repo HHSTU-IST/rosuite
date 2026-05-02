@@ -1,6 +1,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -45,8 +46,21 @@ void test_types_and_status() {
 
   Result<int> success(7);
   Result<int> failure(Status::out_of_range("bad range"));
+  Result<int> invalid_ok(Status::ok_status());
   expect_true(success.ok() && success.value() == 7, "Result should hold a value.");
   expect_true(!failure.ok(), "Failed result should report its status.");
+  expect_true(static_cast<bool>(success), "Successful Result should convert to true.");
+  expect_true(success.has_value(), "Successful Result should report that it has a value.");
+  expect_true(!failure.has_value(), "Failed Result should report that it has no value.");
+  expect_true(!invalid_ok.ok(),
+              "Constructing Result from an OK status without a value should be rejected.");
+  bool threw = false;
+  try {
+    static_cast<void>(failure.value());
+  } catch (const std::logic_error&) {
+    threw = true;
+  }
+  expect_true(threw, "Accessing value() on a failed Result should throw a logic_error.");
 }
 
 void test_linear_algebra() {

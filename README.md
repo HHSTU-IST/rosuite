@@ -19,6 +19,12 @@ ROS Tracker is a ROS2 object tracking project written in C++17.
   - CMake 3.20+
   - CTest
 
+## Build Shape
+
+- `core`, `models`, and most `filters` utilities remain header-first for lightweight numeric reuse.
+- `tracking` and `apps` now build compiled libraries, so orchestration, association, management, and ROS-facing adapter code no longer live entirely in public headers.
+- `core::Result<T>` rejects `ok`-without-value construction and throws `std::logic_error` on invalid `value()` access to make status-handling bugs fail fast during development.
+
 ## Module TODOs
 
 See [docs/architecture.md](docs/architecture.md) for details.
@@ -64,13 +70,13 @@ See [docs/architecture.md](docs/architecture.md) for details.
 - [x] `tracking`
   - Track-level orchestration on top of `filters` and `models`.
   - [x] `base`
-    - Shared `Track`, lifecycle state, association result, and tracker-facing abstract interfaces.
+    - Shared `Track`, lifecycle state, per-track estimator/model handle abstractions, and tracker-facing abstract interfaces.
   - [x] `association`
-    - Gated nearest-neighbor data association for single-sensor multi-target workflows.
+    - Gated nearest-neighbor candidate generation plus pluggable greedy/global assignment solver interfaces for multi-target workflows.
   - [x] `management`
     - Track initiation, confirmation, missed-detection handling, and deletion policies.
   - [x] `tracker`
-    - `MultiTargetTracker` orchestration that chains prediction, association, correction, spawning, and pruning.
+    - `MultiTargetTracker` orchestration that chains prediction, association, correction, spawning, pruning, and measurement-batch consistency validation.
   - [x] `multi_model`
     - IMM-style multi-model estimation over a bank of filters and dynamic-system hypotheses with probabilistic mode mixing.
   - [x] `fusion`
@@ -86,4 +92,4 @@ See [docs/architecture.md](docs/architecture.md) for details.
   - [x] `offline/examples`
     - Minimal end-to-end Kalman/tracker example wiring together simulation, tracking, and metrics.
   - [x] `ros`
-    - Dependency-light tracker-node adapter, parameter bundle, and track-message conversion layer that can be bound to ROS2 transport later.
+    - Dependency-light tracker-node adapter, parameter bundle, track-message conversion, and measurement-batch validation layer that can be bound to ROS2 transport later.
