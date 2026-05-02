@@ -6,7 +6,6 @@
 #include <utility>
 #include <vector>
 
-#include "ros_tracker/filters/filter_base.hpp"
 #include "ros_tracker/tracking/base.hpp"
 
 namespace ros_tracker::tracking {
@@ -19,9 +18,19 @@ class MultiTargetTracker final : public TrackerBase {
       models::SensorModel sensor_model,
       std::shared_ptr<const AssociationStrategy> association_strategy,
       std::shared_ptr<const TrackManager> track_manager)
-      : filter_(std::move(filter)),
-        system_model_(std::move(system_model)),
-        sensor_model_(std::move(sensor_model)),
+      : default_dependencies_ {
+            std::move(filter),
+            std::move(system_model),
+            std::move(sensor_model),
+        },
+        association_strategy_(std::move(association_strategy)),
+        track_manager_(std::move(track_manager)) {}
+
+  MultiTargetTracker(
+      TrackDependencies default_dependencies,
+      std::shared_ptr<const AssociationStrategy> association_strategy,
+      std::shared_ptr<const TrackManager> track_manager)
+      : default_dependencies_(std::move(default_dependencies)),
         association_strategy_(std::move(association_strategy)),
         track_manager_(std::move(track_manager)) {}
 
@@ -37,8 +46,16 @@ class MultiTargetTracker final : public TrackerBase {
     std::vector<Track> predicted_tracks;
     predicted_tracks.reserve(tracks_.size());
     for (const Track& track : tracks_) {
-      const auto predicted_estimate =
-          filter_->predict(track.estimate, system_model_, context, control);
+      const auto dependencies = resolve_dependencies(track);
+      if (!dependencies.ok()) {
+        return dependencies.status();
+      }
+
+      const auto predicted_estimate = dependencies.value().filter->predict(
+          track.estimate,
+          dependencies.value().system_model,
+          context,
+          control);
       if (!predicted_estimate.ok()) {
         return predicted_estimate.status();
       }
@@ -53,7 +70,10 @@ class MultiTargetTracker final : public TrackerBase {
     }
 
     const auto association = association_strategy_->associate(
-        predicted_tracks, measurements, sensor_model_, context);
+        predicted_tracks,
+        measurements,
+        default_dependencies_.sensor_model,
+        context);
     if (!association.ok()) {
       return association.status();
     }
@@ -65,9 +85,20 @@ class MultiTargetTracker final : public TrackerBase {
     for (const Association& match : association.value().matches) {
       const Track& predicted_track = predicted_tracks[match.track_index];
       const core::Measurement& measurement = measurements[match.measurement_index];
+      const auto dependencies = resolve_dependencies(predicted_track);
+      if (!dependencies.ok()) {
+        return dependencies.status();
+      }
 
-      const auto corrected_estimate = filter_->correct(
-          predicted_track.estimate, sensor_model_, measurement, context);
+      const models::SensorModel& sensor_model =
+          dependencies.value().sensor_model.validate().ok()
+              ? dependencies.value().sensor_model
+              : default_dependencies_.sensor_model;
+      const auto corrected_estimate = dependencies.value().filter->correct(
+          predicted_track.estimate,
+          sensor_model,
+          measurement,
+          context);
       if (!corrected_estimate.ok()) {
         return corrected_estimate.status();
       }
@@ -99,7 +130,7 @@ class MultiTargetTracker final : public TrackerBase {
       const auto initiated_track = track_manager_->initiate_track(
           next_track_id_++,
           measurements[unmatched_measurement_index],
-          sensor_model_,
+          default_dependencies_,
           context);
       if (!initiated_track.ok()) {
         return initiated_track.status();
@@ -126,11 +157,6 @@ class MultiTargetTracker final : public TrackerBase {
 
  private:
   [[nodiscard]] core::Status validate_dependencies() const {
-    if (!filter_) {
-      return core::Status::invalid_argument(
-          "MultiTargetTracker requires a filter.");
-    }
-
     if (!association_strategy_) {
       return core::Status::invalid_argument(
           "MultiTargetTracker requires an association strategy.");
@@ -141,17 +167,29 @@ class MultiTargetTracker final : public TrackerBase {
           "MultiTargetTracker requires a track manager.");
     }
 
-    const core::Status system_status = system_model_.validate();
-    if (!system_status.ok()) {
-      return system_status;
-    }
-
-    return sensor_model_.validate();
+    return default_dependencies_.validate();
   }
 
-  std::shared_ptr<const filters::FilterBase> filter_;
-  models::DynamicSystemModel system_model_;
-  models::SensorModel sensor_model_;
+  [[nodiscard]] core::Result<TrackDependencies> resolve_dependencies(
+      const Track& track) const {
+    if (!track.dependencies.empty()) {
+      const core::Status track_status = track.dependencies.validate();
+      if (!track_status.ok()) {
+        return track_status;
+      }
+
+      return track.dependencies;
+    }
+
+    const core::Status default_status = default_dependencies_.validate();
+    if (!default_status.ok()) {
+      return default_status;
+    }
+
+    return default_dependencies_;
+  }
+
+  TrackDependencies default_dependencies_;
   std::shared_ptr<const AssociationStrategy> association_strategy_;
   std::shared_ptr<const TrackManager> track_manager_;
   std::vector<Track> tracks_;

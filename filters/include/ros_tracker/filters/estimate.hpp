@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <vector>
 
 #include "ros_tracker/core/math/linear_algebra.hpp"
@@ -9,9 +10,23 @@
 
 namespace ros_tracker::filters {
 
+struct ParticleSet {
+  core::Matrix particles;
+  std::vector<core::Scalar> weights;
+
+  [[nodiscard]] core::Index dimension() const noexcept {
+    return particles.rows();
+  }
+
+  [[nodiscard]] core::Index size() const noexcept {
+    return particles.cols();
+  }
+};
+
 struct GaussianEstimate {
   core::State state;
   core::Covariance covariance;
+  std::optional<ParticleSet> particle_set;
 
   [[nodiscard]] core::Index dimension() const noexcept {
     return state.dimension();
@@ -39,35 +54,6 @@ struct SigmaPointSet {
   core::Vector covariance_weights;
 };
 
-struct ParticleSet {
-  core::Matrix particles;
-  std::vector<core::Scalar> weights;
-
-  [[nodiscard]] core::Index dimension() const noexcept {
-    return particles.rows();
-  }
-
-  [[nodiscard]] core::Index size() const noexcept {
-    return particles.cols();
-  }
-};
-
-[[nodiscard]] inline core::Status validate_estimate(
-    const GaussianEstimate& estimate) {
-  if (estimate.state.dimension() <= 0) {
-    return core::Status::invalid_argument(
-        "GaussianEstimate state vector must not be empty.");
-  }
-
-  if (estimate.covariance.rows() != estimate.dimension() ||
-      estimate.covariance.cols() != estimate.dimension()) {
-    return core::Status::dimension_mismatch(
-        "GaussianEstimate covariance dimension must match the state dimension.");
-  }
-
-  return core::validate_covariance(estimate.covariance);
-}
-
 [[nodiscard]] inline core::Status validate_particle_set(
     const ParticleSet& particle_set) {
   if (particle_set.particles.rows() <= 0 || particle_set.particles.cols() <= 0) {
@@ -82,6 +68,35 @@ struct ParticleSet {
   }
 
   return core::Status::ok_status();
+}
+
+[[nodiscard]] inline core::Status validate_estimate(
+    const GaussianEstimate& estimate) {
+  if (estimate.state.dimension() <= 0) {
+    return core::Status::invalid_argument(
+        "GaussianEstimate state vector must not be empty.");
+  }
+
+  if (estimate.covariance.rows() != estimate.dimension() ||
+      estimate.covariance.cols() != estimate.dimension()) {
+    return core::Status::dimension_mismatch(
+        "GaussianEstimate covariance dimension must match the state dimension.");
+  }
+
+  if (estimate.particle_set.has_value()) {
+    const core::Status particle_status =
+        validate_particle_set(*estimate.particle_set);
+    if (!particle_status.ok()) {
+      return particle_status;
+    }
+
+    if (estimate.particle_set->dimension() != estimate.dimension()) {
+      return core::Status::dimension_mismatch(
+          "GaussianEstimate particle-set dimension must match the state dimension.");
+    }
+  }
+
+  return core::validate_covariance(estimate.covariance);
 }
 
 }  // namespace ros_tracker::filters

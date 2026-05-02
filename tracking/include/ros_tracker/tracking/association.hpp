@@ -13,7 +13,7 @@ namespace detail {
 
 [[nodiscard]] inline core::Result<core::Scalar> association_cost(
     const Track& track,
-    const models::SensorModel& sensor,
+    const models::SensorModel& default_sensor,
     const core::Measurement& measurement,
     const models::ModelContext& context) {
   const core::Status track_status = validate_track(track);
@@ -21,6 +21,10 @@ namespace detail {
     return track_status;
   }
 
+  const models::SensorModel& sensor =
+      track.dependencies.sensor_model.validate().ok()
+          ? track.dependencies.sensor_model
+          : default_sensor;
   const core::Status sensor_status = sensor.validate();
   if (!sensor_status.ok()) {
     return sensor_status;

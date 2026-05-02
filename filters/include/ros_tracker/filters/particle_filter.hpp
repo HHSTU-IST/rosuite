@@ -18,7 +18,7 @@ class ParticleFilter final : public FilterBase {
       const std::uint64_t seed = 0U,
       const core::Scalar resampling_offset = 0.5)
       : particle_count_(particle_count),
-        seed_(seed),
+        rng_(seed),
         resampling_offset_(resampling_offset) {}
 
   [[nodiscard]] core::Result<GaussianEstimate> predict(
@@ -26,7 +26,7 @@ class ParticleFilter final : public FilterBase {
       const models::DynamicSystemModel& model,
       const models::ModelContext& context,
       std::optional<core::ControlInput> control = std::nullopt) const override {
-    const auto prior_particles = sample_prior_particles(estimate);
+    const auto prior_particles = prior_particle_set(estimate);
     if (!prior_particles.ok()) {
       return prior_particles.status();
     }
@@ -48,7 +48,7 @@ class ParticleFilter final : public FilterBase {
       const models::SensorModel& sensor,
       const core::Measurement& measurement,
       const models::ModelContext& context = {}) const override {
-    const auto prior_particles = sample_prior_particles(estimate);
+    const auto prior_particles = prior_particle_set(estimate);
     if (!prior_particles.ok()) {
       return prior_particles.status();
     }
@@ -75,19 +75,27 @@ class ParticleFilter final : public FilterBase {
   }
 
  private:
-  [[nodiscard]] core::Result<ParticleSet> sample_prior_particles(
+  [[nodiscard]] core::Result<ParticleSet> prior_particle_set(
       const GaussianEstimate& estimate) const {
     const core::Status estimate_status = validate_estimate(estimate);
     if (!estimate_status.ok()) {
       return estimate_status;
     }
 
+    if (estimate.particle_set.has_value()) {
+      return *estimate.particle_set;
+    }
+
+    return sample_prior_particles(estimate);
+  }
+
+  [[nodiscard]] core::Result<ParticleSet> sample_prior_particles(
+      const GaussianEstimate& estimate) const {
     if (particle_count_ <= 0) {
       return core::Status::invalid_argument(
           "ParticleFilter requires at least one particle.");
     }
 
-    core::stats::RandomEngine rng(seed_);
     ParticleSet particle_set;
     particle_set.particles = core::Matrix::Zero(
         estimate.dimension(), particle_count_);
@@ -96,7 +104,7 @@ class ParticleFilter final : public FilterBase {
         1.0 / static_cast<core::Scalar>(particle_count_));
 
     for (core::Index i = 0; i < particle_count_; ++i) {
-      const auto sample = rng.sample_multivariate_normal(
+      const auto sample = rng_.sample_multivariate_normal(
           estimate.state.value, estimate.covariance);
       if (!sample.ok()) {
         return sample.status();
@@ -123,18 +131,6 @@ class ParticleFilter final : public FilterBase {
       return model_status;
     }
 
-    core::stats::RandomEngine rng(seed_);
-    models::MotionRequest noise_request {
-        core::State {},
-        control,
-        context,
-    };
-    noise_request.state.value = particles.particles.col(0);
-    const auto process_noise = model.process_noise->covariance(noise_request);
-    if (!process_noise.ok()) {
-      return process_noise.status();
-    }
-
     ParticleSet propagated = particles;
     for (core::Index i = 0; i < particles.size(); ++i) {
       models::MotionRequest request {
@@ -148,7 +144,12 @@ class ParticleFilter final : public FilterBase {
         return prediction.status();
       }
 
-      const auto noise = rng.sample_multivariate_normal(
+      const auto process_noise = model.process_noise->covariance(request);
+      if (!process_noise.ok()) {
+        return process_noise.status();
+      }
+
+      const auto noise = rng_.sample_multivariate_normal(
           core::Vector::Zero(particles.dimension()),
           process_noise.value());
       if (!noise.ok()) {
@@ -208,8 +209,7 @@ class ParticleFilter final : public FilterBase {
       log_weights.push_back(log_likelihood.value());
     }
 
-    const auto normalized =
-        core::stats::normalize_log_weights(log_weights);
+    const auto normalized = core::stats::normalize_log_weights(log_weights);
     if (!normalized.ok()) {
       return normalized.status();
     }
@@ -278,11 +278,12 @@ class ParticleFilter final : public FilterBase {
     estimate.state.timestamp = timestamp;
     estimate.state.frame_id = frame_id;
     estimate.covariance = covariance.value();
+    estimate.particle_set = particles;
     return estimate;
   }
 
   core::Index particle_count_;
-  std::uint64_t seed_;
+  mutable core::stats::RandomEngine rng_;
   core::Scalar resampling_offset_;
 };
 

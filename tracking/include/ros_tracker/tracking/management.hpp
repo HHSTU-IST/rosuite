@@ -24,11 +24,11 @@ class BasicTrackManager final : public TrackManager {
   [[nodiscard]] core::Result<Track> initiate_track(
       TrackId id,
       const core::Measurement& measurement,
-      const models::SensorModel& sensor,
+      const TrackDependencies& dependencies,
       const models::ModelContext& /*context*/ = {}) const override {
-    const core::Status sensor_status = sensor.validate();
-    if (!sensor_status.ok()) {
-      return sensor_status;
+    const core::Status dependency_status = dependencies.validate();
+    if (!dependency_status.ok()) {
+      return dependency_status;
     }
 
     if (state_dimension_ <= 0) {
@@ -84,6 +84,7 @@ class BasicTrackManager final : public TrackManager {
     track.estimate.state.timestamp = measurement.timestamp;
     track.estimate.state.frame_id = measurement.frame_id;
     track.estimate.covariance = initial_covariance_;
+    track.dependencies = dependencies;
     track.lifecycle = confirmation_hits_ <= 1U
                           ? TrackLifecycle::kConfirmed
                           : TrackLifecycle::kTentative;

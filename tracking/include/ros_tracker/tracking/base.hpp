@@ -1,11 +1,13 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 
+#include "ros_tracker/filters/filter_base.hpp"
 #include "ros_tracker/core/result.hpp"
 #include "ros_tracker/core/status.hpp"
 #include "ros_tracker/core/types.hpp"
@@ -22,9 +24,38 @@ enum class TrackLifecycle {
   kDeleted,
 };
 
+struct TrackDependencies {
+  std::shared_ptr<const filters::FilterBase> filter;
+  models::DynamicSystemModel system_model;
+  models::SensorModel sensor_model;
+
+  [[nodiscard]] bool empty() const noexcept {
+    return !filter &&
+           !system_model.motion &&
+           !system_model.process_noise &&
+           !sensor_model.measurement &&
+           !sensor_model.measurement_noise;
+  }
+
+  [[nodiscard]] core::Status validate() const {
+    if (!filter) {
+      return core::Status::invalid_argument(
+          "TrackDependencies requires a filter.");
+    }
+
+    const core::Status system_status = system_model.validate();
+    if (!system_status.ok()) {
+      return system_status;
+    }
+
+    return sensor_model.validate();
+  }
+};
+
 struct Track {
   TrackId id {0U};
   filters::GaussianEstimate estimate;
+  TrackDependencies dependencies;
   TrackLifecycle lifecycle {TrackLifecycle::kTentative};
   std::size_t age {0U};
   std::size_t hit_count {0U};
@@ -41,6 +72,13 @@ struct Track {
   if (track.age == 0U) {
     return core::Status::invalid_argument(
         "Track age must be at least one.");
+  }
+
+  if (!track.dependencies.empty()) {
+    const core::Status dependency_status = track.dependencies.validate();
+    if (!dependency_status.ok()) {
+      return dependency_status;
+    }
   }
 
   return filters::validate_estimate(track.estimate);
@@ -78,7 +116,7 @@ class TrackManager {
   [[nodiscard]] virtual core::Result<Track> initiate_track(
       TrackId id,
       const core::Measurement& measurement,
-      const models::SensorModel& sensor,
+      const TrackDependencies& dependencies,
       const models::ModelContext& context = {}) const = 0;
 
   [[nodiscard]] virtual core::Result<Track> on_prediction(

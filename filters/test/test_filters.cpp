@@ -371,6 +371,8 @@ void test_particle_filter() {
   expect_true(predicted.ok(), "Particle filter prediction should succeed.");
   expect_near(predicted.value().state.value[0], 1.0, 0.25,
               "Particle filter prediction mean should stay close to constant-velocity motion.");
+  expect_true(predicted.value().particle_set.has_value(),
+              "Particle filter prediction should preserve a particle posterior.");
 
   Measurement measurement {
       (Vector(2) << 1.3, 0.05).finished(),
@@ -383,6 +385,8 @@ void test_particle_filter() {
   expect_true(corrected.ok(), "Particle filter correction should succeed.");
   expect_true(corrected.value().state.value[0] > predicted.value().state.value[0],
               "Particle filter correction should move the estimate toward the measurement.");
+  expect_true(corrected.value().particle_set.has_value(),
+              "Particle filter correction should keep the resampled particles.");
 }
 
 }  // namespace
