@@ -15,10 +15,10 @@ The original module list is useful as an algorithm checklist, but it is not yet 
 ## Dependencies
 
 - Core algorithms
-  - C++ 20+
+  - C++ 17
   - Eigen 5.0.0+
 - Build and tests
-  - CMake 3.20+
+  - CMake 4.0.0+
   - CTest
 
 ## Module TODOs
@@ -32,16 +32,16 @@ See [docs/architecture.md](docs/architecture.md) for details.
   - [x] Add random, Bayesian, and statistical utilities
   - [x] Add resampling helpers that can be reused by particle-based estimators
   - [x] Add deterministic unit tests for math, numerics, and stats modules
-- [ ] `models`
-  - [ ] Split the package into `common`, `motion`, `measurement`, `noise`, and `composition`
-  - [ ] Define stable request/context objects instead of growing positional function signatures
-  - [ ] Define `MotionModel` and `MeasurementModel` as pure deterministic interfaces
-  - [ ] Define `ProcessNoiseModel` and `MeasurementNoiseModel` as separate abstractions
-  - [ ] Add optional linearization interfaces for EKF-style consumers without burdening all models
-  - [ ] Implement motion models: `const_vel`, `const_acc`, `coord_turn`, `singer`
-  - [ ] Implement sensor/measurement models for radar and other common observation pipelines
-  - [ ] Add composition objects that bundle deterministic models with their noise models
-  - [ ] Add model validation tests for state transition, measurement mapping, and Jacobian correctness
+- [x] `models`
+  - [x] Split the package into `common`, `motion`, `measurement`, `noise`, and `composition`
+  - [x] Define stable request/context objects instead of growing positional function signatures
+  - [x] Define `MotionModel` and `MeasurementModel` as pure deterministic interfaces
+  - [x] Define `ProcessNoiseModel` and `MeasurementNoiseModel` as separate abstractions
+  - [x] Add optional linearization interfaces for EKF-style consumers without burdening all models
+  - [x] Implement motion models: `const_vel`, `const_acc`, `coord_turn`, `singer`
+  - [x] Implement sensor/measurement models for radar and other common observation pipelines
+  - [x] Add composition objects that bundle deterministic models with their noise models
+  - [x] Add model validation tests for state transition, measurement mapping, and Jacobian correctness
 - [ ] `pipeline`
   - [ ] Keep `estimation/` and `tracking/` as subdirectories inside one engineering module
   - [ ] Define `FilterBase` and estimator-facing interfaces against abstract models
