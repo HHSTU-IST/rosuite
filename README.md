@@ -33,7 +33,7 @@ See [docs/architecture.md](docs/architecture.md) for details.
   - [x] Add resampling helpers that can be reused by particle-based estimators
   - [x] Add deterministic unit tests for math, numerics, and stats modules
 - [x] `models`
-  - [x] Split the package into `common`, `motion`, `measurement`, `noise`, and `composition`
+  - [x] Consolidate the package into `base`, `motion_models`, `measurement_models`, and `noise_models`
   - [x] Define stable request/context objects instead of growing positional function signatures
   - [x] Define `MotionModel` and `MeasurementModel` as pure deterministic interfaces
   - [x] Define `ProcessNoiseModel` and `MeasurementNoiseModel` as separate abstractions
@@ -45,8 +45,8 @@ See [docs/architecture.md](docs/architecture.md) for details.
 - [ ] `filters`
   - [x] Define `FilterBase` and estimator-facing interfaces against abstract models
   - [x] Implement linear estimators: `const_gain`, `kalman`, `lsq`
-  - [ ] Implement nonlinear Kalman-family estimators: `kalman_ukf`, `kalman_ckf`, `kalman_enkf`, `kalman_fm`, `kalman_hinf`
   - [x] Implement `kalman_ekf`
+  - [ ] Implement nonlinear Kalman-family estimators: `kalman_ukf`, `kalman_ckf`, `kalman_enkf`, `kalman_fm`, `kalman_hinf`
   - [ ] Implement particle filtering and connect it to reusable resampling utilities
   - [x] Implement `sigma_points` utilities and `smoothers`
 - [ ] `tracking`

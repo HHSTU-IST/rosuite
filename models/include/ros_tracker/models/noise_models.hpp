@@ -2,8 +2,7 @@
 
 #include <utility>
 
-#include "ros_tracker/models/measurement_model.hpp"
-#include "ros_tracker/models/motion_model.hpp"
+#include "ros_tracker/models/base.hpp"
 
 namespace ros_tracker::models {
 

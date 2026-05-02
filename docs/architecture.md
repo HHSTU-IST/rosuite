@@ -78,30 +78,11 @@ Recommended internal structure:
 
 ```text
 models/
-  common/
-    state.hpp
-    measurement.hpp
-    control.hpp
-    model_context.hpp
-    parameter_block.hpp
-    dimensions.hpp
-  motion/
-    motion_model.hpp
-    const_vel.hpp
-    const_acc.hpp
-    coord_turn.hpp
-    singer.hpp
-  measurement/
-    measurement_model.hpp
-    linear_measurement.hpp
-    radar_measurement.hpp
-  noise/
-    process_noise_model.hpp
-    measurement_noise_model.hpp
-    gaussian_noise.hpp
-  composition/
-    dynamic_system_model.hpp
-    sensor_model.hpp
+  base.hpp
+  motion_models.hpp
+  measurement_models.hpp
+  noise_models.hpp
+  models.hpp
 ```
 
 The key design choice is to split "what the world does" from "how uncertainty is injected":

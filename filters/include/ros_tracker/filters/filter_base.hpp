@@ -6,8 +6,7 @@
 #include "ros_tracker/core/result.hpp"
 #include "ros_tracker/core/types.hpp"
 #include "ros_tracker/filters/estimate.hpp"
-#include "ros_tracker/models/composition.hpp"
-#include "ros_tracker/models/model_context.hpp"
+#include "ros_tracker/models/base.hpp"
 
 namespace ros_tracker::filters {
 
