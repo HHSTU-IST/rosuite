@@ -4,7 +4,6 @@
 
 namespace ros_tracker::apps::ros
 {
-
   /// Constructs TrackerNodeAdapter.
   TrackerNodeAdapter::TrackerNodeAdapter(
       std::shared_ptr<tracking::TrackerBase> tracker,
