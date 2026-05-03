@@ -1,0 +1,155 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ROS_TRACKER_BUILD_TESTS": "ON",
+        "ROS_TRACKER_ENABLE_WARNINGS": "ON",
+        "ROS_TRACKER_WARNINGS_AS_ERRORS": "OFF",
+        "ROS_TRACKER_ENABLE_SANITIZERS": "OFF",
+        "ROS_TRACKER_ENABLE_COVERAGE": "OFF",
+        "ROS_TRACKER_ENABLE_CLANG_TIDY": "OFF",
+        "BUILD_SHARED_LIBS": "OFF"
+      }
+    },
+    {
+      "name": "default",
+      "displayName": "Default Debug",
+      "description": "Default local development preset with tests and warnings enabled.",
+      "inherits": "base",
+      "binaryDir": "${sourceDir}/build/default"
+    },
+    {
+      "name": "werror",
+      "displayName": "Warnings As Errors",
+      "description": "Local development preset with warnings promoted to errors.",
+      "inherits": "base",
+      "binaryDir": "${sourceDir}/build/werror",
+      "cacheVariables": {
+        "ROS_TRACKER_WARNINGS_AS_ERRORS": "ON"
+      }
+    },
+    {
+      "name": "shared",
+      "displayName": "Shared Libraries",
+      "description": "Build ros-tracker libraries as shared libraries.",
+      "inherits": "base",
+      "binaryDir": "${sourceDir}/build/shared",
+      "cacheVariables": {
+        "BUILD_SHARED_LIBS": "ON"
+      }
+    },
+    {
+      "name": "sanitizers",
+      "displayName": "Sanitizers",
+      "description": "Debug build with address and undefined behavior sanitizers enabled.",
+      "inherits": "base",
+      "binaryDir": "${sourceDir}/build/sanitizers",
+      "cacheVariables": {
+        "ROS_TRACKER_ENABLE_SANITIZERS": "ON",
+        "ROS_TRACKER_SANITIZERS": "address;undefined"
+      }
+    },
+    {
+      "name": "coverage",
+      "displayName": "Coverage",
+      "description": "Debug build with coverage instrumentation enabled.",
+      "inherits": "base",
+      "binaryDir": "${sourceDir}/build/coverage",
+      "cacheVariables": {
+        "ROS_TRACKER_ENABLE_COVERAGE": "ON"
+      }
+    },
+    {
+      "name": "clang-tidy",
+      "displayName": "Clang-Tidy",
+      "description": "Debug build with clang-tidy enabled when available.",
+      "inherits": "base",
+      "binaryDir": "${sourceDir}/build/clang-tidy",
+      "cacheVariables": {
+        "ROS_TRACKER_ENABLE_CLANG_TIDY": "ON"
+      }
+    },
+    {
+      "name": "ci",
+      "displayName": "CI",
+      "description": "RelWithDebInfo CI preset with tests and warnings-as-errors enabled.",
+      "inherits": "base",
+      "binaryDir": "${sourceDir}/build/ci",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "ROS_TRACKER_WARNINGS_AS_ERRORS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default"
+    },
+    {
+      "name": "werror",
+      "configurePreset": "werror"
+    },
+    {
+      "name": "shared",
+      "configurePreset": "shared"
+    },
+    {
+      "name": "sanitizers",
+      "configurePreset": "sanitizers"
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage"
+    },
+    {
+      "name": "clang-tidy",
+      "configurePreset": "clang-tidy"
+    },
+    {
+      "name": "ci",
+      "configurePreset": "ci"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "sanitizers",
+      "configurePreset": "sanitizers",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "ci",
+      "configurePreset": "ci",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

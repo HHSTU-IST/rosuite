@@ -4,7 +4,13 @@
 #include <string>
 #include <vector>
 
-#include "ros_tracker/apps/apps.hpp"
+#include "ros_tracker/apps/offline_examples.hpp"
+#include "ros_tracker/apps/offline_sim.hpp"
+#include "ros_tracker/apps/ros.hpp"
+#include "ros_tracker/filters/kalman_filters.hpp"
+#include "ros_tracker/models/factories.hpp"
+#include "ros_tracker/tracking/association_tools.hpp"
+#include "ros_tracker/tracking/track_lifecycle.hpp"
 
 namespace {
 
