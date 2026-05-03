@@ -4,6 +4,7 @@ add_library(
     src/association.cpp
     src/base.cpp
     src/management.cpp
+    src/multi_model.cpp
     src/tracker.cpp
 )
 add_library(ros_tracker::tracking ALIAS ros_tracker_tracking)
