@@ -67,22 +67,10 @@ void test_ros_adapter() {
   using namespace ros_tracker::models;
   using namespace ros_tracker::tracking;
 
-  Matrix h(2, 4);
-  h << 1.0, 0.0, 0.0, 0.0,
-       0.0, 1.0, 0.0, 0.0;
-
   auto tracker = std::make_shared<MultiTargetTracker>(
       std::make_shared<KalmanFilter>(),
-      DynamicSystemModel {
-          std::make_shared<ConstantVelocityMotionModel>(),
-          std::make_shared<ConstantGaussianProcessNoise>(
-              0.05 * Matrix::Identity(4, 4)),
-      },
-      SensorModel {
-          std::make_shared<LinearMeasurementModel>(h),
-          std::make_shared<ConstantGaussianMeasurementNoise>(
-              0.25 * Matrix::Identity(2, 2)),
-      },
+      make_constant_velocity_system(0.05 * Matrix::Identity(4, 4)),
+      make_position_sensor(0.25 * Matrix::Identity(2, 2)),
       std::make_shared<NearestNeighborAssociationStrategy>(16.0),
       std::make_shared<BasicTrackManager>(
           4,

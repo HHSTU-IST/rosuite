@@ -31,36 +31,6 @@ namespace
         expect_true(std::abs(actual - expected) <= tolerance, message);
     }
 
-    /// Builds a constant-velocity system model for tests.
-    ros_tracker::models::DynamicSystemModel make_constant_velocity_system()
-    {
-        using namespace ros_tracker::core;
-        using namespace ros_tracker::models;
-
-        return {
-            std::make_shared<ConstantVelocityMotionModel>(),
-            std::make_shared<ConstantGaussianProcessNoise>(
-                0.1 * Matrix::Identity(4, 4)),
-        };
-    }
-
-    /// Builds a linear position sensor model.
-    ros_tracker::models::SensorModel make_position_sensor()
-    {
-        using namespace ros_tracker::core;
-        using namespace ros_tracker::models;
-
-        Matrix h(2, 4);
-        h << 1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0;
-
-        return {
-            std::make_shared<LinearMeasurementModel>(h),
-            std::make_shared<ConstantGaussianMeasurementNoise>(
-                0.25 * Matrix::Identity(2, 2)),
-        };
-    }
-
     /// Tests the linear Kalman filter.
     void test_kalman()
     {
@@ -74,14 +44,16 @@ namespace
             Matrix::Identity(4, 4),
         };
 
-        const DynamicSystemModel system = make_constant_velocity_system();
+        const DynamicSystemModel system =
+            make_constant_velocity_system(0.1 * Matrix::Identity(4, 4));
         const ModelContext predict_context{1.0, 1.0, "map"};
         const auto predicted = filter.predict(estimate, system, predict_context);
         expect_true(predicted.ok(), "Kalman prediction should succeed.");
         expect_near(predicted.value().state.value[0], 1.0, 1e-12,
                     "Kalman prediction should advance x position.");
 
-        const SensorModel sensor = make_position_sensor();
+        const SensorModel sensor =
+            make_position_sensor(0.25 * Matrix::Identity(2, 2));
         Measurement measurement{
             (Vector(2) << 1.2, -0.1).finished(),
             1.0,
@@ -121,7 +93,10 @@ namespace
             "map",
         };
 
-        const auto corrected = filter.correct(estimate, make_position_sensor(), measurement);
+        const auto corrected = filter.correct(
+            estimate,
+            make_position_sensor(0.25 * Matrix::Identity(2, 2)),
+            measurement);
         expect_true(corrected.ok(), "Constant gain correction should succeed.");
         expect_near(corrected.value().state.value[0], 3.0, 1e-12,
                     "Constant gain filter should overwrite x position with unit gain.");
@@ -246,8 +221,10 @@ namespace
         using namespace ros_tracker::filters;
         using namespace ros_tracker::models;
 
-        const auto system = make_constant_velocity_system();
-        const auto sensor = make_position_sensor();
+        const auto system =
+            make_constant_velocity_system(0.1 * Matrix::Identity(4, 4));
+        const auto sensor =
+            make_position_sensor(0.25 * Matrix::Identity(2, 2));
 
         GaussianEstimate estimate{
             State{(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
@@ -297,7 +274,8 @@ namespace
             State{(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
             0.5 * Matrix::Identity(4, 4),
         };
-        const auto system = make_constant_velocity_system();
+        const auto system =
+            make_constant_velocity_system(0.1 * Matrix::Identity(4, 4));
         const ModelContext context{1.0, 1.0, "map"};
 
         const auto predicted = enkf.predict(estimate, system, context);
@@ -311,7 +289,10 @@ namespace
             "pos_sensor",
             "map",
         };
-        const auto corrected = enkf.correct(predicted.value(), make_position_sensor(), measurement);
+        const auto corrected = enkf.correct(
+            predicted.value(),
+            make_position_sensor(0.25 * Matrix::Identity(2, 2)),
+            measurement);
         expect_true(corrected.ok(), "EnKF correction should succeed.");
         expect_true(corrected.value().state.value[0] > predicted.value().state.value[0] - 1e-6,
                     "EnKF correction should move the estimate toward the measurement.");
@@ -332,7 +313,8 @@ namespace
             Matrix::Identity(4, 4),
         };
 
-        const auto system = make_constant_velocity_system();
+        const auto system =
+            make_constant_velocity_system(0.1 * Matrix::Identity(4, 4));
         const ModelContext context{1.0, 1.0, "map"};
 
         const auto baseline = classical.predict(estimate, system, context);
@@ -350,7 +332,10 @@ namespace
             "map",
         };
         const auto corrected =
-            fading_memory.correct(predicted.value(), make_position_sensor(), measurement);
+            fading_memory.correct(
+                predicted.value(),
+                make_position_sensor(0.25 * Matrix::Identity(2, 2)),
+                measurement);
         expect_true(corrected.ok(), "Fading-memory Kalman correction should succeed.");
         expect_true(corrected.value().covariance.trace() <
                         predicted.value().covariance.trace(),
@@ -378,7 +363,10 @@ namespace
         };
 
         const auto corrected =
-            hinf.correct(estimate, make_position_sensor(), measurement);
+            hinf.correct(
+                estimate,
+                make_position_sensor(0.25 * Matrix::Identity(2, 2)),
+                measurement);
         expect_true(corrected.ok(), "H-infinity Kalman correction should succeed.");
         expect_true(corrected.value().covariance.trace() < estimate.covariance.trace(),
                     "H-infinity Kalman correction should reduce covariance trace.");
@@ -399,7 +387,8 @@ namespace
             0.25 * Matrix::Identity(4, 4),
         };
 
-        const auto system = make_constant_velocity_system();
+        const auto system =
+            make_constant_velocity_system(0.1 * Matrix::Identity(4, 4));
         const ModelContext context{1.0, 1.0, "map"};
         const auto predicted = pf.predict(estimate, system, context);
         expect_true(predicted.ok(), "Particle filter prediction should succeed.");
@@ -415,7 +404,10 @@ namespace
             "map",
         };
         const auto corrected =
-            pf.correct(predicted.value(), make_position_sensor(), measurement);
+            pf.correct(
+                predicted.value(),
+                make_position_sensor(0.25 * Matrix::Identity(2, 2)),
+                measurement);
         expect_true(corrected.ok(), "Particle filter correction should succeed.");
         expect_true(corrected.value().state.value[0] > predicted.value().state.value[0],
                     "Particle filter correction should move the estimate toward the measurement.");

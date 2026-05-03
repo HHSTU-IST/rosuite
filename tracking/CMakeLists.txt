@@ -8,6 +8,8 @@ add_library(
 )
 add_library(ros_tracker::tracking ALIAS ros_tracker_tracking)
 
+set_target_properties(ros_tracker_tracking PROPERTIES EXPORT_NAME tracking)
+
 target_include_directories(
   ros_tracker_tracking
   PUBLIC
@@ -24,6 +26,15 @@ target_link_libraries(
 )
 
 target_compile_features(ros_tracker_tracking PUBLIC cxx_std_17)
+
+install(
+  TARGETS ros_tracker_tracking
+  EXPORT ros_trackerTargets
+  ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+  INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
 
 if(ROS_TRACKER_BUILD_TESTS)
   add_executable(ros_tracker_tracking_tests test/test_tracking.cpp)

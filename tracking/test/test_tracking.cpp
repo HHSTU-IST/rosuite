@@ -11,6 +11,9 @@
 namespace
 {
     int g_failures = 0;
+    using ros_tracker::core::Matrix;
+    using ros_tracker::models::make_constant_velocity_system;
+    using ros_tracker::models::make_position_sensor;
 
     /// Asserts that a condition is true.
     void expect_true(const bool condition, const std::string &message)
@@ -22,36 +25,6 @@ namespace
         }
     }
 
-    /// Builds a constant-velocity system model for tests.
-    ros_tracker::models::DynamicSystemModel make_constant_velocity_system()
-    {
-        using namespace ros_tracker::core;
-        using namespace ros_tracker::models;
-
-        return {
-            std::make_shared<ConstantVelocityMotionModel>(),
-            std::make_shared<ConstantGaussianProcessNoise>(
-                0.05 * Matrix::Identity(4, 4)),
-        };
-    }
-
-    /// Builds a linear position sensor model.
-    ros_tracker::models::SensorModel make_position_sensor()
-    {
-        using namespace ros_tracker::core;
-        using namespace ros_tracker::models;
-
-        Matrix h(2, 4);
-        h << 1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0;
-
-        return {
-            std::make_shared<LinearMeasurementModel>(h),
-            std::make_shared<ConstantGaussianMeasurementNoise>(
-                0.25 * Matrix::Identity(2, 2)),
-        };
-    }
-
     /// Creates the default track-estimator handle.
     std::shared_ptr<const ros_tracker::tracking::TrackEstimatorModelHandle>
     make_default_handle()
@@ -61,8 +34,8 @@ namespace
 
         return std::make_shared<StaticTrackEstimatorModelHandle>(
             std::make_shared<KalmanFilter>(),
-            make_constant_velocity_system(),
-            make_position_sensor(),
+            make_constant_velocity_system(0.05 * Matrix::Identity(4, 4)),
+            make_position_sensor(0.25 * Matrix::Identity(2, 2)),
             "kalman_cv");
     }
 
@@ -84,8 +57,8 @@ namespace
                     handle =
                         std::make_shared<ros_tracker::tracking::StaticTrackEstimatorModelHandle>(
                             std::make_shared<ros_tracker::filters::ParticleFilter>(128, 42U, 0.3),
-                            make_constant_velocity_system(),
-                            make_position_sensor(),
+                            make_constant_velocity_system(0.05 * Matrix::Identity(4, 4)),
+                            make_position_sensor(0.25 * Matrix::Identity(2, 2)),
                             "particle_cv");
                 return handle;
             }
@@ -147,7 +120,7 @@ namespace
         const auto result = strategy.associate(
             tracks,
             measurements,
-            make_position_sensor(),
+            make_position_sensor(0.25 * Matrix::Identity(2, 2)),
             ros_tracker::models::ModelContext{1.0, 1.0, "map"});
         expect_true(result.ok(), "Nearest-neighbor association should succeed.");
         expect_true(result.value().matches.size() == 2U,
@@ -216,8 +189,8 @@ namespace
 
         MultiTargetTracker tracker(
             filter,
-            make_constant_velocity_system(),
-            make_position_sensor(),
+            make_constant_velocity_system(0.05 * Matrix::Identity(4, 4)),
+            make_position_sensor(0.25 * Matrix::Identity(2, 2)),
             association,
             manager);
 
@@ -362,24 +335,22 @@ namespace
         using namespace ros_tracker::tracking;
 
         auto shared_filter = std::make_shared<KalmanFilter>();
+        const auto low_q_system =
+            ros_tracker::models::make_constant_velocity_system(
+                0.01 * Matrix::Identity(4, 4));
+        const auto high_q_system =
+            ros_tracker::models::make_constant_velocity_system(
+                0.5 * Matrix::Identity(4, 4));
 
         std::vector<ModelBankEntry> model_bank{
             ModelBankEntry{
                 "low_q",
-                {
-                    std::make_shared<ros_tracker::models::ConstantVelocityMotionModel>(),
-                    std::make_shared<ros_tracker::models::ConstantGaussianProcessNoise>(
-                        0.01 * Matrix::Identity(4, 4)),
-                },
+                low_q_system,
                 shared_filter,
             },
             ModelBankEntry{
                 "high_q",
-                {
-                    std::make_shared<ros_tracker::models::ConstantVelocityMotionModel>(),
-                    std::make_shared<ros_tracker::models::ConstantGaussianProcessNoise>(
-                        0.5 * Matrix::Identity(4, 4)),
-                },
+                high_q_system,
                 shared_filter,
             },
         };
@@ -406,7 +377,7 @@ namespace
         };
         const auto updated = imm.step(
             initialized.value(),
-            make_position_sensor(),
+            make_position_sensor(0.25 * Matrix::Identity(2, 2)),
             measurement,
             ros_tracker::models::ModelContext{1.0, 1.0, "map"});
         expect_true(updated.ok(), "IMM predict-correct step should succeed.");

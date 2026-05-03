@@ -1,6 +1,8 @@
 add_library(ros_tracker_filters INTERFACE)
 add_library(ros_tracker::filters ALIAS ros_tracker_filters)
 
+set_target_properties(ros_tracker_filters PROPERTIES EXPORT_NAME filters)
+
 target_include_directories(
   ros_tracker_filters
   INTERFACE
@@ -16,6 +18,8 @@ target_link_libraries(
 )
 
 target_compile_features(ros_tracker_filters INTERFACE cxx_std_17)
+
+install(TARGETS ros_tracker_filters EXPORT ros_trackerTargets)
 
 if(ROS_TRACKER_BUILD_TESTS)
   add_executable(ros_tracker_filters_tests test/test_filters.cpp)

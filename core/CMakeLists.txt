@@ -1,6 +1,8 @@
 add_library(ros_tracker_core INTERFACE)
 add_library(ros_tracker::core ALIAS ros_tracker_core)
 
+set_target_properties(ros_tracker_core PROPERTIES EXPORT_NAME core)
+
 target_include_directories(
   ros_tracker_core
   INTERFACE
@@ -10,6 +12,8 @@ target_include_directories(
 
 target_link_libraries(ros_tracker_core INTERFACE Eigen3::Eigen)
 target_compile_features(ros_tracker_core INTERFACE cxx_std_17)
+
+install(TARGETS ros_tracker_core EXPORT ros_trackerTargets)
 
 if(ROS_TRACKER_BUILD_TESTS)
   add_executable(ros_tracker_core_tests test/test_core.cpp)

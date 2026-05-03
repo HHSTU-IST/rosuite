@@ -46,10 +46,6 @@ namespace ros_tracker::apps::offline
             return scenario.status();
         }
 
-        Matrix h(2, 4);
-        h << 1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0;
-
         auto filter = std::make_shared<KalmanFilter>();
         auto association =
             std::make_shared<NearestNeighborAssociationStrategy>(16.0);
@@ -62,16 +58,8 @@ namespace ros_tracker::apps::offline
 
         MultiTargetTracker tracker(
             filter,
-            DynamicSystemModel{
-                std::make_shared<ConstantVelocityMotionModel>(),
-                std::make_shared<ConstantGaussianProcessNoise>(
-                    scenario_config.process_noise_covariance),
-            },
-            SensorModel{
-                std::make_shared<LinearMeasurementModel>(h),
-                std::make_shared<ConstantGaussianMeasurementNoise>(
-                    scenario_config.measurement_noise_covariance),
-            },
+            make_constant_velocity_system(scenario_config.process_noise_covariance),
+            make_position_sensor(scenario_config.measurement_noise_covariance),
             association,
             manager);
 

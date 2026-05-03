@@ -5,6 +5,8 @@ add_library(
 )
 add_library(ros_tracker::apps ALIAS ros_tracker_apps)
 
+set_target_properties(ros_tracker_apps PROPERTIES EXPORT_NAME apps)
+
 target_include_directories(
   ros_tracker_apps
   PUBLIC
@@ -23,11 +25,25 @@ target_link_libraries(
 
 target_compile_features(ros_tracker_apps PUBLIC cxx_std_17)
 
+install(
+  TARGETS ros_tracker_apps
+  EXPORT ros_trackerTargets
+  ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+  INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
 add_executable(
   ros_tracker_offline_example
   example/offline_example.cpp
 )
 target_link_libraries(ros_tracker_offline_example PRIVATE ros_tracker::apps)
+
+install(
+  TARGETS ros_tracker_offline_example
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+)
 
 if(ROS_TRACKER_BUILD_TESTS)
   add_executable(ros_tracker_apps_tests test/test_apps.cpp)
