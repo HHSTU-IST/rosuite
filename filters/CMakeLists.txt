@@ -38,27 +38,21 @@ install(
 )
 
 if(ROS_TRACKER_BUILD_TESTS)
-  add_executable(ros_tracker_filters_kalman_tests test/test_kalman_family.cpp)
-  target_link_libraries(ros_tracker_filters_kalman_tests PRIVATE ros_tracker::filters)
-  ros_tracker_apply_project_options(ros_tracker_filters_kalman_tests)
-  add_test(
-    NAME ros_tracker_filters_kalman_tests
-    COMMAND ros_tracker_filters_kalman_tests
+  ros_tracker_add_test(
+    ros_tracker_filters_kalman_tests
+    SOURCES test/test_kalman_family.cpp
+    LIBRARIES ros_tracker::filters
   )
 
-  add_executable(ros_tracker_filters_estimation_tests test/test_estimation_utils.cpp)
-  target_link_libraries(ros_tracker_filters_estimation_tests PRIVATE ros_tracker::filters)
-  ros_tracker_apply_project_options(ros_tracker_filters_estimation_tests)
-  add_test(
-    NAME ros_tracker_filters_estimation_tests
-    COMMAND ros_tracker_filters_estimation_tests
+  ros_tracker_add_test(
+    ros_tracker_filters_estimation_tests
+    SOURCES test/test_estimation_utils.cpp
+    LIBRARIES ros_tracker::filters
   )
 
-  add_executable(ros_tracker_filters_particle_tests test/test_particle.cpp)
-  target_link_libraries(ros_tracker_filters_particle_tests PRIVATE ros_tracker::filters)
-  ros_tracker_apply_project_options(ros_tracker_filters_particle_tests)
-  add_test(
-    NAME ros_tracker_filters_particle_tests
-    COMMAND ros_tracker_filters_particle_tests
+  ros_tracker_add_test(
+    ros_tracker_filters_particle_tests
+    SOURCES test/test_particle.cpp
+    LIBRARIES ros_tracker::filters
   )
 endif()

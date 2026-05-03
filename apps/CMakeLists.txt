@@ -49,8 +49,9 @@ install(
 )
 
 if(ROS_TRACKER_BUILD_TESTS)
-  add_executable(ros_tracker_apps_tests test/test_apps.cpp)
-  target_link_libraries(ros_tracker_apps_tests PRIVATE ros_tracker::apps)
-  ros_tracker_apply_project_options(ros_tracker_apps_tests)
-  add_test(NAME ros_tracker_apps_tests COMMAND ros_tracker_apps_tests)
+  ros_tracker_add_test(
+    ros_tracker_apps_tests
+    SOURCES test/test_apps.cpp
+    LIBRARIES ros_tracker::apps
+  )
 endif()

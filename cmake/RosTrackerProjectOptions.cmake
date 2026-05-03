@@ -1,5 +1,42 @@
 include_guard(GLOBAL)
 
+function(ros_tracker_add_test target_name)
+  set(options)
+  set(one_value_args)
+  set(multi_value_args SOURCES LIBRARIES)
+  cmake_parse_arguments(
+    ROS_TRACKER_ADD_TEST
+    "${options}"
+    "${one_value_args}"
+    "${multi_value_args}"
+    ${ARGN}
+  )
+
+  if(NOT ROS_TRACKER_ADD_TEST_SOURCES)
+    message(FATAL_ERROR "ros_tracker_add_test(${target_name}) requires SOURCES.")
+  endif()
+
+  add_executable("${target_name}" ${ROS_TRACKER_ADD_TEST_SOURCES})
+
+  if(ROS_TRACKER_ADD_TEST_LIBRARIES)
+    target_link_libraries(
+      "${target_name}"
+      PRIVATE
+        ${ROS_TRACKER_ADD_TEST_LIBRARIES}
+    )
+  endif()
+
+  ros_tracker_apply_project_options("${target_name}")
+  add_test(NAME "${target_name}" COMMAND "${target_name}")
+
+  set_property(
+    GLOBAL
+    APPEND
+    PROPERTY ROS_TRACKER_TEST_TARGETS
+    "${target_name}"
+  )
+endfunction()
+
 function(ros_tracker_init_project_options)
   add_library(ros_tracker_project_options INTERFACE)
   add_library(ros_tracker_project_warnings INTERFACE)
@@ -181,22 +218,22 @@ function(ros_tracker_add_quality_targets)
   add_custom_target(lint DEPENDS format-check)
 
   if(ROS_TRACKER_BUILD_TESTS)
+    get_property(
+      ROS_TRACKER_REGISTERED_TEST_TARGETS
+      GLOBAL
+      PROPERTY ROS_TRACKER_TEST_TARGETS
+    )
+
     add_custom_target(
       check
       COMMAND "${CMAKE_CTEST_COMMAND}" --output-on-failure
-      DEPENDS
-        ros_tracker_core_tests
-        ros_tracker_models_tests
-        ros_tracker_filters_kalman_tests
-        ros_tracker_filters_estimation_tests
-        ros_tracker_filters_particle_tests
-        ros_tracker_tracking_association_tests
-        ros_tracker_tracking_tracker_tests
-        ros_tracker_tracking_multi_model_tests
-        ros_tracker_apps_tests
       COMMENT "Running ros-tracker test suite"
       VERBATIM
     )
+
+    if(ROS_TRACKER_REGISTERED_TEST_TARGETS)
+      add_dependencies(check ${ROS_TRACKER_REGISTERED_TEST_TARGETS})
+    endif()
   else()
     add_custom_target(
       check

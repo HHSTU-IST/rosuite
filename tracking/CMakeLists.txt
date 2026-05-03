@@ -39,39 +39,24 @@ install(
 )
 
 if(ROS_TRACKER_BUILD_TESTS)
-  add_executable(ros_tracker_tracking_association_tests test/test_association.cpp)
-  target_link_libraries(
+  ros_tracker_add_test(
     ros_tracker_tracking_association_tests
-    PRIVATE
+    SOURCES test/test_association.cpp
+    LIBRARIES
       ros_tracker::tracking
   )
-  ros_tracker_apply_project_options(ros_tracker_tracking_association_tests)
-  add_test(
-    NAME ros_tracker_tracking_association_tests
-    COMMAND ros_tracker_tracking_association_tests
-  )
 
-  add_executable(ros_tracker_tracking_tracker_tests test/test_tracker.cpp)
-  target_link_libraries(
+  ros_tracker_add_test(
     ros_tracker_tracking_tracker_tests
-    PRIVATE
+    SOURCES test/test_tracker.cpp
+    LIBRARIES
       ros_tracker::tracking
-  )
-  ros_tracker_apply_project_options(ros_tracker_tracking_tracker_tests)
-  add_test(
-    NAME ros_tracker_tracking_tracker_tests
-    COMMAND ros_tracker_tracking_tracker_tests
   )
 
-  add_executable(ros_tracker_tracking_multi_model_tests test/test_model_multi.cpp)
-  target_link_libraries(
+  ros_tracker_add_test(
     ros_tracker_tracking_multi_model_tests
-    PRIVATE
+    SOURCES test/test_model_multi.cpp
+    LIBRARIES
       ros_tracker::tracking
-  )
-  ros_tracker_apply_project_options(ros_tracker_tracking_multi_model_tests)
-  add_test(
-    NAME ros_tracker_tracking_multi_model_tests
-    COMMAND ros_tracker_tracking_multi_model_tests
   )
 endif()
