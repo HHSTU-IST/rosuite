@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ros_tracker/filters/filter_base.hpp"
-#include "ros_tracker/filters/kalman_filter_gaussian_transform.hpp"
+#include "ros_tracker/filters/kalman_gaussian_transform.hpp"
 #include "ros_tracker/filters/sigma_points.hpp"
 
 namespace ros_tracker::filters

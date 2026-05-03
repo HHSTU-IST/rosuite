@@ -1,11 +1,11 @@
 #pragma once
 
 #include "ros_tracker/filters/filter_base.hpp"
-#include "ros_tracker/filters/kalman_filter_support.hpp"
+#include "ros_tracker/filters/kalman_support.hpp"
 
 namespace ros_tracker::filters
 {
-  class KalmanFilterExtended final : public FilterBase
+  class KalmanFilter final : public FilterBase
   {
   public:
     /// Predicts the next estimate.
@@ -47,7 +47,7 @@ namespace ros_tracker::filters
     /// Returns the component name.
     [[nodiscard]] std::string_view name() const noexcept override
     {
-      return "kalman_ekf";
+      return "kalman";
     }
   };
 

@@ -62,7 +62,7 @@ namespace
     }
 
     /// Tests the linear Kalman filter.
-    void test_kalman_filter()
+    void test_kalman()
     {
         using namespace ros_tracker::core;
         using namespace ros_tracker::filters;
@@ -130,7 +130,7 @@ namespace
     }
 
     /// Tests the extended Kalman filter with a radar model.
-    void test_kalman_filter_extended_with_radar()
+    void test_kalman_extended_with_radar()
     {
         using namespace ros_tracker::core;
         using namespace ros_tracker::filters;
@@ -286,7 +286,7 @@ namespace
     }
 
     /// Tests the ensemble Kalman filter.
-    void test_kalman_filter_ensemble()
+    void test_kalman_ensemble()
     {
         using namespace ros_tracker::core;
         using namespace ros_tracker::filters;
@@ -318,7 +318,7 @@ namespace
     }
 
     /// Tests the fading-memory Kalman filter.
-    void test_kalman_filter_fading_memory()
+    void test_kalman_fading_memory()
     {
         using namespace ros_tracker::core;
         using namespace ros_tracker::filters;
@@ -358,7 +358,7 @@ namespace
     }
 
     /// Tests the H-infinity Kalman filter.
-    void test_kalman_filter_h_infinity()
+    void test_kalman_h_infinity()
     {
         using namespace ros_tracker::core;
         using namespace ros_tracker::filters;
@@ -428,16 +428,16 @@ namespace
 /// Runs the test executable.
 int main()
 {
-    test_kalman_filter();
+    test_kalman();
     test_constant_gain_filter();
-    test_kalman_filter_extended_with_radar();
+    test_kalman_extended_with_radar();
     test_least_squares();
     test_sigma_points();
     test_rts_smoother();
     test_unscented_and_cubature_filters();
-    test_kalman_filter_ensemble();
-    test_kalman_filter_fading_memory();
-    test_kalman_filter_h_infinity();
+    test_kalman_ensemble();
+    test_kalman_fading_memory();
+    test_kalman_h_infinity();
     test_particle_filter();
 
     if (g_failures != 0)

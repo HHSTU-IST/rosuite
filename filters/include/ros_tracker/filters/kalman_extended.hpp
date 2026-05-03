@@ -1,12 +1,11 @@
 #pragma once
 
 #include "ros_tracker/filters/filter_base.hpp"
-#include "ros_tracker/filters/kalman_filter_gaussian_transform.hpp"
-#include "ros_tracker/filters/sigma_points.hpp"
+#include "ros_tracker/filters/kalman_support.hpp"
 
 namespace ros_tracker::filters
 {
-  class KalmanFilterCubature final : public FilterBase
+  class KalmanFilterExtended final : public FilterBase
   {
   public:
     /// Predicts the next estimate.
@@ -16,14 +15,7 @@ namespace ros_tracker::filters
         const models::ModelContext &context,
         std::optional<core::ControlInput> control = std::nullopt) const override
     {
-      const auto sigma_points = generator_.generate(estimate);
-      if (!sigma_points.ok())
-      {
-        return sigma_points.status();
-      }
-
-      return detail::predict_from_sigma_points(
-          estimate, sigma_points.value(), model, context, std::move(control));
+      return detail::predict_linearized(estimate, model, context, std::move(control));
     }
 
     /// Corrects an estimate with a measurement.
@@ -33,24 +25,30 @@ namespace ros_tracker::filters
         const core::Measurement &measurement,
         const models::ModelContext &context = {}) const override
     {
-      const auto sigma_points = generator_.generate(estimate);
-      if (!sigma_points.ok())
+      const auto predicted = detail::linearized_measurement(
+          estimate, sensor, measurement, context);
+      if (!predicted.ok())
       {
-        return sigma_points.status();
+        return predicted.status();
       }
 
-      return detail::correct_from_sigma_points(
-          estimate, sigma_points.value(), sensor, measurement, context);
+      const auto gain = detail::kalman_gain_from_innovation(
+          predicted.value().cross_covariance,
+          predicted.value().covariance);
+      if (!gain.ok())
+      {
+        return gain.status();
+      }
+
+      return detail::joseph_update(
+          estimate, sensor, measurement, context, gain.value());
     }
 
     /// Returns the component name.
     [[nodiscard]] std::string_view name() const noexcept override
     {
-      return "kalman_ckf";
+      return "kalman_ekf";
     }
-
-  private:
-    CubaturePointGenerator generator_;
   };
 
 } // namespace ros_tracker::filters
