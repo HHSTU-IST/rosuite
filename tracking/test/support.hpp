@@ -5,9 +5,10 @@
 #include <memory>
 #include <string>
 
-#include "ros_tracker/filters/filters.hpp"
+#include "ros_tracker/filters/kalman_filters.hpp"
+#include "ros_tracker/filters/particle_filters.hpp"
 #include "ros_tracker/models/models.hpp"
-#include "ros_tracker/tracking/tracking.hpp"
+#include "ros_tracker/tracking/track_lifecycle.hpp"
 
 namespace ros_tracker::tracking::test_support
 {

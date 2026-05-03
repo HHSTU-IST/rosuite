@@ -3,6 +3,9 @@
 #include <cmath>
 #include <vector>
 
+#include "ros_tracker/tracking/association_tools.hpp"
+#include "ros_tracker/tracking/multi_model_tools.hpp"
+
 namespace
 {
 

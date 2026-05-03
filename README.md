@@ -110,6 +110,19 @@ If you only want one include per layer, start from these umbrella headers:
 - `#include "ros_tracker/tracking/tracking.hpp"`
 - `#include "ros_tracker/apps/apps.hpp"`
 
+If you want lighter-weight entry points, prefer the second-level umbrellas:
+
+- `filters`
+  - `#include "ros_tracker/filters/filter_primitives.hpp"`
+  - `#include "ros_tracker/filters/kalman_filters.hpp"`
+  - `#include "ros_tracker/filters/sigma_point_filters.hpp"`
+  - `#include "ros_tracker/filters/particle_filters.hpp"`
+  - `#include "ros_tracker/filters/estimation_tools.hpp"`
+- `tracking`
+  - `#include "ros_tracker/tracking/track_lifecycle.hpp"`
+  - `#include "ros_tracker/tracking/association_tools.hpp"`
+  - `#include "ros_tracker/tracking/multi_model_tools.hpp"`
+
 ### 1. `core`: shared math, types, status, and result helpers
 
 Use `core` whenever you need the common numeric types (`Vector`, `Matrix`, `State`, `Measurement`) or reusable math/statistics helpers.

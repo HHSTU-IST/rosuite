@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "ros_tracker/tracking/association_tools.hpp"
+
 namespace
 {
 

@@ -5,9 +5,11 @@
 
 #include "ros_tracker/apps/offline_sim.hpp"
 #include "ros_tracker/apps/offline_tools.hpp"
-#include "ros_tracker/filters/filters.hpp"
+#include "ros_tracker/filters/filter_primitives.hpp"
+#include "ros_tracker/filters/kalman_filters.hpp"
 #include "ros_tracker/models/models.hpp"
-#include "ros_tracker/tracking/tracking.hpp"
+#include "ros_tracker/tracking/association_tools.hpp"
+#include "ros_tracker/tracking/track_lifecycle.hpp"
 
 namespace ros_tracker::apps::offline
 {
