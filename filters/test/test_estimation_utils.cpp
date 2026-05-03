@@ -1,6 +1,8 @@
 #include "support.hpp"
 
-#include "ros_tracker/filters/filters.hpp"
+#include "ros_tracker/filters/estimation_tools.hpp"
+#include "ros_tracker/filters/filter_primitives.hpp"
+#include "ros_tracker/filters/sigma_point_filters.hpp"
 
 namespace
 {

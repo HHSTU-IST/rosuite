@@ -2,6 +2,8 @@ add_library(
   ros_tracker_filters
     src/kalman_support.cpp
     src/kalman_gaussian_transform.cpp
+    src/kalman_ensemble.cpp
+    src/kalman_h_infinity.cpp
     src/particle_filter.cpp
 )
 add_library(ros_tracker::filters ALIAS ros_tracker_filters)

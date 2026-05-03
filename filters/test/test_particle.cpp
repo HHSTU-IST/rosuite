@@ -1,7 +1,7 @@
 #include "support.hpp"
 
-#include "ros_tracker/filters/filters.hpp"
-#include "ros_tracker/models/models.hpp"
+#include "ros_tracker/filters/particle_filters.hpp"
+#include "ros_tracker/models/factories.hpp"
 
 namespace
 {

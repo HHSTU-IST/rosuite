@@ -1,7 +1,8 @@
 #include "support.hpp"
 
-#include "ros_tracker/filters/filters.hpp"
-#include "ros_tracker/models/models.hpp"
+#include "ros_tracker/filters/kalman_filters.hpp"
+#include "ros_tracker/filters/sigma_point_filters.hpp"
+#include "ros_tracker/models/factories.hpp"
 
 namespace
 {
