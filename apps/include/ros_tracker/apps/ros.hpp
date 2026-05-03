@@ -6,54 +6,58 @@
 
 #include "ros_tracker/tracking/tracking.hpp"
 
-namespace ros_tracker::apps::ros {
+namespace ros_tracker::apps::ros
+{
+  struct TrackerNodeParameters
+  {
+    core::Scalar dt{1.0};
+    std::string frame_id{"map"};
+  };
 
-struct TrackerNodeParameters {
-  core::Scalar dt {1.0};
-  std::string frame_id {"map"};
-};
+  struct TrackMessage
+  {
+    tracking::TrackId id{0U};
+    core::Scalar timestamp{0.0};
+    std::string frame_id;
+    std::string sensor_id;
+    std::string lifecycle;
+    std::vector<core::Scalar> state;
+    std::vector<core::Scalar> covariance;
+  };
 
-struct TrackMessage {
-  tracking::TrackId id {0U};
-  core::Scalar timestamp {0.0};
-  std::string frame_id;
-  std::string sensor_id;
-  std::string lifecycle;
-  std::vector<core::Scalar> state;
-  std::vector<core::Scalar> covariance;
-};
+  struct TrackArrayMessage
+  {
+    core::Scalar timestamp{0.0};
+    std::string frame_id;
+    std::vector<TrackMessage> tracks;
+  };
 
-struct TrackArrayMessage {
-  core::Scalar timestamp {0.0};
-  std::string frame_id;
-  std::vector<TrackMessage> tracks;
-};
+  /// Converts a track lifecycle enum to a string label.
+  [[nodiscard]] std::string lifecycle_to_string(
+      tracking::TrackLifecycle lifecycle);
 
-/// Converts a track lifecycle enum to a string label.
-[[nodiscard]] std::string lifecycle_to_string(
-    tracking::TrackLifecycle lifecycle);
+  /// Converts an internal track into an adapter message.
+  [[nodiscard]] TrackMessage to_track_message(const tracking::Track &track);
 
-/// Converts an internal track into an adapter message.
-[[nodiscard]] TrackMessage to_track_message(const tracking::Track& track);
+  class TrackerNodeAdapter
+  {
+  public:
+    /// Constructs TrackerNodeAdapter.
+    TrackerNodeAdapter(
+        std::shared_ptr<tracking::TrackerBase> tracker,
+        TrackerNodeParameters parameters = {});
 
-class TrackerNodeAdapter {
- public:
-  /// Constructs TrackerNodeAdapter.
-  TrackerNodeAdapter(
-      std::shared_ptr<tracking::TrackerBase> tracker,
-      TrackerNodeParameters parameters = {});
+    /// Processes a measurement batch and produces track output.
+    [[nodiscard]] core::Result<TrackArrayMessage> process_measurements(
+        const std::vector<core::Measurement> &measurements,
+        std::optional<core::ControlInput> control = std::nullopt);
 
-  /// Processes a measurement batch and produces track output.
-  [[nodiscard]] core::Result<TrackArrayMessage> process_measurements(
-      const std::vector<core::Measurement>& measurements,
-      std::optional<core::ControlInput> control = std::nullopt);
+    /// Returns the component name.
+    [[nodiscard]] std::string_view name() const noexcept;
 
-  /// Returns the component name.
-  [[nodiscard]] std::string_view name() const noexcept;
+  private:
+    std::shared_ptr<tracking::TrackerBase> tracker_;
+    TrackerNodeParameters parameters_;
+  };
 
- private:
-  std::shared_ptr<tracking::TrackerBase> tracker_;
-  TrackerNodeParameters parameters_;
-};
-
-}  // namespace ros_tracker::apps::ros
+} // namespace ros_tracker::apps::ros
