@@ -1,5 +1,6 @@
 add_library(
   ros_tracker_apps
+    src/offline_examples.cpp
     src/ros.cpp
 )
 add_library(ros_tracker::apps ALIAS ros_tracker_apps)

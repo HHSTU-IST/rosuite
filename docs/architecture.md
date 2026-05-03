@@ -7,13 +7,13 @@ This document explains the reasoning behind the recommended structure for ROS Tr
 The conceptual architecture should keep a clear responsibility flow:
 
 ```text
-core -> models -> estimation -> tracking -> ros/examples
+core -> models -> filters -> tracking -> apps
 ```
 
 Simulation is a support layer that consumes the lower layers:
 
 ```text
-sim -> core, models, estimation, tracking
+offline/sim -> core, models, filters, tracking
 ```
 
 Tooling such as plotting and benchmarking should stay outside the core dependency graph.
@@ -36,7 +36,7 @@ apps/
 This keeps the architecture clean without over-fragmenting the repository too early:
 
 - keep `core` and `models` separate because they are foundational and stable
-- map `estimation` responsibilities into a top-level `filters` module
+- map state-estimation responsibilities into a top-level `filters` module
 - keep `tracking` as its own top-level module because its orchestration concerns differ from filtering
 - merge `sim`, `examples`, and support tooling into `apps/offline`
 - keep ROS integration under `apps/ros` as the only runtime boundary package
@@ -84,6 +84,8 @@ models/
   noise_models.hpp
   models.hpp
 ```
+
+Current naming direction in this repository prefers "family first, variant second" for public entry points where it improves scanability. For example, `filters/kalman_constant_gain.hpp`, `filters/estimator_least_squares.hpp`, `filters/smoother_rts.hpp`, and `tracking/model_multi.hpp` follow the newer convention.
 
 The key design choice is to split "what the world does" from "how uncertainty is injected":
 

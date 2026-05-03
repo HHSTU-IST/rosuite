@@ -1,6 +1,6 @@
 # ROS Tracker
 
-ROS Tracker is a ROS2 object tracking moduel written in C++17.
+ROS Tracker is a ROS2 object tracking module written in C++17.
 
 ## Design Goals
 
@@ -21,11 +21,11 @@ ROS Tracker is a ROS2 object tracking moduel written in C++17.
 
 ## Build Shape
 
-- `core`, `models`, and most `filters` utilities remain header-first for lightweight numeric reuse.
-- `tracking` and `apps` now build compiled libraries, so orchestration, association, management, and ROS-facing adapter code no longer live entirely in public headers.
+- `core` remains header-first for lightweight numeric reuse.
+- `models`, `filters`, `tracking`, and `apps` now build compiled libraries, so heavier orchestration and estimator implementations no longer live entirely in public headers.
 - `core::Result<T>` rejects `ok`-without-value construction and throws `std::logic_error` on invalid `value()` access to make status-handling bugs fail fast during development.
 
-## Module TODOs
+## Module Status
 
 See [docs/architecture.md](docs/architecture.md) for details.
 
