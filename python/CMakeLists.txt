@@ -2,23 +2,23 @@ find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 find_package(pybind11 CONFIG REQUIRED)
 
 pybind11_add_module(
-  _Kracker
+  _kracker
   MODULE
   src/module.cpp
 )
 
 target_link_libraries(
-  _Kracker
+  _kracker
   PRIVATE
   kracker::apps
   kracker::tracking
 )
 
-target_compile_features(_Kracker PRIVATE cxx_std_17)
-kracker_apply_project_options(_Kracker)
+target_compile_features(_kracker PRIVATE cxx_std_17)
+kracker_apply_project_options(_kracker)
 
 install(
-  TARGETS _Kracker
-  LIBRARY DESTINATION Kracker
-  RUNTIME DESTINATION Kracker
+  TARGETS _kracker
+  LIBRARY DESTINATION kracker
+  RUNTIME DESTINATION kracker
 )

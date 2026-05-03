@@ -5,24 +5,24 @@ function(kracker_add_test target_name)
   set(one_value_args)
   set(multi_value_args SOURCES LIBRARIES)
   cmake_parse_arguments(
-    ROS_TRACKER_ADD_TEST
+    KRACKER_ADD_TEST
     "${options}"
     "${one_value_args}"
     "${multi_value_args}"
     ${ARGN}
   )
 
-  if(NOT ROS_TRACKER_ADD_TEST_SOURCES)
+  if(NOT KRACKER_ADD_TEST_SOURCES)
     message(FATAL_ERROR "kracker_add_test(${target_name}) requires SOURCES.")
   endif()
 
-  add_executable("${target_name}" ${ROS_TRACKER_ADD_TEST_SOURCES})
+  add_executable("${target_name}" ${KRACKER_ADD_TEST_SOURCES})
 
-  if(ROS_TRACKER_ADD_TEST_LIBRARIES)
+  if(KRACKER_ADD_TEST_LIBRARIES)
     target_link_libraries(
       "${target_name}"
       PRIVATE
-      ${ROS_TRACKER_ADD_TEST_LIBRARIES}
+      ${KRACKER_ADD_TEST_LIBRARIES}
     )
   endif()
 
@@ -32,7 +32,7 @@ function(kracker_add_test target_name)
   set_property(
     GLOBAL
     APPEND
-    PROPERTY ROS_TRACKER_TEST_TARGETS
+    PROPERTY KRACKER_TEST_TARGETS
     "${target_name}"
   )
 endfunction()
@@ -41,7 +41,7 @@ function(kracker_init_project_options)
   add_library(kracker_project_options INTERFACE)
   add_library(kracker_project_warnings INTERFACE)
 
-  if(ROS_TRACKER_ENABLE_WARNINGS)
+  if(KRACKER_ENABLE_WARNINGS)
     if(MSVC)
       target_compile_options(
         kracker_project_warnings
@@ -60,7 +60,7 @@ function(kracker_init_project_options)
     endif()
   endif()
 
-  if(ROS_TRACKER_WARNINGS_AS_ERRORS)
+  if(KRACKER_WARNINGS_AS_ERRORS)
     if(MSVC)
       target_compile_options(kracker_project_warnings INTERFACE /WX)
     else()
@@ -68,10 +68,10 @@ function(kracker_init_project_options)
     endif()
   endif()
 
-  if(ROS_TRACKER_ENABLE_SANITIZERS)
+  if(KRACKER_ENABLE_SANITIZERS)
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang|GNU")
       set(_kracker_sanitizer_flags "")
-      foreach(_sanitizer IN LISTS ROS_TRACKER_SANITIZERS)
+      foreach(_sanitizer IN LISTS KRACKER_SANITIZERS)
         if(_sanitizer)
           list(APPEND _kracker_sanitizer_flags "-fsanitize=${_sanitizer}")
         endif()
@@ -96,7 +96,7 @@ function(kracker_init_project_options)
     endif()
   endif()
 
-  if(ROS_TRACKER_ENABLE_COVERAGE)
+  if(KRACKER_ENABLE_COVERAGE)
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang|GNU")
       target_compile_options(
         kracker_project_options
@@ -111,12 +111,12 @@ function(kracker_init_project_options)
     endif()
   endif()
 
-  if(ROS_TRACKER_ENABLE_CLANG_TIDY)
-    find_program(ROS_TRACKER_CLANG_TIDY_EXE NAMES clang-tidy)
-    if(ROS_TRACKER_CLANG_TIDY_EXE)
-      set(CMAKE_CXX_CLANG_TIDY "${ROS_TRACKER_CLANG_TIDY_EXE}" PARENT_SCOPE)
+  if(KRACKER_ENABLE_CLANG_TIDY)
+    find_program(KRACKER_CLANG_TIDY_EXE NAMES clang-tidy)
+    if(KRACKER_CLANG_TIDY_EXE)
+      set(CMAKE_CXX_CLANG_TIDY "${KRACKER_CLANG_TIDY_EXE}" PARENT_SCOPE)
     else()
-      message(WARNING "ROS_TRACKER_ENABLE_CLANG_TIDY is ON, but clang-tidy was not found.")
+      message(WARNING "KRACKER_ENABLE_CLANG_TIDY is ON, but clang-tidy was not found.")
     endif()
   endif()
 endfunction()
@@ -169,7 +169,7 @@ endfunction()
 
 function(kracker_add_quality_targets)
   file(
-    GLOB_RECURSE ROS_TRACKER_QUALITY_SOURCES
+    GLOB_RECURSE KRACKER_QUALITY_SOURCES
     CONFIGURE_DEPENDS
     "${CMAKE_SOURCE_DIR}/core/include/*.hpp"
     "${CMAKE_SOURCE_DIR}/core/test/*.cpp"
@@ -188,17 +188,17 @@ function(kracker_add_quality_targets)
     "${CMAKE_SOURCE_DIR}/apps/example/*.cpp"
   )
 
-  find_program(ROS_TRACKER_CLANG_FORMAT_EXE NAMES clang-format)
-  if(ROS_TRACKER_CLANG_FORMAT_EXE)
+  find_program(KRACKER_CLANG_FORMAT_EXE NAMES clang-format)
+  if(KRACKER_CLANG_FORMAT_EXE)
     add_custom_target(
       format
-      COMMAND "${ROS_TRACKER_CLANG_FORMAT_EXE}" -i ${ROS_TRACKER_QUALITY_SOURCES}
+      COMMAND "${KRACKER_CLANG_FORMAT_EXE}" -i ${KRACKER_QUALITY_SOURCES}
       COMMENT "Formatting kracker sources with clang-format"
       VERBATIM
     )
     add_custom_target(
       format-check
-      COMMAND "${ROS_TRACKER_CLANG_FORMAT_EXE}" --dry-run --Werror ${ROS_TRACKER_QUALITY_SOURCES}
+      COMMAND "${KRACKER_CLANG_FORMAT_EXE}" --dry-run --Werror ${KRACKER_QUALITY_SOURCES}
       COMMENT "Checking kracker source formatting with clang-format"
       VERBATIM
     )
@@ -217,11 +217,11 @@ function(kracker_add_quality_targets)
 
   add_custom_target(lint DEPENDS format-check)
 
-  if(ROS_TRACKER_BUILD_TESTS)
+  if(KRACKER_BUILD_TESTS)
     get_property(
-      ROS_TRACKER_REGISTERED_TEST_TARGETS
+      KRACKER_REGISTERED_TEST_TARGETS
       GLOBAL
-      PROPERTY ROS_TRACKER_TEST_TARGETS
+      PROPERTY KRACKER_TEST_TARGETS
     )
 
     add_custom_target(
@@ -231,24 +231,24 @@ function(kracker_add_quality_targets)
       VERBATIM
     )
 
-    if(ROS_TRACKER_REGISTERED_TEST_TARGETS)
-      add_dependencies(check ${ROS_TRACKER_REGISTERED_TEST_TARGETS})
+    if(KRACKER_REGISTERED_TEST_TARGETS)
+      add_dependencies(check ${KRACKER_REGISTERED_TEST_TARGETS})
     endif()
   else()
     add_custom_target(
       check
-      COMMAND "${CMAKE_COMMAND}" -E echo "ROS_TRACKER_BUILD_TESTS is OFF; no tests to run."
+      COMMAND "${CMAKE_COMMAND}" -E echo "KRACKER_BUILD_TESTS is OFF; no tests to run."
       VERBATIM
     )
   endif()
 
-  if(ROS_TRACKER_ENABLE_COVERAGE)
-    find_program(ROS_TRACKER_GCOVR_EXE NAMES gcovr)
-    if(ROS_TRACKER_GCOVR_EXE)
+  if(KRACKER_ENABLE_COVERAGE)
+    find_program(KRACKER_GCOVR_EXE NAMES gcovr)
+    if(KRACKER_GCOVR_EXE)
       add_custom_target(
         coverage
         COMMAND
-        "${ROS_TRACKER_GCOVR_EXE}"
+        "${KRACKER_GCOVR_EXE}"
         --root "${CMAKE_SOURCE_DIR}"
         --exclude "${CMAKE_BINARY_DIR}"
         --txt
@@ -266,7 +266,7 @@ function(kracker_add_quality_targets)
   else()
     add_custom_target(
       coverage
-      COMMAND "${CMAKE_COMMAND}" -E echo "ROS_TRACKER_ENABLE_COVERAGE is OFF; reconfigure with it ON to collect coverage."
+      COMMAND "${CMAKE_COMMAND}" -E echo "KRACKER_ENABLE_COVERAGE is OFF; reconfigure with it ON to collect coverage."
       VERBATIM
     )
   endif()

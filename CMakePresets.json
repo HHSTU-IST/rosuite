@@ -13,12 +13,12 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "ROS_TRACKER_BUILD_TESTS": "ON",
-        "ROS_TRACKER_ENABLE_WARNINGS": "ON",
-        "ROS_TRACKER_WARNINGS_AS_ERRORS": "OFF",
-        "ROS_TRACKER_ENABLE_SANITIZERS": "OFF",
-        "ROS_TRACKER_ENABLE_COVERAGE": "OFF",
-        "ROS_TRACKER_ENABLE_CLANG_TIDY": "OFF",
+        "KRACKER_BUILD_TESTS": "ON",
+        "KRACKER_ENABLE_WARNINGS": "ON",
+        "KRACKER_WARNINGS_AS_ERRORS": "OFF",
+        "KRACKER_ENABLE_SANITIZERS": "OFF",
+        "KRACKER_ENABLE_COVERAGE": "OFF",
+        "KRACKER_ENABLE_CLANG_TIDY": "OFF",
         "BUILD_SHARED_LIBS": "OFF"
       }
     },
@@ -36,7 +36,7 @@
       "inherits": "base",
       "binaryDir": "${sourceDir}/build/werror",
       "cacheVariables": {
-        "ROS_TRACKER_WARNINGS_AS_ERRORS": "ON"
+        "KRACKER_WARNINGS_AS_ERRORS": "ON"
       }
     },
     {
@@ -56,8 +56,8 @@
       "inherits": "base",
       "binaryDir": "${sourceDir}/build/sanitizers",
       "cacheVariables": {
-        "ROS_TRACKER_ENABLE_SANITIZERS": "ON",
-        "ROS_TRACKER_SANITIZERS": "address;undefined"
+        "KRACKER_ENABLE_SANITIZERS": "ON",
+        "KRACKER_SANITIZERS": "address;undefined"
       }
     },
     {
@@ -67,7 +67,7 @@
       "inherits": "base",
       "binaryDir": "${sourceDir}/build/coverage",
       "cacheVariables": {
-        "ROS_TRACKER_ENABLE_COVERAGE": "ON"
+        "KRACKER_ENABLE_COVERAGE": "ON"
       }
     },
     {
@@ -77,7 +77,7 @@
       "inherits": "base",
       "binaryDir": "${sourceDir}/build/clang-tidy",
       "cacheVariables": {
-        "ROS_TRACKER_ENABLE_CLANG_TIDY": "ON"
+        "KRACKER_ENABLE_CLANG_TIDY": "ON"
       }
     },
     {
@@ -88,7 +88,7 @@
       "binaryDir": "${sourceDir}/build/ci",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "ROS_TRACKER_WARNINGS_AS_ERRORS": "ON"
+        "KRACKER_WARNINGS_AS_ERRORS": "ON"
       }
     }
   ],

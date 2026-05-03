@@ -1,4 +1,4 @@
-# Kracker
+# kracker
 
 `kracker` is a ROS2 object tracking module written in C++17.
 
@@ -355,9 +355,9 @@ This creates the project virtual environment and builds the extension module whe
 Use the high-level `Tracker` facade when you want external Python code to drive the tracker directly:
 
 ```python
-import Kracker
+import kracker
 
-tracker = Kracker.Tracker(
+tracker = kracker.Tracker(
     process_noise=0.01,
     measurement_noise=0.25,
     gating_threshold=16.0,
@@ -381,20 +381,20 @@ for track in tracks:
 If you already have fully populated measurement objects, use `step_measurements(...)` instead:
 
 ```python
-import Kracker
+import kracker
 
 measurements = [
-    Kracker.Measurement([0.1, -0.1], timestamp=1.0, sensor_id="camera", frame_id="map"),
+    kracker.Measurement([0.1, -0.1], timestamp=1.0, sensor_id="camera", frame_id="map"),
 ]
 
-tracker = Kracker.Tracker()
+tracker = kracker.Tracker()
 tracks = tracker.step_measurements(measurements, timestamp=1.0, dt=1.0)
 ```
 
 ### Run The Bundled Example
 
 ```bash
-uv run python -c "import Kracker; print(Kracker.run_single_target_kalman_example(42))"
+uv run python -c "import kracker; print(kracker.run_single_target_kalman_example(42))"
 ```
 
 The initial Python surface is intentionally small:

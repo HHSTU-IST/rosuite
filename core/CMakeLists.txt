@@ -15,7 +15,7 @@ target_compile_features(kracker_core INTERFACE cxx_std_17)
 
 install(TARGETS kracker_core EXPORT krackerTargets)
 
-if(ROS_TRACKER_BUILD_TESTS)
+if(KRACKER_BUILD_TESTS)
   kracker_add_test(
     kracker_core_tests
     SOURCES test/test_core.cpp

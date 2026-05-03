@@ -8,31 +8,31 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(BUILD_SHARED_LIBS "Build kracker libraries as shared libraries" OFF)
-option(ROS_TRACKER_ENABLE_WARNINGS "Enable project-wide compiler warnings" ON)
-option(ROS_TRACKER_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
-option(ROS_TRACKER_ENABLE_SANITIZERS "Enable sanitizer instrumentation" OFF)
+option(KRACKER_ENABLE_WARNINGS "Enable project-wide compiler warnings" ON)
+option(KRACKER_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
+option(KRACKER_ENABLE_SANITIZERS "Enable sanitizer instrumentation" OFF)
 set(
-  ROS_TRACKER_SANITIZERS
+  KRACKER_SANITIZERS
   "address;undefined"
   CACHE STRING
-  "Semicolon-separated sanitizer list when ROS_TRACKER_ENABLE_SANITIZERS is ON"
+  "Semicolon-separated sanitizer list when KRACKER_ENABLE_SANITIZERS is ON"
 )
-option(ROS_TRACKER_ENABLE_COVERAGE "Enable coverage instrumentation" OFF)
-option(ROS_TRACKER_ENABLE_CLANG_TIDY "Run clang-tidy during compilation when available" OFF)
-option(ROS_TRACKER_BUILD_PYTHON "Build kracker Python bindings" OFF)
+option(KRACKER_ENABLE_COVERAGE "Enable coverage instrumentation" OFF)
+option(KRACKER_ENABLE_CLANG_TIDY "Run clang-tidy during compilation when available" OFF)
+option(KRACKER_BUILD_PYTHON "Build kracker Python bindings" OFF)
 
-option(ROS_TRACKER_BUILD_TESTS "Build kracker tests" ON)
+option(KRACKER_BUILD_TESTS "Build kracker tests" ON)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
-include(cmake/RosTrackerProjectOptions.cmake)
+include(cmake/krackerProjectOptions.cmake)
 
-set(ROS_TRACKER_INSTALL_CMAKEDIR
+set(KRACKER_INSTALL_CMAKEDIR
   "${CMAKE_INSTALL_LIBDIR}/cmake/kracker")
 
 find_package(Eigen3 5.0 REQUIRED NO_MODULE)
 
-if(ROS_TRACKER_BUILD_TESTS)
+if(KRACKER_BUILD_TESTS)
   enable_testing()
 endif()
 
@@ -44,7 +44,7 @@ add_subdirectory(filters)
 add_subdirectory(tracking)
 add_subdirectory(apps)
 
-if(ROS_TRACKER_BUILD_PYTHON)
+if(KRACKER_BUILD_PYTHON)
   add_subdirectory(python)
 endif()
 
@@ -63,7 +63,7 @@ install(
 configure_package_config_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/krackerConfig.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/krackerConfig.cmake"
-  INSTALL_DESTINATION "${ROS_TRACKER_INSTALL_CMAKEDIR}"
+  INSTALL_DESTINATION "${KRACKER_INSTALL_CMAKEDIR}"
 )
 
 write_basic_package_version_file(
@@ -76,14 +76,14 @@ install(
   EXPORT krackerTargets
   FILE krackerTargets.cmake
   NAMESPACE kracker::
-  DESTINATION "${ROS_TRACKER_INSTALL_CMAKEDIR}"
+  DESTINATION "${KRACKER_INSTALL_CMAKEDIR}"
 )
 
 install(
   FILES
   "${CMAKE_CURRENT_BINARY_DIR}/krackerConfig.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/krackerConfigVersion.cmake"
-  DESTINATION "${ROS_TRACKER_INSTALL_CMAKEDIR}"
+  DESTINATION "${KRACKER_INSTALL_CMAKEDIR}"
 )
 
 export(

@@ -48,7 +48,7 @@ install(
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 )
 
-if(ROS_TRACKER_BUILD_TESTS)
+if(KRACKER_BUILD_TESTS)
   kracker_add_test(
     kracker_apps_tests
     SOURCES test/test_apps.cpp

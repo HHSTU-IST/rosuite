@@ -228,7 +228,7 @@ namespace
 
 } // namespace
 
-PYBIND11_MODULE(_Kracker, module)
+PYBIND11_MODULE(_kracker, module)
 {
   module.doc() = "Python bindings for kracker.";
 

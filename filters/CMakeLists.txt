@@ -37,7 +37,7 @@ install(
   INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
-if(ROS_TRACKER_BUILD_TESTS)
+if(KRACKER_BUILD_TESTS)
   kracker_add_test(
     kracker_filters_kalman_tests
     SOURCES test/test_kalman_family.cpp

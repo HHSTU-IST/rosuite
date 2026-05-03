@@ -32,7 +32,7 @@ install(
   INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
-if(ROS_TRACKER_BUILD_TESTS)
+if(KRACKER_BUILD_TESTS)
   kracker_add_test(
     kracker_models_tests
     SOURCES test/test_models.cpp

@@ -19,7 +19,7 @@ build-backend = "scikit_build_core.build"
 build-dir = "build/{wheel_tag}"
 cmake.build-type = "Release"
 cmake.version = ">=3.20"
-wheel.packages = ["python/Kracker"]
+wheel.packages = ["python/kracker"]
 sdist.include = [
   "README.md",
   "CMakeLists.txt",
@@ -34,8 +34,8 @@ sdist.include = [
 ]
 
 [tool.scikit-build.cmake.define]
-ROS_TRACKER_BUILD_PYTHON = "ON"
-ROS_TRACKER_BUILD_TESTS = "OFF"
+KRACKER_BUILD_PYTHON = "ON"
+KRACKER_BUILD_TESTS = "OFF"
 
 [tool.uv]
 package = true
