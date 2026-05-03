@@ -22,7 +22,24 @@ target_compile_features(ros_tracker_filters INTERFACE cxx_std_17)
 install(TARGETS ros_tracker_filters EXPORT ros_trackerTargets)
 
 if(ROS_TRACKER_BUILD_TESTS)
-  add_executable(ros_tracker_filters_tests test/test_filters.cpp)
-  target_link_libraries(ros_tracker_filters_tests PRIVATE ros_tracker::filters)
-  add_test(NAME ros_tracker_filters_tests COMMAND ros_tracker_filters_tests)
+  add_executable(ros_tracker_filters_kalman_tests test/test_kalman_family.cpp)
+  target_link_libraries(ros_tracker_filters_kalman_tests PRIVATE ros_tracker::filters)
+  add_test(
+    NAME ros_tracker_filters_kalman_tests
+    COMMAND ros_tracker_filters_kalman_tests
+  )
+
+  add_executable(ros_tracker_filters_estimation_tests test/test_estimation_utils.cpp)
+  target_link_libraries(ros_tracker_filters_estimation_tests PRIVATE ros_tracker::filters)
+  add_test(
+    NAME ros_tracker_filters_estimation_tests
+    COMMAND ros_tracker_filters_estimation_tests
+  )
+
+  add_executable(ros_tracker_filters_particle_tests test/test_particle.cpp)
+  target_link_libraries(ros_tracker_filters_particle_tests PRIVATE ros_tracker::filters)
+  add_test(
+    NAME ros_tracker_filters_particle_tests
+    COMMAND ros_tracker_filters_particle_tests
+  )
 endif()
