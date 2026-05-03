@@ -1,0 +1,41 @@
+[build-system]
+requires = [
+  "pybind11>=2.13",
+  "scikit-build-core>=0.10",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "ros-tracker"
+version = "0.1.0"
+description = "Python bindings for the ros_tracker C++ libraries"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=1.26",
+]
+
+[tool.uv]
+package = true
+
+[tool.scikit-build]
+build-dir = "build/{wheel_tag}"
+cmake.build-type = "Release"
+cmake.version = ">=3.20"
+wheel.packages = ["python/ros_tracker"]
+sdist.include = [
+  "README.md",
+  "CMakeLists.txt",
+  "CMakePresets.json",
+  "cmake/**",
+  "core/**",
+  "models/**",
+  "filters/**",
+  "tracking/**",
+  "apps/**",
+  "python/**",
+]
+
+[tool.scikit-build.cmake.define]
+ROS_TRACKER_BUILD_PYTHON = "ON"
+ROS_TRACKER_BUILD_TESTS = "OFF"

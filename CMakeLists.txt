@@ -19,6 +19,7 @@ set(
 )
 option(ROS_TRACKER_ENABLE_COVERAGE "Enable coverage instrumentation" OFF)
 option(ROS_TRACKER_ENABLE_CLANG_TIDY "Run clang-tidy during compilation when available" OFF)
+option(ROS_TRACKER_BUILD_PYTHON "Build ros-tracker Python bindings" OFF)
 
 option(ROS_TRACKER_BUILD_TESTS "Build ros-tracker tests" ON)
 
@@ -42,6 +43,10 @@ add_subdirectory(models)
 add_subdirectory(filters)
 add_subdirectory(tracking)
 add_subdirectory(apps)
+
+if(ROS_TRACKER_BUILD_PYTHON)
+  add_subdirectory(python)
+endif()
 
 ros_tracker_add_quality_targets()
 

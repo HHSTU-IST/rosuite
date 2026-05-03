@@ -8,9 +8,18 @@
 *.dSYM
 runs
 build
+dist
+wheelhouse
 
-# custom
+# python
+*.egg-info
+__pycache__/
+.pytest_cache/
+.venv
+*.lock
+!uv.lock
 *.pth
 *.pt
+
+# custom
 *.exe
-*.lock

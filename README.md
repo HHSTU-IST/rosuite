@@ -335,3 +335,71 @@ if (!message.ok()) {
 ```
 
 Use `apps::offline` for reproducible experiments, regression cases, and quick demos. Use `apps::ros` as the boundary layer that converts tracker output into transport-friendly message structs.
+
+## Python Bindings With uv
+
+The repository also ships a Python packaging entrypoint managed by `uv`. The Python wheel is built from the same C++ sources through `scikit-build-core` and `pybind11`, so the Python API stays on top of the existing `apps` and `tracking` libraries instead of reimplementing tracker logic in Python.
+
+### Install The Python Package
+
+From the repository root:
+
+```bash
+uv sync
+```
+
+This creates the project virtual environment and builds the extension module when needed.
+
+### Call The Tracker From Python
+
+Use the high-level `Tracker` facade when you want external Python code to drive the tracker directly:
+
+```python
+import ros_tracker
+
+tracker = ros_tracker.Tracker(
+    process_noise=0.01,
+    measurement_noise=0.25,
+    gating_threshold=16.0,
+    frame_id="map",
+    sensor_id="camera",
+)
+
+tracks = tracker.step(
+    measurements=[
+        [0.1, -0.1],
+        [10.0, 5.0],
+    ],
+    timestamp=1.0,
+    dt=1.0,
+)
+
+for track in tracks:
+    print(track.id, track.state, track.lifecycle)
+```
+
+If you already have fully populated measurement objects, use `step_measurements(...)` instead:
+
+```python
+import ros_tracker
+
+measurements = [
+    ros_tracker.Measurement([0.1, -0.1], timestamp=1.0, sensor_id="camera", frame_id="map"),
+]
+
+tracker = ros_tracker.Tracker()
+tracks = tracker.step_measurements(measurements, timestamp=1.0, dt=1.0)
+```
+
+### Run The Bundled Example
+
+```bash
+uv run python -c "import ros_tracker; print(ros_tracker.run_single_target_kalman_example(42))"
+```
+
+The initial Python surface is intentionally small:
+
+- `Tracker.step(...)`: convenient entry point for batches of position measurements
+- `Tracker.step_measurements(...)`: advanced entry point when metadata is already prepared
+- `Tracker.tracks()`: inspect the current in-memory track set
+- `run_single_target_kalman_example(...)`: smoke-test the packaged binding against the offline example
