@@ -1,6 +1,5 @@
 add_library(
   ros_tracker_tracking
-  STATIC
     src/association.cpp
     src/base.cpp
     src/management.cpp
@@ -10,6 +9,8 @@ add_library(
 add_library(ros_tracker::tracking ALIAS ros_tracker_tracking)
 
 set_target_properties(ros_tracker_tracking PROPERTIES EXPORT_NAME tracking)
+
+ros_tracker_apply_project_options(ros_tracker_tracking)
 
 target_include_directories(
   ros_tracker_tracking
@@ -44,6 +45,7 @@ if(ROS_TRACKER_BUILD_TESTS)
     PRIVATE
       ros_tracker::tracking
   )
+  ros_tracker_apply_project_options(ros_tracker_tracking_association_tests)
   add_test(
     NAME ros_tracker_tracking_association_tests
     COMMAND ros_tracker_tracking_association_tests
@@ -55,6 +57,7 @@ if(ROS_TRACKER_BUILD_TESTS)
     PRIVATE
       ros_tracker::tracking
   )
+  ros_tracker_apply_project_options(ros_tracker_tracking_tracker_tests)
   add_test(
     NAME ros_tracker_tracking_tracker_tests
     COMMAND ros_tracker_tracking_tracker_tests
@@ -66,6 +69,7 @@ if(ROS_TRACKER_BUILD_TESTS)
     PRIVATE
       ros_tracker::tracking
   )
+  ros_tracker_apply_project_options(ros_tracker_tracking_multi_model_tests)
   add_test(
     NAME ros_tracker_tracking_multi_model_tests
     COMMAND ros_tracker_tracking_multi_model_tests

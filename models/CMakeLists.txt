@@ -1,11 +1,12 @@
 add_library(
   ros_tracker_models
-  STATIC
     src/motion_models.cpp
 )
 add_library(ros_tracker::models ALIAS ros_tracker_models)
 
 set_target_properties(ros_tracker_models PROPERTIES EXPORT_NAME models)
+
+ros_tracker_apply_project_options(ros_tracker_models)
 
 target_include_directories(
   ros_tracker_models
@@ -34,5 +35,6 @@ install(
 if(ROS_TRACKER_BUILD_TESTS)
   add_executable(ros_tracker_models_tests test/test_models.cpp)
   target_link_libraries(ros_tracker_models_tests PRIVATE ros_tracker::models)
+  ros_tracker_apply_project_options(ros_tracker_models_tests)
   add_test(NAME ros_tracker_models_tests COMMAND ros_tracker_models_tests)
 endif()

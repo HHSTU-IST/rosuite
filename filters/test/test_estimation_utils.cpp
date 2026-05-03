@@ -41,6 +41,7 @@ void test_sigma_points(TestContext &context)
         (Matrix(2, 2) << 4.0, 1.0,
          1.0, 2.0)
             .finished(),
+        std::nullopt,
     };
 
     MerweSigmaPointGenerator generator(0.5, 2.0, 0.0);
@@ -66,14 +67,17 @@ void test_rts_smoother(TestContext &context)
     GaussianEstimate filtered{
         State{(Vector(2) << 0.0, 1.0).finished(), 0.0, "map"},
         Matrix::Identity(2, 2),
+        std::nullopt,
     };
     GaussianEstimate predicted_next{
         State{(Vector(2) << 1.0, 1.0).finished(), 1.0, "map"},
         2.0 * Matrix::Identity(2, 2),
+        std::nullopt,
     };
     GaussianEstimate smoothed_next{
         State{(Vector(2) << 0.8, 0.9).finished(), 1.0, "map"},
         0.5 * Matrix::Identity(2, 2),
+        std::nullopt,
     };
     Matrix transition = Matrix::Identity(2, 2);
 

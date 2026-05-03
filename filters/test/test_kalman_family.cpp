@@ -19,6 +19,7 @@ void test_kalman(TestContext &context)
     GaussianEstimate estimate{
         State{(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
         Matrix::Identity(4, 4),
+        std::nullopt,
     };
 
     const DynamicSystemModel system =
@@ -61,6 +62,7 @@ void test_constant_gain_filter(TestContext &context)
     GaussianEstimate estimate{
         State{Vector::Zero(4), 0.0, "map"},
         Matrix::Identity(4, 4),
+        std::nullopt,
     };
 
     Measurement measurement{
@@ -92,6 +94,7 @@ void test_kalman_extended_with_radar(TestContext &context)
     GaussianEstimate estimate{
         State{(Vector(4) << 2.5, 4.5, 0.8, 1.7).finished(), 0.0, "map"},
         0.5 * Matrix::Identity(4, 4),
+        std::nullopt,
     };
 
     SensorModel radar{
@@ -128,6 +131,7 @@ void test_unscented_and_cubature_filters(TestContext &context)
     GaussianEstimate estimate{
         State{(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
         Matrix::Identity(4, 4),
+        std::nullopt,
     };
     const ModelContext context_model{1.0, 1.0, "map"};
 
@@ -172,6 +176,7 @@ void test_kalman_ensemble(TestContext &context)
     GaussianEstimate estimate{
         State{(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
         0.5 * Matrix::Identity(4, 4),
+        std::nullopt,
     };
     const auto system =
         make_constant_velocity_system(0.1 * Matrix::Identity(4, 4));
@@ -211,6 +216,7 @@ void test_kalman_fading_memory(TestContext &context)
     GaussianEstimate estimate{
         State{(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
         Matrix::Identity(4, 4),
+        std::nullopt,
     };
 
     const auto system =
@@ -253,6 +259,7 @@ void test_kalman_h_infinity(TestContext &context)
     GaussianEstimate estimate{
         State{(Vector(4) << 0.8, -0.2, 1.0, 0.0).finished(), 0.0, "map"},
         Matrix::Identity(4, 4),
+        std::nullopt,
     };
 
     Measurement measurement{

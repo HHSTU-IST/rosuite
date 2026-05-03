@@ -1,6 +1,5 @@
 add_library(
   ros_tracker_filters
-  STATIC
     src/kalman_support.cpp
     src/kalman_gaussian_transform.cpp
     src/particle_filter.cpp
@@ -8,6 +7,8 @@ add_library(
 add_library(ros_tracker::filters ALIAS ros_tracker_filters)
 
 set_target_properties(ros_tracker_filters PROPERTIES EXPORT_NAME filters)
+
+ros_tracker_apply_project_options(ros_tracker_filters)
 
 target_include_directories(
   ros_tracker_filters
@@ -37,6 +38,7 @@ install(
 if(ROS_TRACKER_BUILD_TESTS)
   add_executable(ros_tracker_filters_kalman_tests test/test_kalman_family.cpp)
   target_link_libraries(ros_tracker_filters_kalman_tests PRIVATE ros_tracker::filters)
+  ros_tracker_apply_project_options(ros_tracker_filters_kalman_tests)
   add_test(
     NAME ros_tracker_filters_kalman_tests
     COMMAND ros_tracker_filters_kalman_tests
@@ -44,6 +46,7 @@ if(ROS_TRACKER_BUILD_TESTS)
 
   add_executable(ros_tracker_filters_estimation_tests test/test_estimation_utils.cpp)
   target_link_libraries(ros_tracker_filters_estimation_tests PRIVATE ros_tracker::filters)
+  ros_tracker_apply_project_options(ros_tracker_filters_estimation_tests)
   add_test(
     NAME ros_tracker_filters_estimation_tests
     COMMAND ros_tracker_filters_estimation_tests
@@ -51,6 +54,7 @@ if(ROS_TRACKER_BUILD_TESTS)
 
   add_executable(ros_tracker_filters_particle_tests test/test_particle.cpp)
   target_link_libraries(ros_tracker_filters_particle_tests PRIVATE ros_tracker::filters)
+  ros_tracker_apply_project_options(ros_tracker_filters_particle_tests)
   add_test(
     NAME ros_tracker_filters_particle_tests
     COMMAND ros_tracker_filters_particle_tests

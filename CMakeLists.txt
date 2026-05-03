@@ -5,11 +5,26 @@ project(ros_tracker VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+option(BUILD_SHARED_LIBS "Build ros-tracker libraries as shared libraries" OFF)
+option(ROS_TRACKER_ENABLE_WARNINGS "Enable project-wide compiler warnings" ON)
+option(ROS_TRACKER_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
+option(ROS_TRACKER_ENABLE_SANITIZERS "Enable sanitizer instrumentation" OFF)
+set(
+  ROS_TRACKER_SANITIZERS
+  "address;undefined"
+  CACHE STRING
+  "Semicolon-separated sanitizer list when ROS_TRACKER_ENABLE_SANITIZERS is ON"
+)
+option(ROS_TRACKER_ENABLE_COVERAGE "Enable coverage instrumentation" OFF)
+option(ROS_TRACKER_ENABLE_CLANG_TIDY "Run clang-tidy during compilation when available" OFF)
 
 option(ROS_TRACKER_BUILD_TESTS "Build ros-tracker tests" ON)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+include(cmake/RosTrackerProjectOptions.cmake)
 
 set(ROS_TRACKER_INSTALL_CMAKEDIR
     "${CMAKE_INSTALL_LIBDIR}/cmake/ros_tracker")
@@ -20,11 +35,15 @@ if(ROS_TRACKER_BUILD_TESTS)
   enable_testing()
 endif()
 
+ros_tracker_init_project_options()
+
 add_subdirectory(core)
 add_subdirectory(models)
 add_subdirectory(filters)
 add_subdirectory(tracking)
 add_subdirectory(apps)
+
+ros_tracker_add_quality_targets()
 
 install(
   DIRECTORY

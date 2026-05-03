@@ -24,6 +24,7 @@ void test_nearest_neighbor_association(TestContext &context)
         GaussianEstimate{
             State{(Vector(4) << 0.0, 0.0, 0.0, 0.0).finished(), 0.0, "map"},
             Matrix::Identity(4, 4),
+            std::nullopt,
         },
         ros_tracker::tracking::test_support::make_default_handle(),
         TrackLifecycle::kConfirmed,
@@ -38,6 +39,7 @@ void test_nearest_neighbor_association(TestContext &context)
         GaussianEstimate{
             State{(Vector(4) << 10.0, 10.0, 0.0, 0.0).finished(), 0.0, "map"},
             Matrix::Identity(4, 4),
+            std::nullopt,
         },
         ros_tracker::tracking::test_support::make_default_handle(),
         TrackLifecycle::kConfirmed,

@@ -19,6 +19,7 @@ void test_particle_filter(TestContext &context)
     GaussianEstimate estimate{
         State{(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
         0.25 * Matrix::Identity(4, 4),
+        std::nullopt,
     };
 
     const auto system =

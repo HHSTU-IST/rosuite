@@ -48,6 +48,7 @@ void test_multi_model_estimator(TestContext &context)
     GaussianEstimate seed{
         State{(Vector(4) << 0.0, 0.0, 1.0, 0.0).finished(), 0.0, "map"},
         Matrix::Identity(4, 4),
+        std::nullopt,
     };
     const auto initialized = imm.initialize(seed, {0.8, 0.2});
     context.expect_true(initialized.ok(), "IMM initialization should succeed.");
@@ -88,10 +89,12 @@ void test_covariance_intersection_fusion(TestContext &context)
     GaussianEstimate estimate_a{
         State{(Vector(4) << 1.0, 0.0, 0.5, 0.0).finished(), 1.0, "map"},
         1.5 * Matrix::Identity(4, 4),
+        std::nullopt,
     };
     GaussianEstimate estimate_b{
         State{(Vector(4) << 1.4, 0.2, 0.4, 0.0).finished(), 1.2, "map"},
         0.8 * Matrix::Identity(4, 4),
+        std::nullopt,
     };
 
     const auto fused = fuser.fuse_pair(estimate_a, estimate_b);
