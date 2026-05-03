@@ -8,12 +8,14 @@ namespace ros_tracker::filters {
 
 class KalmanFilterUnscented final : public FilterBase {
  public:
+  /// Constructs KalmanFilterUnscented.
   explicit KalmanFilterUnscented(
       const core::Scalar alpha = 1e-3,
       const core::Scalar beta = 2.0,
       const core::Scalar kappa = 0.0)
       : generator_(alpha, beta, kappa) {}
 
+  /// Predicts the next estimate.
   [[nodiscard]] core::Result<GaussianEstimate> predict(
       const GaussianEstimate& estimate,
       const models::DynamicSystemModel& model,
@@ -28,6 +30,7 @@ class KalmanFilterUnscented final : public FilterBase {
         estimate, sigma_points.value(), model, context, std::move(control));
   }
 
+  /// Corrects an estimate with a measurement.
   [[nodiscard]] core::Result<GaussianEstimate> correct(
       const GaussianEstimate& estimate,
       const models::SensorModel& sensor,
@@ -42,6 +45,7 @@ class KalmanFilterUnscented final : public FilterBase {
         estimate, sigma_points.value(), sensor, measurement, context);
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "kalman_ukf";
   }

@@ -11,6 +11,7 @@ namespace {
 
 int g_failures = 0;
 
+/// Asserts that a condition is true.
 void expect_true(const bool condition, const std::string& message) {
   if (!condition) {
     std::cerr << "FAIL: " << message << '\n';
@@ -18,6 +19,7 @@ void expect_true(const bool condition, const std::string& message) {
   }
 }
 
+/// Asserts that two scalar values are close.
 void expect_near(
     const ros_tracker::core::Scalar actual,
     const ros_tracker::core::Scalar expected,
@@ -26,6 +28,7 @@ void expect_near(
   expect_true(std::abs(actual - expected) <= tolerance, message);
 }
 
+/// Tests the core type and status helpers.
 void test_types_and_status() {
   using namespace ros_tracker::core;
 
@@ -63,6 +66,7 @@ void test_types_and_status() {
   expect_true(threw, "Accessing value() on a failed Result should throw a logic_error.");
 }
 
+/// Tests the linear-algebra helpers.
 void test_linear_algebra() {
   using namespace ros_tracker::core;
 
@@ -79,6 +83,7 @@ void test_linear_algebra() {
               "Diagonal covariance should validate successfully.");
 }
 
+/// Tests the integration and quadrature helpers.
 void test_integration_and_quadrature() {
   using namespace ros_tracker::core;
 
@@ -106,6 +111,7 @@ void test_integration_and_quadrature() {
               "Simpson integration should accurately integrate quadratic polynomials.");
 }
 
+/// Tests the statistics helpers.
 void test_statistics() {
   using namespace ros_tracker::core;
 
@@ -139,6 +145,7 @@ void test_statistics() {
   expect_true(log_likelihood.ok(), "Gaussian log-likelihood should succeed.");
 }
 
+/// Tests the random-sampling and resampling helpers.
 void test_random_and_resampling() {
   using namespace ros_tracker::core;
 
@@ -162,6 +169,7 @@ void test_random_and_resampling() {
 
 }  // namespace
 
+/// Runs the test executable.
 int main() {
   test_types_and_status();
   test_linear_algebra();

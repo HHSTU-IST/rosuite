@@ -4,6 +4,7 @@
 
 namespace ros_tracker::core::numerics {
 
+/// Integrates one step with fourth-order Runge-Kutta.
 template <typename DerivativeFn>
 [[nodiscard]] inline Vector runge_kutta_4(
     const Vector& state,

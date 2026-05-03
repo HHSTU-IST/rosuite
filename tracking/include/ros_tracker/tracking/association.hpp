@@ -21,29 +21,37 @@ struct AssociationProblem {
 
 class AssociationAssignmentSolver {
  public:
+  /// Destroys AssociationAssignmentSolver.
   virtual ~AssociationAssignmentSolver() = default;
 
+  /// Solves an association problem.
   [[nodiscard]] virtual core::Result<AssociationResult> solve(
       const AssociationProblem& problem) const = 0;
 
+  /// Returns the component name.
   [[nodiscard]] virtual std::string_view name() const noexcept = 0;
 };
 
 class GreedyAssociationAssignmentSolver final : public AssociationAssignmentSolver {
  public:
+  /// Solves an association problem.
   [[nodiscard]] core::Result<AssociationResult> solve(
       const AssociationProblem& problem) const override;
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override;
 };
 
 class OptimalAssociationAssignmentSolver final : public AssociationAssignmentSolver {
  public:
+  /// Constructs OptimalAssociationAssignmentSolver.
   explicit OptimalAssociationAssignmentSolver(std::size_t max_track_count = 8U);
 
+  /// Solves an association problem.
   [[nodiscard]] core::Result<AssociationResult> solve(
       const AssociationProblem& problem) const override;
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override;
 
  private:
@@ -52,14 +60,17 @@ class OptimalAssociationAssignmentSolver final : public AssociationAssignmentSol
 
 class NearestNeighborAssociationStrategy final : public AssociationStrategy {
  public:
+  /// Constructs NearestNeighborAssociationStrategy.
   explicit NearestNeighborAssociationStrategy(core::Scalar gating_threshold = 16.0);
 
+  /// Associates measurements with tracks.
   [[nodiscard]] core::Result<AssociationResult> associate(
       const std::vector<Track>& tracks,
       const std::vector<core::Measurement>& measurements,
       const models::SensorModel& sensor,
       const models::ModelContext& context = {}) const override;
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override;
 
  private:
@@ -69,17 +80,20 @@ class NearestNeighborAssociationStrategy final : public AssociationStrategy {
 
 class GlobalNearestNeighborAssociationStrategy final : public AssociationStrategy {
  public:
+  /// Constructs GlobalNearestNeighborAssociationStrategy.
   explicit GlobalNearestNeighborAssociationStrategy(
       core::Scalar gating_threshold = 16.0,
       std::shared_ptr<const AssociationAssignmentSolver> assignment_solver =
           std::shared_ptr<const AssociationAssignmentSolver> {});
 
+  /// Associates measurements with tracks.
   [[nodiscard]] core::Result<AssociationResult> associate(
       const std::vector<Track>& tracks,
       const std::vector<core::Measurement>& measurements,
       const models::SensorModel& sensor,
       const models::ModelContext& context = {}) const override;
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override;
 
  private:

@@ -6,6 +6,7 @@
 
 namespace ros_tracker::core::numerics {
 
+/// Integrates a function with the composite trapezoidal rule.
 template <typename Function>
 [[nodiscard]] inline Result<Scalar> composite_trapezoidal(
     Function&& function,
@@ -27,6 +28,7 @@ template <typename Function>
   return h * sum;
 }
 
+/// Integrates a function with the composite Simpson rule.
 template <typename Function>
 [[nodiscard]] inline Result<Scalar> composite_simpson(
     Function&& function,

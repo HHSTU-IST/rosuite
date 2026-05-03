@@ -10,6 +10,7 @@
 
 namespace ros_tracker::core::stats {
 
+/// Normalizes a weight vector in place.
 [[nodiscard]] inline Result<Scalar> normalize_weights_in_place(
     std::vector<Scalar>& weights) {
   if (weights.empty()) {
@@ -35,6 +36,7 @@ namespace ros_tracker::core::stats {
   return sum;
 }
 
+/// Converts log-weights into normalized linear weights.
 [[nodiscard]] inline Result<std::vector<Scalar>> normalize_log_weights(
     const std::vector<Scalar>& log_weights) {
   if (log_weights.empty()) {
@@ -58,6 +60,7 @@ namespace ros_tracker::core::stats {
   return weights;
 }
 
+/// Computes the weighted mean of a sample set.
 [[nodiscard]] inline Result<Vector> weighted_mean(
     const std::vector<Vector>& samples,
     std::vector<Scalar> weights) {
@@ -91,6 +94,7 @@ namespace ros_tracker::core::stats {
   return mean;
 }
 
+/// Computes the weighted covariance of a sample set.
 [[nodiscard]] inline Result<Covariance> weighted_covariance(
     const std::vector<Vector>& samples,
     std::vector<Scalar> weights) {
@@ -115,6 +119,7 @@ namespace ros_tracker::core::stats {
   return symmetrize(covariance);
 }
 
+/// Computes the squared Mahalanobis distance.
 [[nodiscard]] inline Result<Scalar> mahalanobis_distance_squared(
     const Vector& sample,
     const Vector& mean,
@@ -144,6 +149,7 @@ namespace ros_tracker::core::stats {
   return delta.dot(ldlt.solve(delta));
 }
 
+/// Evaluates the Gaussian log-likelihood of a sample.
 [[nodiscard]] inline Result<Scalar> gaussian_log_likelihood(
     const Vector& sample,
     const Vector& mean,

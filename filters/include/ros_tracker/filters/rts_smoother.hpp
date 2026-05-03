@@ -8,6 +8,7 @@ namespace ros_tracker::filters {
 
 class RauchTungStriebelSmoother {
  public:
+  /// Smooths step.
   [[nodiscard]] core::Result<GaussianEstimate> smooth_step(
       const GaussianEstimate& filtered,
       const GaussianEstimate& predicted_next,
@@ -63,6 +64,7 @@ class RauchTungStriebelSmoother {
     return result;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept {
     return "rts";
   }

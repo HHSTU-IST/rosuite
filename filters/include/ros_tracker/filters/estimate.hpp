@@ -14,10 +14,12 @@ struct ParticleSet {
   core::Matrix particles;
   std::vector<core::Scalar> weights;
 
+  /// Returns the vector dimension.
   [[nodiscard]] core::Index dimension() const noexcept {
     return particles.rows();
   }
 
+  /// Returns the particle count.
   [[nodiscard]] core::Index size() const noexcept {
     return particles.cols();
   }
@@ -28,6 +30,7 @@ struct GaussianEstimate {
   core::Covariance covariance;
   std::optional<ParticleSet> particle_set;
 
+  /// Returns the vector dimension.
   [[nodiscard]] core::Index dimension() const noexcept {
     return state.dimension();
   }
@@ -43,6 +46,7 @@ struct LeastSquaresEstimate {
   core::Vector solution;
   core::Covariance covariance;
 
+  /// Returns the vector dimension.
   [[nodiscard]] core::Index dimension() const noexcept {
     return solution.size();
   }
@@ -54,6 +58,7 @@ struct SigmaPointSet {
   core::Vector covariance_weights;
 };
 
+/// Validates a particle set.
 [[nodiscard]] inline core::Status validate_particle_set(
     const ParticleSet& particle_set) {
   if (particle_set.particles.rows() <= 0 || particle_set.particles.cols() <= 0) {
@@ -70,6 +75,7 @@ struct SigmaPointSet {
   return core::Status::ok_status();
 }
 
+/// Validates a Gaussian estimate.
 [[nodiscard]] inline core::Status validate_estimate(
     const GaussianEstimate& estimate) {
   if (estimate.state.dimension() <= 0) {

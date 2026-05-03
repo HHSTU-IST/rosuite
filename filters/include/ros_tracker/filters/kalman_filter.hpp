@@ -7,6 +7,7 @@ namespace ros_tracker::filters {
 
 class KalmanFilter final : public FilterBase {
  public:
+  /// Predicts the next estimate.
   [[nodiscard]] core::Result<GaussianEstimate> predict(
       const GaussianEstimate& estimate,
       const models::DynamicSystemModel& model,
@@ -15,6 +16,7 @@ class KalmanFilter final : public FilterBase {
     return detail::predict_linearized(estimate, model, context, std::move(control));
   }
 
+  /// Corrects an estimate with a measurement.
   [[nodiscard]] core::Result<GaussianEstimate> correct(
       const GaussianEstimate& estimate,
       const models::SensorModel& sensor,
@@ -37,6 +39,7 @@ class KalmanFilter final : public FilterBase {
         estimate, sensor, measurement, context, gain.value());
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "kalman";
   }

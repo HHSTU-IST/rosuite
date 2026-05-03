@@ -12,10 +12,12 @@ namespace ros_tracker::tracking {
 
 class CovarianceIntersectionFuser {
  public:
+  /// Constructs CovarianceIntersectionFuser.
   explicit CovarianceIntersectionFuser(
       const core::Index omega_steps = 21)
       : omega_steps_(omega_steps) {}
 
+  /// Fuses a pair of Gaussian estimates.
   [[nodiscard]] core::Result<filters::GaussianEstimate> fuse_pair(
       const filters::GaussianEstimate& lhs,
       const filters::GaussianEstimate& rhs) const {
@@ -93,6 +95,7 @@ class CovarianceIntersectionFuser {
     return best_estimate;
   }
 
+  /// Fuses multiple Gaussian estimates into one result.
   [[nodiscard]] core::Result<filters::GaussianEstimate> fuse(
       const std::vector<filters::GaussianEstimate>& estimates) const {
     if (estimates.empty()) {
@@ -112,6 +115,7 @@ class CovarianceIntersectionFuser {
     return fused;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept {
     return "covariance_intersection";
   }

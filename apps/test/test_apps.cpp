@@ -10,6 +10,7 @@ namespace {
 
 int g_failures = 0;
 
+/// Asserts that a condition is true.
 void expect_true(const bool condition, const std::string& message) {
   if (!condition) {
     std::cerr << "FAIL: " << message << '\n';
@@ -17,6 +18,7 @@ void expect_true(const bool condition, const std::string& message) {
   }
 }
 
+/// Tests offline scenario reproducibility.
 void test_offline_scenario_reproducibility() {
   using namespace ros_tracker::apps::offline;
   using namespace ros_tracker::core;
@@ -43,6 +45,7 @@ void test_offline_scenario_reproducibility() {
       "Offline scenario generation should be reproducible for a fixed seed.");
 }
 
+/// Tests offline example metric generation.
 void test_offline_example_metrics() {
   using namespace ros_tracker::apps::offline;
 
@@ -56,6 +59,7 @@ void test_offline_example_metrics() {
               "Offline example should keep a single primary track.");
 }
 
+/// Tests the ROS adapter workflow.
 void test_ros_adapter() {
   using namespace ros_tracker::apps::ros;
   using namespace ros_tracker::core;
@@ -113,6 +117,7 @@ void test_ros_adapter() {
 
 }  // namespace
 
+/// Runs the test executable.
 int main() {
   test_offline_scenario_reproducibility();
   test_offline_example_metrics();

@@ -18,6 +18,7 @@ struct LeastSquaresProblem {
 
 class LeastSquaresEstimator {
  public:
+  /// Solves a least-squares problem.
   [[nodiscard]] core::Result<LeastSquaresEstimate> solve(
       const LeastSquaresProblem& problem) const {
     using core::Covariance;
@@ -113,6 +114,7 @@ class LeastSquaresEstimator {
     return estimate;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept {
     return "lsq";
   }

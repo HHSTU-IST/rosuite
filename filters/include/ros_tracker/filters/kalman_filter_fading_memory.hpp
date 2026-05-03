@@ -7,9 +7,11 @@ namespace ros_tracker::filters {
 
 class KalmanFilterFadingMemory final : public FilterBase {
  public:
+  /// Constructs KalmanFilterFadingMemory.
   explicit KalmanFilterFadingMemory(const core::Scalar fading_factor = 1.05)
       : fading_factor_(fading_factor) {}
 
+  /// Predicts the next estimate.
   [[nodiscard]] core::Result<GaussianEstimate> predict(
       const GaussianEstimate& estimate,
       const models::DynamicSystemModel& model,
@@ -66,6 +68,7 @@ class KalmanFilterFadingMemory final : public FilterBase {
     return predicted;
   }
 
+  /// Corrects an estimate with a measurement.
   [[nodiscard]] core::Result<GaussianEstimate> correct(
       const GaussianEstimate& estimate,
       const models::SensorModel& sensor,
@@ -88,6 +91,7 @@ class KalmanFilterFadingMemory final : public FilterBase {
         estimate, sensor, measurement, context, gain.value());
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "kalman_fm";
   }

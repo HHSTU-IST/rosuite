@@ -17,6 +17,7 @@ using core::Scalar;
 using core::Status;
 using core::Vector;
 
+/// Validates motion-model support for the requested operation.
 [[nodiscard]] inline Status validate_motion_support(
     const models::DynamicSystemModel& model) {
   const Status validation = model.validate();
@@ -27,6 +28,7 @@ using core::Vector;
   return Status::ok_status();
 }
 
+/// Validates measurement-model support for the requested operation.
 [[nodiscard]] inline Status validate_measurement_support(
     const models::SensorModel& sensor) {
   const Status validation = sensor.validate();
@@ -37,6 +39,7 @@ using core::Vector;
   return Status::ok_status();
 }
 
+/// Predicts an estimate with a linearized system model.
 [[nodiscard]] inline Result<GaussianEstimate> predict_linearized(
     const GaussianEstimate& estimate,
     const models::DynamicSystemModel& model,
@@ -87,6 +90,7 @@ using core::Vector;
   return predicted;
 }
 
+/// Builds a linearized predicted measurement.
 [[nodiscard]] inline Result<PredictedMeasurement> linearized_measurement(
     const GaussianEstimate& estimate,
     const models::SensorModel& sensor,
@@ -146,6 +150,7 @@ using core::Vector;
   return result;
 }
 
+/// Applies the Joseph-form covariance update.
 [[nodiscard]] inline Result<GaussianEstimate> joseph_update(
     const GaussianEstimate& estimate,
     const models::SensorModel& sensor,
@@ -199,6 +204,7 @@ using core::Vector;
   return updated;
 }
 
+/// Computes the Kalman gain from an innovation covariance.
 [[nodiscard]] inline Result<Matrix> kalman_gain_from_innovation(
     const Matrix& cross_covariance,
     const Covariance& innovation_covariance) {

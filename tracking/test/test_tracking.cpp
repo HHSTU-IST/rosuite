@@ -12,6 +12,7 @@ namespace {
 
 int g_failures = 0;
 
+/// Asserts that a condition is true.
 void expect_true(const bool condition, const std::string& message) {
   if (!condition) {
     std::cerr << "FAIL: " << message << '\n';
@@ -19,6 +20,7 @@ void expect_true(const bool condition, const std::string& message) {
   }
 }
 
+/// Builds a constant-velocity system model for tests.
 ros_tracker::models::DynamicSystemModel make_constant_velocity_system() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::models;
@@ -30,6 +32,7 @@ ros_tracker::models::DynamicSystemModel make_constant_velocity_system() {
   };
 }
 
+/// Builds a linear position sensor model.
 ros_tracker::models::SensorModel make_position_sensor() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::models;
@@ -45,6 +48,7 @@ ros_tracker::models::SensorModel make_position_sensor() {
   };
 }
 
+/// Creates the default track-estimator handle.
 std::shared_ptr<const ros_tracker::tracking::TrackEstimatorModelHandle>
 make_default_handle() {
   using namespace ros_tracker::filters;
@@ -59,6 +63,7 @@ make_default_handle() {
 
 class SensorAwareTrackHandleFactory final : public ros_tracker::tracking::TrackHandleFactory {
  public:
+  /// Creates a track-estimator handle for a measurement.
   [[nodiscard]] ros_tracker::core::Result<
       std::shared_ptr<const ros_tracker::tracking::TrackEstimatorModelHandle>>
   make_handle(
@@ -80,11 +85,13 @@ class SensorAwareTrackHandleFactory final : public ros_tracker::tracking::TrackH
     return make_default_handle();
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "sensor_aware_factory";
   }
 };
 
+/// Tests nearest-neighbor association strategies.
 void test_nearest_neighbor_association() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -153,6 +160,7 @@ void test_nearest_neighbor_association() {
               "Nearest-neighbor association should pair the second track with the second measurement.");
 }
 
+/// Tests the global assignment solver interface.
 void test_global_assignment_solver_interface() {
   using namespace ros_tracker::tracking;
 
@@ -178,6 +186,7 @@ void test_global_assignment_solver_interface() {
               "Optimal assignment should find the globally best two-match solution.");
 }
 
+/// Tests multi-target tracker lifecycle updates.
 void test_multi_target_tracker_lifecycle() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -263,6 +272,7 @@ void test_multi_target_tracker_lifecycle() {
               "Tracker should reject a measurement batch with inconsistent frame_id values.");
 }
 
+/// Tests per-track dependency selection.
 void test_multi_target_tracker_per_track_dependencies() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -327,6 +337,7 @@ void test_multi_target_tracker_per_track_dependencies() {
               "Tracker should keep the Kalman-filter track in the active set.");
 }
 
+/// Tests the interacting multiple-model estimator.
 void test_multi_model_estimator() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -392,6 +403,7 @@ void test_multi_model_estimator() {
               "IMM mode probabilities should stay normalized.");
 }
 
+/// Tests covariance-intersection fusion.
 void test_covariance_intersection_fusion() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -420,6 +432,7 @@ void test_covariance_intersection_fusion() {
 
 }  // namespace
 
+/// Runs the test executable.
 int main() {
   test_nearest_neighbor_association();
   test_global_assignment_solver_interface();

@@ -48,20 +48,25 @@ struct MeasurementResult {
 
 class MotionModel {
  public:
+  /// Destroys MotionModel.
   virtual ~MotionModel() = default;
 
+  /// Propagates the state for one time step.
   [[nodiscard]] virtual Result<TransitionResult> propagate(
       const MotionRequest& request) const = 0;
 
+  /// Computes the state Jacobian for the given request.
   [[nodiscard]] virtual Result<Matrix> state_jacobian(
       const MotionRequest& /*request*/) const {
     return Status::unimplemented(
         "This motion model does not provide a state Jacobian.");
   }
 
+  /// Returns the component name.
   [[nodiscard]] virtual std::string_view name() const noexcept = 0;
 
  protected:
+  /// Validates dt.
   [[nodiscard]] static Status validate_dt(const MotionRequest& request) {
     if (request.context.dt < 0.0) {
       return Status::invalid_argument("Motion model dt must be non-negative.");
@@ -73,37 +78,47 @@ class MotionModel {
 
 class MeasurementModel {
  public:
+  /// Destroys MeasurementModel.
   virtual ~MeasurementModel() = default;
 
+  /// Computes the expected measurement.
   [[nodiscard]] virtual Result<MeasurementResult> measure(
       const MeasurementRequest& request) const = 0;
 
+  /// Computes the state Jacobian for the given request.
   [[nodiscard]] virtual Result<Matrix> state_jacobian(
       const MeasurementRequest& /*request*/) const {
     return Status::unimplemented(
         "This measurement model does not provide a state Jacobian.");
   }
 
+  /// Returns the component name.
   [[nodiscard]] virtual std::string_view name() const noexcept = 0;
 };
 
 class ProcessNoiseModel {
  public:
+  /// Destroys ProcessNoiseModel.
   virtual ~ProcessNoiseModel() = default;
 
+  /// Computes the covariance for the given request.
   [[nodiscard]] virtual Result<Covariance> covariance(
       const MotionRequest& request) const = 0;
 
+  /// Returns the component name.
   [[nodiscard]] virtual std::string_view name() const noexcept = 0;
 };
 
 class MeasurementNoiseModel {
  public:
+  /// Destroys MeasurementNoiseModel.
   virtual ~MeasurementNoiseModel() = default;
 
+  /// Computes the covariance for the given request.
   [[nodiscard]] virtual Result<Covariance> covariance(
       const MeasurementRequest& request) const = 0;
 
+  /// Returns the component name.
   [[nodiscard]] virtual std::string_view name() const noexcept = 0;
 };
 
@@ -111,6 +126,7 @@ struct DynamicSystemModel {
   std::shared_ptr<MotionModel> motion;
   std::shared_ptr<ProcessNoiseModel> process_noise;
 
+  /// Validates the current configuration.
   [[nodiscard]] core::Status validate() const {
     if (!motion) {
       return core::Status::invalid_argument(
@@ -130,6 +146,7 @@ struct SensorModel {
   std::shared_ptr<MeasurementModel> measurement;
   std::shared_ptr<MeasurementNoiseModel> measurement_noise;
 
+  /// Validates the current configuration.
   [[nodiscard]] core::Status validate() const {
     if (!measurement) {
       return core::Status::invalid_argument(

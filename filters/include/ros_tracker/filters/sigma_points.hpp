@@ -10,12 +10,14 @@ namespace ros_tracker::filters {
 
 class MerweSigmaPointGenerator {
  public:
+  /// Constructs MerweSigmaPointGenerator.
   explicit MerweSigmaPointGenerator(
       const core::Scalar alpha = 1e-3,
       const core::Scalar beta = 2.0,
       const core::Scalar kappa = 0.0)
       : alpha_(alpha), beta_(beta), kappa_(kappa) {}
 
+  /// Generates sigma points.
   [[nodiscard]] core::Result<SigmaPointSet> generate(
       const GaussianEstimate& estimate) const {
     const core::Status status = validate_estimate(estimate);
@@ -78,6 +80,7 @@ class MerweSigmaPointGenerator {
 
 class CubaturePointGenerator {
  public:
+  /// Generates sigma points.
   [[nodiscard]] core::Result<SigmaPointSet> generate(
       const GaussianEstimate& estimate) const {
     const core::Status status = validate_estimate(estimate);

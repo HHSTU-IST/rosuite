@@ -15,6 +15,7 @@ using core::Result;
 using core::Status;
 using core::Vector;
 
+/// Validates a sigma-point set.
 [[nodiscard]] inline Status validate_sigma_point_set(
     const SigmaPointSet& sigma_points,
     const core::Index dimension) {
@@ -37,6 +38,7 @@ using core::Vector;
   return Status::ok_status();
 }
 
+/// Computes a weighted mean from column samples.
 [[nodiscard]] inline Result<Vector> weighted_mean_from_columns(
     const Matrix& samples,
     const Vector& weights) {
@@ -53,6 +55,7 @@ using core::Vector;
   return mean;
 }
 
+/// Computes a weighted covariance from column samples.
 [[nodiscard]] inline Result<Covariance> weighted_covariance_from_columns(
     const Matrix& samples,
     const Vector& weights,
@@ -76,6 +79,7 @@ using core::Vector;
   return core::symmetrize(covariance);
 }
 
+/// Computes a weighted cross-covariance from column samples.
 [[nodiscard]] inline Result<Matrix> weighted_cross_covariance_from_columns(
     const Matrix& left_samples,
     const Vector& left_mean,
@@ -104,6 +108,7 @@ using core::Vector;
   return covariance;
 }
 
+/// Propagates sigma points through the motion model.
 [[nodiscard]] inline Result<GaussianEstimate> predict_from_sigma_points(
     const GaussianEstimate& estimate,
     const SigmaPointSet& sigma_points,
@@ -178,6 +183,7 @@ using core::Vector;
   return predicted;
 }
 
+/// Corrects an estimate from transformed sigma points.
 [[nodiscard]] inline Result<GaussianEstimate> correct_from_sigma_points(
     const GaussianEstimate& estimate,
     const SigmaPointSet& sigma_points,
@@ -293,6 +299,7 @@ using core::Vector;
   return updated;
 }
 
+/// Builds a Gaussian estimate from an ensemble.
 [[nodiscard]] inline Result<GaussianEstimate> estimate_from_ensemble(
     const Matrix& ensemble,
     const core::Scalar timestamp,

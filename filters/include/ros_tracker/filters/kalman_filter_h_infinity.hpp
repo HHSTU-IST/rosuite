@@ -11,9 +11,11 @@ namespace ros_tracker::filters {
 
 class KalmanFilterHInfinity final : public FilterBase {
  public:
+  /// Constructs KalmanFilterHInfinity.
   explicit KalmanFilterHInfinity(const core::Scalar gamma = 10.0)
       : gamma_(gamma) {}
 
+  /// Predicts the next estimate.
   [[nodiscard]] core::Result<GaussianEstimate> predict(
       const GaussianEstimate& estimate,
       const models::DynamicSystemModel& model,
@@ -27,6 +29,7 @@ class KalmanFilterHInfinity final : public FilterBase {
     return detail::predict_linearized(estimate, model, context, std::move(control));
   }
 
+  /// Corrects an estimate with a measurement.
   [[nodiscard]] core::Result<GaussianEstimate> correct(
       const GaussianEstimate& estimate,
       const models::SensorModel& sensor,
@@ -119,6 +122,7 @@ class KalmanFilterHInfinity final : public FilterBase {
     return updated;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "kalman_hinf";
   }

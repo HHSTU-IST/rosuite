@@ -11,6 +11,7 @@ struct State {
   Scalar timestamp {0.0};
   std::string frame_id;
 
+  /// Returns the vector dimension.
   [[nodiscard]] Index dimension() const noexcept {
     return value.size();
   }
@@ -22,6 +23,7 @@ struct Measurement {
   std::string sensor_id;
   std::string frame_id;
 
+  /// Returns the vector dimension.
   [[nodiscard]] Index dimension() const noexcept {
     return value.size();
   }
@@ -31,6 +33,7 @@ struct ControlInput {
   Vector value;
   Scalar timestamp {0.0};
 
+  /// Returns the vector dimension.
   [[nodiscard]] Index dimension() const noexcept {
     return value.size();
   }

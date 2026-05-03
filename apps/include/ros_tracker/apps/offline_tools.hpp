@@ -20,6 +20,7 @@ struct TrackingMetrics {
   std::size_t estimated_frames {0U};
 };
 
+/// Computes tracking metrics against ground truth.
 [[nodiscard]] inline core::Result<TrackingMetrics> compute_tracking_metrics(
     const std::vector<core::State>& truth_states,
     const std::vector<filters::GaussianEstimate>& estimated_states) {
@@ -69,6 +70,7 @@ struct TrackingMetrics {
   return metrics;
 }
 
+/// Extracts the primary estimates from a track set.
 [[nodiscard]] inline std::vector<filters::GaussianEstimate>
 extract_primary_track_estimates(
     const std::vector<TrackerFrame>& tracker_frames) {

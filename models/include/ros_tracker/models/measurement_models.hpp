@@ -9,12 +9,14 @@ namespace ros_tracker::models {
 
 class LinearMeasurementModel final : public MeasurementModel {
  public:
+  /// Constructs LinearMeasurementModel.
   explicit LinearMeasurementModel(
       Matrix observation_matrix,
       Vector bias = Vector {})
       : observation_matrix_(std::move(observation_matrix)),
         bias_(std::move(bias)) {}
 
+  /// Computes the expected measurement.
   [[nodiscard]] Result<MeasurementResult> measure(
       const MeasurementRequest& request) const override {
     if (request.state.dimension() != observation_matrix_.cols()) {
@@ -41,6 +43,7 @@ class LinearMeasurementModel final : public MeasurementModel {
     return result;
   }
 
+  /// Computes the state Jacobian for the given request.
   [[nodiscard]] Result<Matrix> state_jacobian(
       const MeasurementRequest& request) const override {
     if (request.state.dimension() != observation_matrix_.cols()) {
@@ -51,6 +54,7 @@ class LinearMeasurementModel final : public MeasurementModel {
     return observation_matrix_;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "linear_measurement";
   }
@@ -62,9 +66,11 @@ class LinearMeasurementModel final : public MeasurementModel {
 
 class RadarMeasurementModel final : public MeasurementModel {
  public:
+  /// Constructs RadarMeasurementModel.
   explicit RadarMeasurementModel(const core::Scalar range_epsilon = 1e-9)
       : range_epsilon_(range_epsilon) {}
 
+  /// Computes the expected measurement.
   [[nodiscard]] Result<MeasurementResult> measure(
       const MeasurementRequest& request) const override {
     if (request.state.dimension() != 4) {
@@ -98,6 +104,7 @@ class RadarMeasurementModel final : public MeasurementModel {
     return result;
   }
 
+  /// Computes the state Jacobian for the given request.
   [[nodiscard]] Result<Matrix> state_jacobian(
       const MeasurementRequest& request) const override {
     if (request.state.dimension() != 4) {
@@ -134,6 +141,7 @@ class RadarMeasurementModel final : public MeasurementModel {
     return h;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "radar_measurement";
   }

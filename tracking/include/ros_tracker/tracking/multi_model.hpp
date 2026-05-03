@@ -34,6 +34,7 @@ struct MultiModelEstimate {
 
 namespace detail {
 
+/// Merges per-mode estimates into a single estimate.
 [[nodiscard]] inline core::Result<filters::GaussianEstimate> merge_mode_estimates(
     const std::vector<ModeEstimate>& modes) {
   if (modes.empty()) {
@@ -84,6 +85,7 @@ namespace detail {
   return merged;
 }
 
+/// Evaluates the likelihood of a model-conditioned measurement update.
 [[nodiscard]] inline core::Result<core::Scalar> model_log_likelihood(
     const filters::GaussianEstimate& estimate,
     const models::SensorModel& sensor,
@@ -147,12 +149,14 @@ namespace detail {
 
 class InteractingMultipleModelEstimator {
  public:
+  /// Constructs InteractingMultipleModelEstimator.
   InteractingMultipleModelEstimator(
       std::vector<ModelBankEntry> model_bank,
       core::Matrix transition_probabilities)
       : model_bank_(std::move(model_bank)),
         transition_probabilities_(std::move(transition_probabilities)) {}
 
+  /// Initializes a multi-model estimate.
   [[nodiscard]] core::Result<MultiModelEstimate> initialize(
       const filters::GaussianEstimate& estimate,
       std::vector<core::Scalar> probabilities = {}) const {
@@ -192,6 +196,7 @@ class InteractingMultipleModelEstimator {
     return initialized;
   }
 
+  /// Predicts the next estimate.
   [[nodiscard]] core::Result<MultiModelEstimate> predict(
       const MultiModelEstimate& estimate,
       const models::ModelContext& context,
@@ -271,6 +276,7 @@ class InteractingMultipleModelEstimator {
     return MultiModelEstimate {predicted_modes, merged.value()};
   }
 
+  /// Corrects an estimate with a measurement.
   [[nodiscard]] core::Result<MultiModelEstimate> correct(
       const MultiModelEstimate& estimate,
       const models::SensorModel& sensor,
@@ -334,6 +340,7 @@ class InteractingMultipleModelEstimator {
     return MultiModelEstimate {corrected_modes, merged.value()};
   }
 
+  /// Advances the tracker by one step.
   [[nodiscard]] core::Result<MultiModelEstimate> step(
       const MultiModelEstimate& estimate,
       const models::SensorModel& sensor,
@@ -348,11 +355,13 @@ class InteractingMultipleModelEstimator {
     return correct(predicted.value(), sensor, measurement, context);
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept {
     return "imm";
   }
 
  private:
+  /// Validates the configured model bank.
   [[nodiscard]] core::Status validate_model_bank() const {
     if (model_bank_.empty()) {
       return core::Status::invalid_argument(
@@ -394,6 +403,7 @@ class InteractingMultipleModelEstimator {
     return core::Status::ok_status();
   }
 
+  /// Validates a multi-model estimate.
   [[nodiscard]] core::Status validate_multi_model_estimate(
       const MultiModelEstimate& estimate) const {
     const core::Status bank_status = validate_model_bank();

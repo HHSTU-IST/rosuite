@@ -7,6 +7,7 @@
 
 namespace ros_tracker::core::utils {
 
+/// Resamples indices with systematic resampling.
 [[nodiscard]] inline Result<std::vector<std::size_t>> systematic_resample(
     std::vector<Scalar> weights,
     const Scalar offset = Scalar {0.5}) {

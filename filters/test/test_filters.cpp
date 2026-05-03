@@ -11,6 +11,7 @@ namespace {
 
 int g_failures = 0;
 
+/// Asserts that a condition is true.
 void expect_true(const bool condition, const std::string& message) {
   if (!condition) {
     std::cerr << "FAIL: " << message << '\n';
@@ -18,6 +19,7 @@ void expect_true(const bool condition, const std::string& message) {
   }
 }
 
+/// Asserts that two scalar values are close.
 void expect_near(
     const ros_tracker::core::Scalar actual,
     const ros_tracker::core::Scalar expected,
@@ -26,6 +28,7 @@ void expect_near(
   expect_true(std::abs(actual - expected) <= tolerance, message);
 }
 
+/// Builds a constant-velocity system model for tests.
 ros_tracker::models::DynamicSystemModel make_constant_velocity_system() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::models;
@@ -37,6 +40,7 @@ ros_tracker::models::DynamicSystemModel make_constant_velocity_system() {
   };
 }
 
+/// Builds a linear position sensor model.
 ros_tracker::models::SensorModel make_position_sensor() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::models;
@@ -52,6 +56,7 @@ ros_tracker::models::SensorModel make_position_sensor() {
   };
 }
 
+/// Tests the linear Kalman filter.
 void test_kalman_filter() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -86,6 +91,7 @@ void test_kalman_filter() {
               "Kalman correction should reduce covariance trace.");
 }
 
+/// Tests the constant-gain filter.
 void test_constant_gain_filter() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -116,6 +122,7 @@ void test_constant_gain_filter() {
               "Constant gain filter should overwrite y position with unit gain.");
 }
 
+/// Tests the extended Kalman filter with a radar model.
 void test_kalman_filter_extended_with_radar() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -146,6 +153,7 @@ void test_kalman_filter_extended_with_radar() {
               "Extended Kalman correction should reduce covariance trace.");
 }
 
+/// Tests the least-squares estimator.
 void test_least_squares() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -166,6 +174,7 @@ void test_least_squares() {
               "Least squares should recover the second state component.");
 }
 
+/// Tests sigma-point generation utilities.
 void test_sigma_points() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -189,6 +198,7 @@ void test_sigma_points() {
               "Sigma points should reconstruct the original mean.");
 }
 
+/// Tests the Rauch-Tung-Striebel smoother.
 void test_rts_smoother() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -215,6 +225,7 @@ void test_rts_smoother() {
               "RTS smoothing should not increase covariance trace in this setup.");
 }
 
+/// Tests the unscented and cubature Kalman filters.
 void test_unscented_and_cubature_filters() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -259,6 +270,7 @@ void test_unscented_and_cubature_filters() {
               "CKF correction should reduce covariance trace.");
 }
 
+/// Tests the ensemble Kalman filter.
 void test_kalman_filter_ensemble() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -289,6 +301,7 @@ void test_kalman_filter_ensemble() {
               "EnKF correction should move the estimate toward the measurement.");
 }
 
+/// Tests the fading-memory Kalman filter.
 void test_kalman_filter_fading_memory() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -327,6 +340,7 @@ void test_kalman_filter_fading_memory() {
               "Fading-memory Kalman correction should reduce covariance trace.");
 }
 
+/// Tests the H-infinity Kalman filter.
 void test_kalman_filter_h_infinity() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -354,6 +368,7 @@ void test_kalman_filter_h_infinity() {
               "H-infinity Kalman correction should move the estimate toward the measurement.");
 }
 
+/// Tests the particle filter.
 void test_particle_filter() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::filters;
@@ -391,6 +406,7 @@ void test_particle_filter() {
 
 }  // namespace
 
+/// Runs the test executable.
 int main() {
   test_kalman_filter();
   test_constant_gain_filter();

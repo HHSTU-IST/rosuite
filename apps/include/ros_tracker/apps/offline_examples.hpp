@@ -18,6 +18,7 @@ struct ExampleRunSummary {
   TrackingMetrics metrics;
 };
 
+/// Runs the single-target Kalman filter example.
 [[nodiscard]] inline core::Result<ExampleRunSummary>
 run_single_target_kalman_example(const std::uint64_t seed = 0U) {
   using namespace ros_tracker::core;

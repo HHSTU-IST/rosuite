@@ -13,11 +13,13 @@ namespace ros_tracker::filters {
 
 class KalmanFilterEnsemble final : public FilterBase {
  public:
+  /// Constructs KalmanFilterEnsemble.
   explicit KalmanFilterEnsemble(
       const core::Index ensemble_size = 64,
       const std::uint64_t seed = 0U)
       : ensemble_size_(ensemble_size), seed_(seed) {}
 
+  /// Predicts the next estimate.
   [[nodiscard]] core::Result<GaussianEstimate> predict(
       const GaussianEstimate& estimate,
       const models::DynamicSystemModel& model,
@@ -92,6 +94,7 @@ class KalmanFilterEnsemble final : public FilterBase {
         context.frame_id.empty() ? estimate.state.frame_id : context.frame_id);
   }
 
+  /// Corrects an estimate with a measurement.
   [[nodiscard]] core::Result<GaussianEstimate> correct(
       const GaussianEstimate& estimate,
       const models::SensorModel& sensor,
@@ -206,6 +209,7 @@ class KalmanFilterEnsemble final : public FilterBase {
         measurement.frame_id.empty() ? estimate.state.frame_id : measurement.frame_id);
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "kalman_enkf";
   }

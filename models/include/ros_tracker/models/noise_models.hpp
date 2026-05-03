@@ -8,9 +8,11 @@ namespace ros_tracker::models {
 
 class ConstantGaussianProcessNoise final : public ProcessNoiseModel {
  public:
+  /// Constructs ConstantGaussianProcessNoise.
   explicit ConstantGaussianProcessNoise(Covariance covariance)
       : covariance_(std::move(covariance)) {}
 
+  /// Computes the covariance for the given request.
   [[nodiscard]] Result<Covariance> covariance(
       const MotionRequest& /*request*/) const override {
     const Status status = core::validate_covariance(covariance_);
@@ -21,6 +23,7 @@ class ConstantGaussianProcessNoise final : public ProcessNoiseModel {
     return covariance_;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "gaussian_process_noise";
   }
@@ -31,9 +34,11 @@ class ConstantGaussianProcessNoise final : public ProcessNoiseModel {
 
 class ConstantGaussianMeasurementNoise final : public MeasurementNoiseModel {
  public:
+  /// Constructs ConstantGaussianMeasurementNoise.
   explicit ConstantGaussianMeasurementNoise(Covariance covariance)
       : covariance_(std::move(covariance)) {}
 
+  /// Computes the covariance for the given request.
   [[nodiscard]] Result<Covariance> covariance(
       const MeasurementRequest& /*request*/) const override {
     const Status status = core::validate_covariance(covariance_);
@@ -44,6 +49,7 @@ class ConstantGaussianMeasurementNoise final : public MeasurementNoiseModel {
     return covariance_;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "gaussian_measurement_noise";
   }

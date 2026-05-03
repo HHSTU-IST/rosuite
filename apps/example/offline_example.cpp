@@ -3,6 +3,7 @@
 
 #include "ros_tracker/apps/apps.hpp"
 
+/// Runs the example executable.
 int main() {
   const auto summary =
       ros_tracker::apps::offline::run_single_target_kalman_example(42U);

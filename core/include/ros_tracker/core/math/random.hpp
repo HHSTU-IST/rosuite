@@ -11,12 +11,15 @@ namespace ros_tracker::core::stats {
 
 class RandomEngine {
  public:
+  /// Constructs RandomEngine.
   explicit RandomEngine(const std::uint64_t seed = 0U) : engine_(seed) {}
 
+  /// Reseeds the random engine.
   void seed(const std::uint64_t value) {
     engine_.seed(value);
   }
 
+  /// Samples a value from a uniform distribution.
   [[nodiscard]] Scalar sample_uniform(
       const Scalar lower = Scalar {0.0},
       const Scalar upper = Scalar {1.0}) {
@@ -24,6 +27,7 @@ class RandomEngine {
     return distribution(engine_);
   }
 
+  /// Samples a value from a normal distribution.
   [[nodiscard]] Scalar sample_normal(
       const Scalar mean = Scalar {0.0},
       const Scalar standard_deviation = Scalar {1.0}) {
@@ -31,6 +35,7 @@ class RandomEngine {
     return distribution(engine_);
   }
 
+  /// Samples a vector from a multivariate normal distribution.
   [[nodiscard]] Result<Vector> sample_multivariate_normal(
       const Vector& mean,
       const Covariance& covariance) {

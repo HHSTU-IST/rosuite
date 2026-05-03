@@ -32,6 +32,7 @@ struct ConstantVelocityScenarioConfig {
   std::string frame_id {"map"};
 };
 
+/// Builds a reproducible constant-velocity tracking scenario.
 [[nodiscard]] inline core::Result<SingleTargetScenario>
 build_constant_velocity_position_scenario(
     const ConstantVelocityScenarioConfig& config,

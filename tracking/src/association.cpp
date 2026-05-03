@@ -12,6 +12,7 @@
 namespace ros_tracker::tracking {
 namespace {
 
+/// Validates an association problem.
 core::Status validate_association_problem(const AssociationProblem& problem) {
   for (const AssociationCandidate& candidate : problem.candidates) {
     if (candidate.track_index >= problem.track_count) {
@@ -33,6 +34,7 @@ core::Status validate_association_problem(const AssociationProblem& problem) {
   return core::Status::ok_status();
 }
 
+/// Collects matches and unmatched items into an association result.
 AssociationResult finalize_association_result(
     const AssociationProblem& problem,
     std::vector<Association> matches) {
@@ -63,6 +65,7 @@ AssociationResult finalize_association_result(
   return result;
 }
 
+/// Computes the association cost for a track-measurement pair.
 core::Result<core::Scalar> association_cost(
     const Track& track,
     const models::SensorModel& default_sensor,
@@ -128,6 +131,7 @@ core::Result<core::Scalar> association_cost(
       innovation_covariance);
 }
 
+/// Builds the association problem for a track batch.
 core::Result<AssociationProblem> build_association_problem(
     const std::vector<Track>& tracks,
     const std::vector<core::Measurement>& measurements,
@@ -170,6 +174,7 @@ core::Result<AssociationProblem> build_association_problem(
 
 }  // namespace
 
+/// Solves an association problem.
 core::Result<AssociationResult> GreedyAssociationAssignmentSolver::solve(
     const AssociationProblem& problem) const {
   const core::Status validation = validate_association_problem(problem);
@@ -208,14 +213,17 @@ core::Result<AssociationResult> GreedyAssociationAssignmentSolver::solve(
   return finalize_association_result(problem, std::move(matches));
 }
 
+/// Returns the component name.
 std::string_view GreedyAssociationAssignmentSolver::name() const noexcept {
   return "greedy_assignment";
 }
 
+/// Constructs OptimalAssociationAssignmentSolver.
 OptimalAssociationAssignmentSolver::OptimalAssociationAssignmentSolver(
     const std::size_t max_track_count)
     : max_track_count_(max_track_count) {}
 
+/// Solves an association problem.
 core::Result<AssociationResult> OptimalAssociationAssignmentSolver::solve(
     const AssociationProblem& problem) const {
   const core::Status validation = validate_association_problem(problem);
@@ -299,15 +307,18 @@ core::Result<AssociationResult> OptimalAssociationAssignmentSolver::solve(
   return finalize_association_result(problem, std::move(best_matches));
 }
 
+/// Returns the component name.
 std::string_view OptimalAssociationAssignmentSolver::name() const noexcept {
   return "optimal_assignment";
 }
 
+/// Constructs NearestNeighborAssociationStrategy.
 NearestNeighborAssociationStrategy::NearestNeighborAssociationStrategy(
     const core::Scalar gating_threshold)
     : gating_threshold_(gating_threshold),
       assignment_solver_(std::make_shared<GreedyAssociationAssignmentSolver>()) {}
 
+/// Associates measurements with tracks.
 core::Result<AssociationResult> NearestNeighborAssociationStrategy::associate(
     const std::vector<Track>& tracks,
     const std::vector<core::Measurement>& measurements,
@@ -322,10 +333,12 @@ core::Result<AssociationResult> NearestNeighborAssociationStrategy::associate(
   return assignment_solver_->solve(problem.value());
 }
 
+/// Returns the component name.
 std::string_view NearestNeighborAssociationStrategy::name() const noexcept {
   return "nearest_neighbor";
 }
 
+/// Constructs GlobalNearestNeighborAssociationStrategy.
 GlobalNearestNeighborAssociationStrategy::GlobalNearestNeighborAssociationStrategy(
     const core::Scalar gating_threshold,
     std::shared_ptr<const AssociationAssignmentSolver> assignment_solver)
@@ -336,6 +349,7 @@ GlobalNearestNeighborAssociationStrategy::GlobalNearestNeighborAssociationStrate
   }
 }
 
+/// Associates measurements with tracks.
 core::Result<AssociationResult>
 GlobalNearestNeighborAssociationStrategy::associate(
     const std::vector<Track>& tracks,
@@ -356,6 +370,7 @@ GlobalNearestNeighborAssociationStrategy::associate(
   return assignment_solver_->solve(problem.value());
 }
 
+/// Returns the component name.
 std::string_view GlobalNearestNeighborAssociationStrategy::name() const noexcept {
   return "global_nearest_neighbor";
 }

@@ -4,6 +4,7 @@
 
 namespace ros_tracker::tracking {
 
+/// Constructs BasicTrackManager.
 BasicTrackManager::BasicTrackManager(
     const core::Index state_dimension,
     core::Covariance initial_covariance,
@@ -16,6 +17,7 @@ BasicTrackManager::BasicTrackManager(
       confirmation_hits_(confirmation_hits),
       max_consecutive_misses_(max_consecutive_misses) {}
 
+/// Initializes a new track from a measurement.
 core::Result<Track> BasicTrackManager::initiate_track(
     const TrackId id,
     const core::Measurement& measurement,
@@ -94,6 +96,7 @@ core::Result<Track> BasicTrackManager::initiate_track(
   return track;
 }
 
+/// Updates track metadata after prediction.
 core::Result<Track> BasicTrackManager::on_prediction(
     const Track& track,
     const filters::GaussianEstimate& predicted_estimate) const {
@@ -109,6 +112,7 @@ core::Result<Track> BasicTrackManager::on_prediction(
   return updated;
 }
 
+/// Updates track metadata after correction.
 core::Result<Track> BasicTrackManager::on_correction(
     const Track& track,
     const filters::GaussianEstimate& corrected_estimate,
@@ -130,6 +134,7 @@ core::Result<Track> BasicTrackManager::on_correction(
   return updated;
 }
 
+/// Updates track metadata after a missed detection.
 core::Result<Track> BasicTrackManager::on_missed_detection(
     const Track& track) const {
   Track updated = track;
@@ -141,10 +146,12 @@ core::Result<Track> BasicTrackManager::on_missed_detection(
   return updated;
 }
 
+/// Returns whether the track should be removed.
 bool BasicTrackManager::should_remove(const Track& track) const noexcept {
   return track.lifecycle == TrackLifecycle::kDeleted;
 }
 
+/// Returns the component name.
 std::string_view BasicTrackManager::name() const noexcept {
   return "basic_manager";
 }

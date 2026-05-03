@@ -7,6 +7,7 @@
 
 namespace ros_tracker::tracking {
 
+/// Constructs MultiTargetTracker.
 MultiTargetTracker::MultiTargetTracker(
     std::shared_ptr<const filters::FilterBase> filter,
     models::DynamicSystemModel system_model,
@@ -22,6 +23,7 @@ MultiTargetTracker::MultiTargetTracker(
           std::move(association_strategy),
           std::move(track_manager)) {}
 
+/// Constructs MultiTargetTracker.
 MultiTargetTracker::MultiTargetTracker(
     std::shared_ptr<const TrackEstimatorModelHandle> default_handle,
     std::shared_ptr<const AssociationStrategy> association_strategy,
@@ -32,6 +34,7 @@ MultiTargetTracker::MultiTargetTracker(
       track_manager_(std::move(track_manager)),
       handle_factory_(std::move(handle_factory)) {}
 
+/// Advances the tracker by one step.
 core::Result<std::vector<Track>> MultiTargetTracker::step(
     const std::vector<core::Measurement>& measurements,
     const models::ModelContext& context,
@@ -156,14 +159,17 @@ core::Result<std::vector<Track>> MultiTargetTracker::step(
   return tracks_;
 }
 
+/// Returns the current track set.
 const std::vector<Track>& MultiTargetTracker::tracks() const noexcept {
   return tracks_;
 }
 
+/// Returns the component name.
 std::string_view MultiTargetTracker::name() const noexcept {
   return "multi_target";
 }
 
+/// Validates tracker dependencies.
 core::Status MultiTargetTracker::validate_dependencies() const {
   if (!default_handle_) {
     return core::Status::invalid_argument(
@@ -188,6 +194,7 @@ core::Status MultiTargetTracker::validate_dependencies() const {
   return core::Status::ok_status();
 }
 
+/// Creates a track-estimator handle for a measurement.
 core::Result<std::shared_ptr<const TrackEstimatorModelHandle>>
 MultiTargetTracker::make_handle(
     const core::Measurement& measurement,

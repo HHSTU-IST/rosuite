@@ -13,6 +13,7 @@ namespace ros_tracker::filters {
 
 class ParticleFilter final : public FilterBase {
  public:
+  /// Constructs ParticleFilter.
   explicit ParticleFilter(
       const core::Index particle_count = 256,
       const std::uint64_t seed = 0U,
@@ -21,6 +22,7 @@ class ParticleFilter final : public FilterBase {
         rng_(seed),
         resampling_offset_(resampling_offset) {}
 
+  /// Predicts the next estimate.
   [[nodiscard]] core::Result<GaussianEstimate> predict(
       const GaussianEstimate& estimate,
       const models::DynamicSystemModel& model,
@@ -43,6 +45,7 @@ class ParticleFilter final : public FilterBase {
         context.frame_id.empty() ? estimate.state.frame_id : context.frame_id);
   }
 
+  /// Corrects an estimate with a measurement.
   [[nodiscard]] core::Result<GaussianEstimate> correct(
       const GaussianEstimate& estimate,
       const models::SensorModel& sensor,
@@ -70,11 +73,13 @@ class ParticleFilter final : public FilterBase {
         measurement.frame_id.empty() ? estimate.state.frame_id : measurement.frame_id);
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "particle";
   }
 
  private:
+  /// Returns the prior particle set for the current estimate.
   [[nodiscard]] core::Result<ParticleSet> prior_particle_set(
       const GaussianEstimate& estimate) const {
     const core::Status estimate_status = validate_estimate(estimate);
@@ -89,6 +94,7 @@ class ParticleFilter final : public FilterBase {
     return sample_prior_particles(estimate);
   }
 
+  /// Samples particles from the prior estimate.
   [[nodiscard]] core::Result<ParticleSet> sample_prior_particles(
       const GaussianEstimate& estimate) const {
     if (particle_count_ <= 0) {
@@ -116,6 +122,7 @@ class ParticleFilter final : public FilterBase {
     return particle_set;
   }
 
+  /// Propagates each particle through the motion model.
   [[nodiscard]] core::Result<ParticleSet> propagate_particles(
       const ParticleSet& particles,
       const models::DynamicSystemModel& model,
@@ -162,6 +169,7 @@ class ParticleFilter final : public FilterBase {
     return propagated;
   }
 
+  /// Computes particle weights from a measurement.
   [[nodiscard]] core::Result<ParticleSet> weight_particles(
       const ParticleSet& particles,
       const models::SensorModel& sensor,
@@ -218,6 +226,7 @@ class ParticleFilter final : public FilterBase {
     return weighted;
   }
 
+  /// Resamples particles according to their weights.
   [[nodiscard]] core::Result<ParticleSet> resample_particles(
       const ParticleSet& particles) const {
     const core::Status particle_status = validate_particle_set(particles);
@@ -247,6 +256,7 @@ class ParticleFilter final : public FilterBase {
     return resampled;
   }
 
+  /// Collapses a particle set into a Gaussian estimate.
   [[nodiscard]] core::Result<GaussianEstimate> particle_set_to_estimate(
       const ParticleSet& particles,
       const core::Scalar timestamp,

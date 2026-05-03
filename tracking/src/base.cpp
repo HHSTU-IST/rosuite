@@ -5,6 +5,7 @@
 
 namespace ros_tracker::tracking {
 
+/// Constructs StaticTrackEstimatorModelHandle.
 StaticTrackEstimatorModelHandle::StaticTrackEstimatorModelHandle(
     std::shared_ptr<const filters::FilterBase> filter,
     models::DynamicSystemModel system_model,
@@ -15,6 +16,7 @@ StaticTrackEstimatorModelHandle::StaticTrackEstimatorModelHandle(
       sensor_model_(std::move(sensor_model)),
       name_(std::move(name)) {}
 
+/// Validates the current configuration.
 core::Status StaticTrackEstimatorModelHandle::validate() const {
   if (!filter_) {
     return core::Status::invalid_argument(
@@ -29,6 +31,7 @@ core::Status StaticTrackEstimatorModelHandle::validate() const {
   return sensor_model_.validate();
 }
 
+/// Predicts the next estimate.
 core::Result<filters::GaussianEstimate>
 StaticTrackEstimatorModelHandle::predict(
     const filters::GaussianEstimate& estimate,
@@ -42,6 +45,7 @@ StaticTrackEstimatorModelHandle::predict(
   return filter_->predict(estimate, system_model_, context, std::move(control));
 }
 
+/// Corrects an estimate with a measurement.
 core::Result<filters::GaussianEstimate>
 StaticTrackEstimatorModelHandle::correct(
     const filters::GaussianEstimate& estimate,
@@ -55,15 +59,18 @@ StaticTrackEstimatorModelHandle::correct(
   return filter_->correct(estimate, sensor_model_, measurement, context);
 }
 
+/// Returns the sensor model used for association.
 const models::SensorModel&
 StaticTrackEstimatorModelHandle::association_sensor_model() const noexcept {
   return sensor_model_;
 }
 
+/// Returns the component name.
 std::string_view StaticTrackEstimatorModelHandle::name() const noexcept {
   return name_;
 }
 
+/// Summarizes shared metadata from a measurement batch.
 core::Result<MeasurementBatchSummary> summarize_measurement_batch(
     const std::vector<core::Measurement>& measurements) {
   MeasurementBatchSummary summary;
@@ -93,6 +100,7 @@ core::Result<MeasurementBatchSummary> summarize_measurement_batch(
   return summary;
 }
 
+/// Validates a track instance.
 core::Status validate_track(const Track& track) {
   if (track.age == 0U) {
     return core::Status::invalid_argument(

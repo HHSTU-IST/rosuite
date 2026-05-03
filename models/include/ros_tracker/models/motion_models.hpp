@@ -8,6 +8,7 @@ namespace ros_tracker::models {
 
 class ConstantVelocityMotionModel final : public MotionModel {
  public:
+  /// Propagates the state for one time step.
   [[nodiscard]] Result<TransitionResult> propagate(
       const MotionRequest& request) const override {
     const Status dt_status = validate_dt(request);
@@ -35,6 +36,7 @@ class ConstantVelocityMotionModel final : public MotionModel {
     return result;
   }
 
+  /// Computes the state Jacobian for the given request.
   [[nodiscard]] Result<Matrix> state_jacobian(
       const MotionRequest& request) const override {
     if (request.state.dimension() != 4) {
@@ -48,6 +50,7 @@ class ConstantVelocityMotionModel final : public MotionModel {
     return f;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "const_vel";
   }
@@ -55,6 +58,7 @@ class ConstantVelocityMotionModel final : public MotionModel {
 
 class ConstantAccelerationMotionModel final : public MotionModel {
  public:
+  /// Propagates the state for one time step.
   [[nodiscard]] Result<TransitionResult> propagate(
       const MotionRequest& request) const override {
     const Status dt_status = validate_dt(request);
@@ -82,6 +86,7 @@ class ConstantAccelerationMotionModel final : public MotionModel {
     return result;
   }
 
+  /// Computes the state Jacobian for the given request.
   [[nodiscard]] Result<Matrix> state_jacobian(
       const MotionRequest& request) const override {
     if (request.state.dimension() != 6) {
@@ -102,6 +107,7 @@ class ConstantAccelerationMotionModel final : public MotionModel {
     return f;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "const_acc";
   }
@@ -109,9 +115,11 @@ class ConstantAccelerationMotionModel final : public MotionModel {
 
 class CoordinatedTurnMotionModel final : public MotionModel {
  public:
+  /// Constructs CoordinatedTurnMotionModel.
   explicit CoordinatedTurnMotionModel(const core::Scalar turn_rate_epsilon = 1e-6)
       : turn_rate_epsilon_(turn_rate_epsilon) {}
 
+  /// Propagates the state for one time step.
   [[nodiscard]] Result<TransitionResult> propagate(
       const MotionRequest& request) const override {
     const Status dt_status = validate_dt(request);
@@ -155,6 +163,7 @@ class CoordinatedTurnMotionModel final : public MotionModel {
     return result;
   }
 
+  /// Computes the state Jacobian for the given request.
   [[nodiscard]] Result<Matrix> state_jacobian(
       const MotionRequest& request) const override {
     if (request.state.dimension() != 5) {
@@ -202,6 +211,7 @@ class CoordinatedTurnMotionModel final : public MotionModel {
     return f;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "coord_turn";
   }
@@ -212,9 +222,11 @@ class CoordinatedTurnMotionModel final : public MotionModel {
 
 class SingerMotionModel final : public MotionModel {
  public:
+  /// Constructs SingerMotionModel.
   explicit SingerMotionModel(const core::Scalar maneuver_decay)
       : maneuver_decay_(maneuver_decay) {}
 
+  /// Propagates the state for one time step.
   [[nodiscard]] Result<TransitionResult> propagate(
       const MotionRequest& request) const override {
     const Status dt_status = validate_dt(request);
@@ -247,6 +259,7 @@ class SingerMotionModel final : public MotionModel {
     return result;
   }
 
+  /// Computes the state Jacobian for the given request.
   [[nodiscard]] Result<Matrix> state_jacobian(
       const MotionRequest& request) const override {
     if (maneuver_decay_ <= 0.0) {
@@ -278,6 +291,7 @@ class SingerMotionModel final : public MotionModel {
     return f;
   }
 
+  /// Returns the component name.
   [[nodiscard]] std::string_view name() const noexcept override {
     return "singer";
   }

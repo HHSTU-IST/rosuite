@@ -4,12 +4,14 @@
 
 namespace ros_tracker::apps::ros {
 
+/// Constructs TrackerNodeAdapter.
 TrackerNodeAdapter::TrackerNodeAdapter(
     std::shared_ptr<tracking::TrackerBase> tracker,
     TrackerNodeParameters parameters)
     : tracker_(std::move(tracker)),
       parameters_(std::move(parameters)) {}
 
+/// Converts a track lifecycle enum to a string label.
 std::string lifecycle_to_string(const tracking::TrackLifecycle lifecycle) {
   switch (lifecycle) {
     case tracking::TrackLifecycle::kTentative:
@@ -23,6 +25,7 @@ std::string lifecycle_to_string(const tracking::TrackLifecycle lifecycle) {
   return "unknown";
 }
 
+/// Converts an internal track into an adapter message.
 TrackMessage to_track_message(const tracking::Track& track) {
   TrackMessage message;
   message.id = track.id;
@@ -43,6 +46,7 @@ TrackMessage to_track_message(const tracking::Track& track) {
   return message;
 }
 
+/// Processes a measurement batch and produces track output.
 core::Result<TrackArrayMessage> TrackerNodeAdapter::process_measurements(
     const std::vector<core::Measurement>& measurements,
     std::optional<core::ControlInput> control) {
@@ -83,6 +87,7 @@ core::Result<TrackArrayMessage> TrackerNodeAdapter::process_measurements(
   return message;
 }
 
+/// Returns the component name.
 std::string_view TrackerNodeAdapter::name() const noexcept {
   return "tracker_node_adapter";
 }

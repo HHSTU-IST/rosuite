@@ -10,6 +10,7 @@ namespace {
 
 int g_failures = 0;
 
+/// Asserts that a condition is true.
 void expect_true(const bool condition, const std::string& message) {
   if (!condition) {
     std::cerr << "FAIL: " << message << '\n';
@@ -17,6 +18,7 @@ void expect_true(const bool condition, const std::string& message) {
   }
 }
 
+/// Asserts that two scalar values are close.
 void expect_near(
     const ros_tracker::core::Scalar actual,
     const ros_tracker::core::Scalar expected,
@@ -25,6 +27,7 @@ void expect_near(
   expect_true(std::abs(actual - expected) <= tolerance, message);
 }
 
+/// Approximates a measurement Jacobian with finite differences.
 ros_tracker::core::Matrix finite_difference_jacobian(
     const ros_tracker::models::MeasurementModel& model,
     const ros_tracker::models::MeasurementRequest& request,
@@ -51,6 +54,7 @@ ros_tracker::core::Matrix finite_difference_jacobian(
   return jacobian;
 }
 
+/// Tests the motion-model implementations.
 void test_motion_models() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::models;
@@ -108,6 +112,7 @@ void test_motion_models() {
               "Singer acceleration should decay over time.");
 }
 
+/// Tests the measurement-model implementations.
 void test_measurement_models() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::models;
@@ -145,6 +150,7 @@ void test_measurement_models() {
               "Radar analytic Jacobian should match a finite-difference approximation.");
 }
 
+/// Tests the noise models and model composition helpers.
 void test_noise_and_composition() {
   using namespace ros_tracker::core;
   using namespace ros_tracker::models;
@@ -186,6 +192,7 @@ void test_noise_and_composition() {
 
 }  // namespace
 
+/// Runs the test executable.
 int main() {
   test_motion_models();
   test_measurement_models();
