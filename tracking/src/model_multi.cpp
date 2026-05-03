@@ -1,4 +1,4 @@
-#include "ros_tracker/tracking/multi_model.hpp"
+#include "ros_tracker/tracking/model_multi.hpp"
 
 namespace ros_tracker::tracking
 {

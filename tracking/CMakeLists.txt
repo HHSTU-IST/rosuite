@@ -3,7 +3,7 @@ add_library(
     src/association.cpp
     src/base.cpp
     src/management.cpp
-    src/multi_model.cpp
+    src/model_multi.cpp
     src/tracker.cpp
 )
 add_library(ros_tracker::tracking ALIAS ros_tracker_tracking)
@@ -63,7 +63,7 @@ if(ROS_TRACKER_BUILD_TESTS)
     COMMAND ros_tracker_tracking_tracker_tests
   )
 
-  add_executable(ros_tracker_tracking_multi_model_tests test/test_multi_model.cpp)
+  add_executable(ros_tracker_tracking_multi_model_tests test/test_model_multi.cpp)
   target_link_libraries(
     ros_tracker_tracking_multi_model_tests
     PRIVATE

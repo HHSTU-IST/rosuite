@@ -61,7 +61,7 @@ See [docs/architecture.md](docs/architecture.md) for details.
     - Bootstrap particle filtering with reusable resampling support from `core`.
   - [x] `sigma_points`
     - Merwe and cubature point generation plus shared Gaussian-transform helpers.
-  - [x] `least_squares`
+  - [x] `estimator_least_squares`
     - Batch least-squares estimation utilities for linearized estimation problems.
   - [x] `smoothers`
     - Rauch-Tung-Striebel smoothing utilities over Gaussian state estimates.
@@ -77,7 +77,7 @@ See [docs/architecture.md](docs/architecture.md) for details.
     - Track initiation, confirmation, missed-detection handling, and deletion policies.
   - [x] `tracker`
     - `MultiTargetTracker` orchestration that chains prediction, association, correction, spawning, pruning, and measurement-batch consistency validation.
-  - [x] `multi_model`
+  - [x] `model_multi`
     - IMM-style multi-model estimation over a bank of filters and dynamic-system hypotheses with probabilistic mode mixing.
   - [x] `fusion`
     - Covariance-intersection-based Gaussian estimate fusion for conservative track-to-track combination.
@@ -121,7 +121,7 @@ If you want lighter-weight entry points, prefer the second-level umbrellas:
 - `tracking`
   - `#include "ros_tracker/tracking/track_lifecycle.hpp"`
   - `#include "ros_tracker/tracking/association_tools.hpp"`
-  - `#include "ros_tracker/tracking/multi_model_tools.hpp"`
+  - `#include "ros_tracker/tracking/model_multi_tools.hpp"`
 
 ### 1. `core`: shared math, types, status, and result helpers
 
