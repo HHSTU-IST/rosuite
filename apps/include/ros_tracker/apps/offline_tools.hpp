@@ -3,10 +3,10 @@
 #include <cstddef>
 #include <vector>
 
-#include "ros_tracker/filters/estimate.hpp"
-#include "ros_tracker/tracking/base.hpp"
+#include "kracker/filters/estimate.hpp"
+#include "kracker/tracking/base.hpp"
 
-namespace ros_tracker::apps::offline
+namespace kracker::apps::offline
 {
 
   struct TrackerFrame
@@ -98,4 +98,4 @@ namespace ros_tracker::apps::offline
     return estimates;
   }
 
-} // namespace ros_tracker::apps::offline
+} // namespace kracker::apps::offline

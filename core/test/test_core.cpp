@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "ros_tracker/core/core.hpp"
+#include "kracker/core/core.hpp"
 
 namespace
 {
@@ -23,9 +23,9 @@ namespace
 
   /// Asserts that two scalar values are close.
   void expect_near(
-      const ros_tracker::core::Scalar actual,
-      const ros_tracker::core::Scalar expected,
-      const ros_tracker::core::Scalar tolerance,
+      const kracker::core::Scalar actual,
+      const kracker::core::Scalar expected,
+      const kracker::core::Scalar tolerance,
       const std::string &message)
   {
     expect_true(std::abs(actual - expected) <= tolerance, message);
@@ -34,7 +34,7 @@ namespace
   /// Tests the core type and status helpers.
   void test_types_and_status()
   {
-    using namespace ros_tracker::core;
+    using namespace kracker::core;
 
     State state{Vector::LinSpaced(3, 1.0, 3.0), 1.25, "map"};
     Measurement measurement{Vector::LinSpaced(2, 4.0, 5.0), 2.0, "radar", "map"};
@@ -76,7 +76,7 @@ namespace
   /// Tests the linear-algebra helpers.
   void test_linear_algebra()
   {
-    using namespace ros_tracker::core;
+    using namespace kracker::core;
 
     const Matrix matrix = (Matrix(2, 2) << 1.0, 3.0, 5.0, 2.0).finished();
     const Matrix symmetric = symmetrize(matrix);
@@ -94,7 +94,7 @@ namespace
   /// Tests the integration and quadrature helpers.
   void test_integration_and_quadrature()
   {
-    using namespace ros_tracker::core;
+    using namespace kracker::core;
 
     Vector x0(1);
     x0 << 1.0;
@@ -126,7 +126,7 @@ namespace
   /// Tests the statistics helpers.
   void test_statistics()
   {
-    using namespace ros_tracker::core;
+    using namespace kracker::core;
 
     const std::vector<Vector> samples = {
         (Vector(2) << 0.0, 0.0).finished(),
@@ -161,7 +161,7 @@ namespace
   /// Tests the random-sampling and resampling helpers.
   void test_random_and_resampling()
   {
-    using namespace ros_tracker::core;
+    using namespace kracker::core;
 
     stats::RandomEngine rng(42U);
     expect_near(rng.sample_normal(3.0, 0.0), 3.0, 1e-12,

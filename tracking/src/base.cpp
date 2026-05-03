@@ -1,9 +1,9 @@
-#include "ros_tracker/tracking/base.hpp"
+#include "kracker/tracking/base.hpp"
 
 #include <cmath>
 #include <utility>
 
-namespace ros_tracker::tracking
+namespace kracker::tracking
 {
   /// Constructs StaticTrackEstimatorModelHandle.
   StaticTrackEstimatorModelHandle::StaticTrackEstimatorModelHandle(
@@ -141,4 +141,4 @@ namespace ros_tracker::tracking
     return filters::validate_estimate(track.estimate);
   }
 
-} // namespace ros_tracker::tracking
+} // namespace kracker::tracking

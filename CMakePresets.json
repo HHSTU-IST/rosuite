@@ -42,7 +42,7 @@
     {
       "name": "shared",
       "displayName": "Shared Libraries",
-      "description": "Build ros-tracker libraries as shared libraries.",
+      "description": "Build kracker libraries as shared libraries.",
       "inherits": "base",
       "binaryDir": "${sourceDir}/build/shared",
       "cacheVariables": {

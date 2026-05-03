@@ -1,6 +1,6 @@
-#include "ros_tracker/filters/particle_filter.hpp"
+#include "kracker/filters/particle_filter.hpp"
 
-namespace ros_tracker::filters
+namespace kracker::filters
 {
   ParticleFilter::ParticleFilter(
       const core::Index particle_count,
@@ -309,4 +309,4 @@ namespace ros_tracker::filters
     return estimate;
   }
 
-} // namespace ros_tracker::filters
+} // namespace kracker::filters

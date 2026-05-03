@@ -1,36 +1,36 @@
 add_library(
-  ros_tracker_filters
-    src/kalman_support.cpp
-    src/kalman_gaussian_transform.cpp
-    src/kalman_ensemble.cpp
-    src/kalman_h_infinity.cpp
-    src/particle_filter.cpp
+  kracker_filters
+  src/kalman_support.cpp
+  src/kalman_gaussian_transform.cpp
+  src/kalman_ensemble.cpp
+  src/kalman_h_infinity.cpp
+  src/particle_filter.cpp
 )
-add_library(ros_tracker::filters ALIAS ros_tracker_filters)
+add_library(kracker::filters ALIAS kracker_filters)
 
-set_target_properties(ros_tracker_filters PROPERTIES EXPORT_NAME filters)
+set_target_properties(kracker_filters PROPERTIES EXPORT_NAME filters)
 
-ros_tracker_apply_project_options(ros_tracker_filters)
+kracker_apply_project_options(kracker_filters)
 
 target_include_directories(
-  ros_tracker_filters
+  kracker_filters
   PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(
-  ros_tracker_filters
+  kracker_filters
   PUBLIC
-    ros_tracker::core
-    ros_tracker::models
+  kracker::core
+  kracker::models
 )
 
-target_compile_features(ros_tracker_filters PUBLIC cxx_std_17)
+target_compile_features(kracker_filters PUBLIC cxx_std_17)
 
 install(
-  TARGETS ros_tracker_filters
-  EXPORT ros_trackerTargets
+  TARGETS kracker_filters
+  EXPORT krackerTargets
   ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
@@ -38,21 +38,21 @@ install(
 )
 
 if(ROS_TRACKER_BUILD_TESTS)
-  ros_tracker_add_test(
-    ros_tracker_filters_kalman_tests
+  kracker_add_test(
+    kracker_filters_kalman_tests
     SOURCES test/test_kalman_family.cpp
-    LIBRARIES ros_tracker::filters
+    LIBRARIES kracker::filters
   )
 
-  ros_tracker_add_test(
-    ros_tracker_filters_estimation_tests
+  kracker_add_test(
+    kracker_filters_estimation_tests
     SOURCES test/test_estimation_utils.cpp
-    LIBRARIES ros_tracker::filters
+    LIBRARIES kracker::filters
   )
 
-  ros_tracker_add_test(
-    ros_tracker_filters_particle_tests
+  kracker_add_test(
+    kracker_filters_particle_tests
     SOURCES test/test_particle.cpp
-    LIBRARIES ros_tracker::filters
+    LIBRARIES kracker::filters
   )
 endif()

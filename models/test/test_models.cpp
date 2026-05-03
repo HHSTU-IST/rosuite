@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "ros_tracker/models/models.hpp"
+#include "kracker/models/models.hpp"
 
 namespace
 {
@@ -22,22 +22,22 @@ namespace
 
   /// Asserts that two scalar values are close.
   void expect_near(
-      const ros_tracker::core::Scalar actual,
-      const ros_tracker::core::Scalar expected,
-      const ros_tracker::core::Scalar tolerance,
+      const kracker::core::Scalar actual,
+      const kracker::core::Scalar expected,
+      const kracker::core::Scalar tolerance,
       const std::string &message)
   {
     expect_true(std::abs(actual - expected) <= tolerance, message);
   }
 
   /// Approximates a measurement Jacobian with finite differences.
-  ros_tracker::core::Matrix finite_difference_jacobian(
-      const ros_tracker::models::MeasurementModel &model,
-      const ros_tracker::models::MeasurementRequest &request,
-      const ros_tracker::core::Scalar epsilon = 1e-6)
+  kracker::core::Matrix finite_difference_jacobian(
+      const kracker::models::MeasurementModel &model,
+      const kracker::models::MeasurementRequest &request,
+      const kracker::core::Scalar epsilon = 1e-6)
   {
-    using namespace ros_tracker::core;
-    using namespace ros_tracker::models;
+    using namespace kracker::core;
+    using namespace kracker::models;
 
     const auto base = model.measure(request);
     Matrix jacobian(base.value().measurement.dimension(), request.state.dimension());
@@ -62,8 +62,8 @@ namespace
   /// Tests the motion-model implementations.
   void test_motion_models()
   {
-    using namespace ros_tracker::core;
-    using namespace ros_tracker::models;
+    using namespace kracker::core;
+    using namespace kracker::models;
 
     MotionRequest cv_request{
         State{(Vector(4) << 1.0, 2.0, 0.5, -1.0).finished(), 0.0, "map"},
@@ -121,8 +121,8 @@ namespace
   /// Tests the measurement-model implementations.
   void test_measurement_models()
   {
-    using namespace ros_tracker::core;
-    using namespace ros_tracker::models;
+    using namespace kracker::core;
+    using namespace kracker::models;
 
     MeasurementRequest linear_request{
         State{(Vector(4) << 3.0, 4.0, 1.0, 2.0).finished(), 0.0, "map"},
@@ -160,8 +160,8 @@ namespace
   /// Tests the noise models and model composition helpers.
   void test_noise_and_composition()
   {
-    using namespace ros_tracker::core;
-    using namespace ros_tracker::models;
+    using namespace kracker::core;
+    using namespace kracker::models;
 
     MotionRequest motion_request{
         State{Vector::Zero(4), 0.0, "map"},

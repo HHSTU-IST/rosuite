@@ -1,6 +1,6 @@
-# ROS Tracker
+# Kracker
 
-ROS Tracker is a ROS2 object tracking module written in C++17.
+`kracker` is a ROS2 object tracking module written in C++17.
 
 ## Design Goals
 
@@ -104,33 +104,33 @@ core -> models -> filters -> tracking -> apps
 
 If you only want one include per layer, start from these umbrella headers:
 
-- `#include "ros_tracker/core/core.hpp"`
-- `#include "ros_tracker/models/models.hpp"`
-- `#include "ros_tracker/filters/filters.hpp"`
-- `#include "ros_tracker/tracking/tracking.hpp"`
-- `#include "ros_tracker/apps/apps.hpp"`
+- `#include "kracker/core/core.hpp"`
+- `#include "kracker/models/models.hpp"`
+- `#include "kracker/filters/filters.hpp"`
+- `#include "kracker/tracking/tracking.hpp"`
+- `#include "kracker/apps/apps.hpp"`
 
 If you want lighter-weight entry points, prefer the second-level umbrellas:
 
 - `filters`
-  - `#include "ros_tracker/filters/filter_primitives.hpp"`
-  - `#include "ros_tracker/filters/kalman_filters.hpp"`
-  - `#include "ros_tracker/filters/sigma_point_filters.hpp"`
-  - `#include "ros_tracker/filters/particle_filters.hpp"`
-  - `#include "ros_tracker/filters/estimation_tools.hpp"`
+  - `#include "kracker/filters/filter_primitives.hpp"`
+  - `#include "kracker/filters/kalman_filters.hpp"`
+  - `#include "kracker/filters/sigma_point_filters.hpp"`
+  - `#include "kracker/filters/particle_filters.hpp"`
+  - `#include "kracker/filters/estimation_tools.hpp"`
 - `tracking`
-  - `#include "ros_tracker/tracking/track_lifecycle.hpp"`
-  - `#include "ros_tracker/tracking/association_tools.hpp"`
-  - `#include "ros_tracker/tracking/model_multi_tools.hpp"`
+  - `#include "kracker/tracking/track_lifecycle.hpp"`
+  - `#include "kracker/tracking/association_tools.hpp"`
+  - `#include "kracker/tracking/model_multi_tools.hpp"`
 
 ### 1. `core`: shared math, types, status, and result helpers
 
 Use `core` whenever you need the common numeric types (`Vector`, `Matrix`, `State`, `Measurement`) or reusable math/statistics helpers.
 
 ```cpp
-#include "ros_tracker/core/core.hpp"
+#include "kracker/core/core.hpp"
 
-using namespace ros_tracker::core;
+using namespace kracker::core;
 
 State state {
     (Vector(4) << 0.0, 0.0, 1.0, 0.5).finished(),
@@ -163,10 +163,10 @@ Typical entry points:
 Use `models` to describe system dynamics and sensor behavior independently of any filter.
 
 ```cpp
-#include "ros_tracker/models/models.hpp"
+#include "kracker/models/models.hpp"
 
-using namespace ros_tracker::core;
-using namespace ros_tracker::models;
+using namespace kracker::core;
+using namespace kracker::models;
 
 Matrix h(2, 4);
 h << 1.0, 0.0, 0.0, 0.0,
@@ -198,12 +198,12 @@ Use `DynamicSystemModel` when a filter needs state transition plus process noise
 Use `filters` when you already have a system model, a sensor model, and an estimate, and want to perform Bayesian state estimation. The example below reuses `system` and `sensor` from the `models` section.
 
 ```cpp
-#include "ros_tracker/filters/filters.hpp"
-#include "ros_tracker/models/models.hpp"
+#include "kracker/filters/filters.hpp"
+#include "kracker/models/models.hpp"
 
-using namespace ros_tracker::core;
-using namespace ros_tracker::filters;
-using namespace ros_tracker::models;
+using namespace kracker::core;
+using namespace kracker::filters;
+using namespace kracker::models;
 
 KalmanFilter filter;
 GaussianEstimate estimate {
@@ -249,14 +249,14 @@ Choose the estimator according to the model assumptions:
 Use `tracking` once you want track lifecycle management, association, track spawning, and pruning on top of filters and models. The example below reuses `system` and `sensor` from the `models` section.
 
 ```cpp
-#include "ros_tracker/tracking/tracking.hpp"
-#include "ros_tracker/filters/filters.hpp"
-#include "ros_tracker/models/models.hpp"
+#include "kracker/tracking/tracking.hpp"
+#include "kracker/filters/filters.hpp"
+#include "kracker/models/models.hpp"
 
-using namespace ros_tracker::core;
-using namespace ros_tracker::filters;
-using namespace ros_tracker::models;
-using namespace ros_tracker::tracking;
+using namespace kracker::core;
+using namespace kracker::filters;
+using namespace kracker::models;
+using namespace kracker::tracking;
 
 auto filter = std::make_shared<KalmanFilter>();
 auto association =
@@ -303,10 +303,10 @@ Use `apps` when you want end-to-end wiring rather than building every layer manu
 Offline example:
 
 ```cpp
-#include "ros_tracker/apps/apps.hpp"
+#include "kracker/apps/apps.hpp"
 
 const auto summary =
-    ros_tracker::apps::offline::run_single_target_kalman_example(42U);
+    kracker::apps::offline::run_single_target_kalman_example(42U);
 if (!summary.ok()) {
   return 1;
 }
@@ -317,16 +317,16 @@ const auto& metrics = summary.value().metrics;
 ROS-facing adapter:
 
 ```cpp
-#include "ros_tracker/apps/apps.hpp"
+#include "kracker/apps/apps.hpp"
 
-auto tracker = std::make_shared<ros_tracker::tracking::MultiTargetTracker>(
+auto tracker = std::make_shared<kracker::tracking::MultiTargetTracker>(
     filter, system, sensor, association, manager);
 
-ros_tracker::apps::ros::TrackerNodeParameters params;
+kracker::apps::ros::TrackerNodeParameters params;
 params.dt = 1.0;
 params.frame_id = "map";
 
-ros_tracker::apps::ros::TrackerNodeAdapter adapter(tracker, params);
+kracker::apps::ros::TrackerNodeAdapter adapter(tracker, params);
 
 const auto message = adapter.process_measurements(measurements);
 if (!message.ok()) {
@@ -355,9 +355,9 @@ This creates the project virtual environment and builds the extension module whe
 Use the high-level `Tracker` facade when you want external Python code to drive the tracker directly:
 
 ```python
-import ros_tracker
+import Kracker
 
-tracker = ros_tracker.Tracker(
+tracker = Kracker.Tracker(
     process_noise=0.01,
     measurement_noise=0.25,
     gating_threshold=16.0,
@@ -381,20 +381,20 @@ for track in tracks:
 If you already have fully populated measurement objects, use `step_measurements(...)` instead:
 
 ```python
-import ros_tracker
+import Kracker
 
 measurements = [
-    ros_tracker.Measurement([0.1, -0.1], timestamp=1.0, sensor_id="camera", frame_id="map"),
+    Kracker.Measurement([0.1, -0.1], timestamp=1.0, sensor_id="camera", frame_id="map"),
 ]
 
-tracker = ros_tracker.Tracker()
+tracker = Kracker.Tracker()
 tracks = tracker.step_measurements(measurements, timestamp=1.0, dt=1.0)
 ```
 
 ### Run The Bundled Example
 
 ```bash
-uv run python -c "import ros_tracker; print(ros_tracker.run_single_target_kalman_example(42))"
+uv run python -c "import Kracker; print(Kracker.run_single_target_kalman_example(42))"
 ```
 
 The initial Python surface is intentionally small:

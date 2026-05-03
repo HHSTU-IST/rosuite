@@ -1,6 +1,6 @@
-#include "ros_tracker/models/motion_models.hpp"
+#include "kracker/models/motion_models.hpp"
 
-namespace ros_tracker::models
+namespace kracker::models
 {
   Result<TransitionResult> ConstantVelocityMotionModel::propagate(
       const MotionRequest &request) const
@@ -298,4 +298,4 @@ namespace ros_tracker::models
     return "singer";
   }
 
-} // namespace ros_tracker::models
+} // namespace kracker::models

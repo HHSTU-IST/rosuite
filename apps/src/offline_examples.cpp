@@ -1,23 +1,23 @@
-#include "ros_tracker/apps/offline_examples.hpp"
+#include "kracker/apps/offline_examples.hpp"
 
 #include <memory>
 #include <vector>
 
-#include "ros_tracker/filters/kalman_filters.hpp"
-#include "ros_tracker/models/factories.hpp"
-#include "ros_tracker/tracking/association_tools.hpp"
-#include "ros_tracker/tracking/track_lifecycle.hpp"
+#include "kracker/filters/kalman_filters.hpp"
+#include "kracker/models/factories.hpp"
+#include "kracker/tracking/association_tools.hpp"
+#include "kracker/tracking/track_lifecycle.hpp"
 
-namespace ros_tracker::apps::offline
+namespace kracker::apps::offline
 {
 
     core::Result<ExampleRunSummary>
     run_single_target_kalman_example(const std::uint64_t seed)
     {
-        using namespace ros_tracker::core;
-        using namespace ros_tracker::filters;
-        using namespace ros_tracker::models;
-        using namespace ros_tracker::tracking;
+        using namespace kracker::core;
+        using namespace kracker::filters;
+        using namespace kracker::models;
+        using namespace kracker::tracking;
 
         ConstantVelocityScenarioConfig scenario_config;
         scenario_config.initial_state =
@@ -90,4 +90,4 @@ namespace ros_tracker::apps::offline
         return summary;
     }
 
-} // namespace ros_tracker::apps::offline
+} // namespace kracker::apps::offline

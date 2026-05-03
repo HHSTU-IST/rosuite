@@ -1,6 +1,6 @@
 include_guard(GLOBAL)
 
-function(ros_tracker_add_test target_name)
+function(kracker_add_test target_name)
   set(options)
   set(one_value_args)
   set(multi_value_args SOURCES LIBRARIES)
@@ -13,7 +13,7 @@ function(ros_tracker_add_test target_name)
   )
 
   if(NOT ROS_TRACKER_ADD_TEST_SOURCES)
-    message(FATAL_ERROR "ros_tracker_add_test(${target_name}) requires SOURCES.")
+    message(FATAL_ERROR "kracker_add_test(${target_name}) requires SOURCES.")
   endif()
 
   add_executable("${target_name}" ${ROS_TRACKER_ADD_TEST_SOURCES})
@@ -22,11 +22,11 @@ function(ros_tracker_add_test target_name)
     target_link_libraries(
       "${target_name}"
       PRIVATE
-        ${ROS_TRACKER_ADD_TEST_LIBRARIES}
+      ${ROS_TRACKER_ADD_TEST_LIBRARIES}
     )
   endif()
 
-  ros_tracker_apply_project_options("${target_name}")
+  kracker_apply_project_options("${target_name}")
   add_test(NAME "${target_name}" COMMAND "${target_name}")
 
   set_property(
@@ -37,58 +37,58 @@ function(ros_tracker_add_test target_name)
   )
 endfunction()
 
-function(ros_tracker_init_project_options)
-  add_library(ros_tracker_project_options INTERFACE)
-  add_library(ros_tracker_project_warnings INTERFACE)
+function(kracker_init_project_options)
+  add_library(kracker_project_options INTERFACE)
+  add_library(kracker_project_warnings INTERFACE)
 
   if(ROS_TRACKER_ENABLE_WARNINGS)
     if(MSVC)
       target_compile_options(
-        ros_tracker_project_warnings
+        kracker_project_warnings
         INTERFACE
-          /W4
-          /permissive-
+        /W4
+        /permissive-
       )
     else()
       target_compile_options(
-        ros_tracker_project_warnings
+        kracker_project_warnings
         INTERFACE
-          -Wall
-          -Wextra
-          -Wpedantic
+        -Wall
+        -Wextra
+        -Wpedantic
       )
     endif()
   endif()
 
   if(ROS_TRACKER_WARNINGS_AS_ERRORS)
     if(MSVC)
-      target_compile_options(ros_tracker_project_warnings INTERFACE /WX)
+      target_compile_options(kracker_project_warnings INTERFACE /WX)
     else()
-      target_compile_options(ros_tracker_project_warnings INTERFACE -Werror)
+      target_compile_options(kracker_project_warnings INTERFACE -Werror)
     endif()
   endif()
 
   if(ROS_TRACKER_ENABLE_SANITIZERS)
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang|GNU")
-      set(_ros_tracker_sanitizer_flags "")
+      set(_kracker_sanitizer_flags "")
       foreach(_sanitizer IN LISTS ROS_TRACKER_SANITIZERS)
         if(_sanitizer)
-          list(APPEND _ros_tracker_sanitizer_flags "-fsanitize=${_sanitizer}")
+          list(APPEND _kracker_sanitizer_flags "-fsanitize=${_sanitizer}")
         endif()
       endforeach()
 
-      if(_ros_tracker_sanitizer_flags)
+      if(_kracker_sanitizer_flags)
         target_compile_options(
-          ros_tracker_project_options
+          kracker_project_options
           INTERFACE
-            ${_ros_tracker_sanitizer_flags}
-            -fno-omit-frame-pointer
+          ${_kracker_sanitizer_flags}
+          -fno-omit-frame-pointer
         )
         target_link_options(
-          ros_tracker_project_options
+          kracker_project_options
           INTERFACE
-            ${_ros_tracker_sanitizer_flags}
-            -fno-omit-frame-pointer
+          ${_kracker_sanitizer_flags}
+          -fno-omit-frame-pointer
         )
       endif()
     else()
@@ -99,13 +99,13 @@ function(ros_tracker_init_project_options)
   if(ROS_TRACKER_ENABLE_COVERAGE)
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang|GNU")
       target_compile_options(
-        ros_tracker_project_options
+        kracker_project_options
         INTERFACE
-          --coverage
-          -O0
-          -g
+        --coverage
+        -O0
+        -g
       )
-      target_link_options(ros_tracker_project_options INTERFACE --coverage)
+      target_link_options(kracker_project_options INTERFACE --coverage)
     else()
       message(WARNING "Coverage flags are only configured for Clang/GNU-family compilers.")
     endif()
@@ -121,53 +121,53 @@ function(ros_tracker_init_project_options)
   endif()
 endfunction()
 
-function(ros_tracker_apply_project_options target_name)
-  get_target_property(_ros_tracker_target_type "${target_name}" TYPE)
-  if(_ros_tracker_target_type STREQUAL "INTERFACE_LIBRARY")
+function(kracker_apply_project_options target_name)
+  get_target_property(_kracker_target_type "${target_name}" TYPE)
+  if(_kracker_target_type STREQUAL "INTERFACE_LIBRARY")
     return()
   endif()
 
   get_target_property(
-    _ros_tracker_warning_compile_options
-    ros_tracker_project_warnings
+    _kracker_warning_compile_options
+    kracker_project_warnings
     INTERFACE_COMPILE_OPTIONS
   )
-  if(_ros_tracker_warning_compile_options)
+  if(_kracker_warning_compile_options)
     target_compile_options(
       "${target_name}"
       PRIVATE
-        ${_ros_tracker_warning_compile_options}
+      ${_kracker_warning_compile_options}
     )
   endif()
 
   get_target_property(
-    _ros_tracker_compile_options
-    ros_tracker_project_options
+    _kracker_compile_options
+    kracker_project_options
     INTERFACE_COMPILE_OPTIONS
   )
-  if(_ros_tracker_compile_options)
+  if(_kracker_compile_options)
     target_compile_options(
       "${target_name}"
       PRIVATE
-        ${_ros_tracker_compile_options}
+      ${_kracker_compile_options}
     )
   endif()
 
   get_target_property(
-    _ros_tracker_link_options
-    ros_tracker_project_options
+    _kracker_link_options
+    kracker_project_options
     INTERFACE_LINK_OPTIONS
   )
-  if(_ros_tracker_link_options)
+  if(_kracker_link_options)
     target_link_options(
       "${target_name}"
       PRIVATE
-        ${_ros_tracker_link_options}
+      ${_kracker_link_options}
     )
   endif()
 endfunction()
 
-function(ros_tracker_add_quality_targets)
+function(kracker_add_quality_targets)
   file(
     GLOB_RECURSE ROS_TRACKER_QUALITY_SOURCES
     CONFIGURE_DEPENDS
@@ -193,13 +193,13 @@ function(ros_tracker_add_quality_targets)
     add_custom_target(
       format
       COMMAND "${ROS_TRACKER_CLANG_FORMAT_EXE}" -i ${ROS_TRACKER_QUALITY_SOURCES}
-      COMMENT "Formatting ros-tracker sources with clang-format"
+      COMMENT "Formatting kracker sources with clang-format"
       VERBATIM
     )
     add_custom_target(
       format-check
       COMMAND "${ROS_TRACKER_CLANG_FORMAT_EXE}" --dry-run --Werror ${ROS_TRACKER_QUALITY_SOURCES}
-      COMMENT "Checking ros-tracker source formatting with clang-format"
+      COMMENT "Checking kracker source formatting with clang-format"
       VERBATIM
     )
   else()
@@ -227,7 +227,7 @@ function(ros_tracker_add_quality_targets)
     add_custom_target(
       check
       COMMAND "${CMAKE_CTEST_COMMAND}" --output-on-failure
-      COMMENT "Running ros-tracker test suite"
+      COMMENT "Running kracker test suite"
       VERBATIM
     )
 
@@ -248,10 +248,10 @@ function(ros_tracker_add_quality_targets)
       add_custom_target(
         coverage
         COMMAND
-          "${ROS_TRACKER_GCOVR_EXE}"
-          --root "${CMAKE_SOURCE_DIR}"
-          --exclude "${CMAKE_BINARY_DIR}"
-          --txt
+        "${ROS_TRACKER_GCOVR_EXE}"
+        --root "${CMAKE_SOURCE_DIR}"
+        --exclude "${CMAKE_BINARY_DIR}"
+        --txt
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
         COMMENT "Generating coverage report with gcovr"
         VERBATIM

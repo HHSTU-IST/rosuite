@@ -1,8 +1,8 @@
-#include "ros_tracker/tracking/management.hpp"
+#include "kracker/tracking/management.hpp"
 
 #include <utility>
 
-namespace ros_tracker::tracking
+namespace kracker::tracking
 {
   /// Constructs BasicTrackManager.
   BasicTrackManager::BasicTrackManager(
@@ -177,4 +177,4 @@ namespace ros_tracker::tracking
     return "basic_manager";
   }
 
-} // namespace ros_tracker::tracking
+} // namespace kracker::tracking

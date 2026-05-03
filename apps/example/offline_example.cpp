@@ -1,13 +1,15 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "ros_tracker/apps/apps.hpp"
+#include "kracker/apps/apps.hpp"
 
 /// Runs the example executable.
-int main() {
+int main()
+{
   const auto summary =
-      ros_tracker::apps::offline::run_single_target_kalman_example(42U);
-  if (!summary.ok()) {
+      kracker::apps::offline::run_single_target_kalman_example(42U);
+  if (!summary.ok())
+  {
     std::cerr << "Offline example failed: "
               << summary.status().message << '\n';
     return EXIT_FAILURE;

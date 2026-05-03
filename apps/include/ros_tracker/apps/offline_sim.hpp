@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "ros_tracker/core/math/random.hpp"
-#include "ros_tracker/models/models.hpp"
+#include "kracker/core/math/random.hpp"
+#include "kracker/models/models.hpp"
 
-namespace ros_tracker::apps::offline
+namespace kracker::apps::offline
 {
 
   struct MeasurementFrame
@@ -191,4 +191,4 @@ namespace ros_tracker::apps::offline
     return scenario;
   }
 
-} // namespace ros_tracker::apps::offline
+} // namespace kracker::apps::offline

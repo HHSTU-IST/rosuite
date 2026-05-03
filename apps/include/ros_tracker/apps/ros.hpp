@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "ros_tracker/tracking/track_lifecycle.hpp"
+#include "kracker/tracking/track_lifecycle.hpp"
 
-namespace ros_tracker::apps::ros
+namespace kracker::apps::ros
 {
   struct TrackerNodeParameters
   {
@@ -60,4 +60,4 @@ namespace ros_tracker::apps::ros
     TrackerNodeParameters parameters_;
   };
 
-} // namespace ros_tracker::apps::ros
+} // namespace kracker::apps::ros

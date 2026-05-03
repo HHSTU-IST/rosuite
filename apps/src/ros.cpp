@@ -1,8 +1,8 @@
-#include "ros_tracker/apps/ros.hpp"
+#include "kracker/apps/ros.hpp"
 
 #include <utility>
 
-namespace ros_tracker::apps::ros
+namespace kracker::apps::ros
 {
   /// Constructs TrackerNodeAdapter.
   TrackerNodeAdapter::TrackerNodeAdapter(
@@ -105,4 +105,4 @@ namespace ros_tracker::apps::ros
     return "tracker_node_adapter";
   }
 
-} // namespace ros_tracker::apps::ros
+} // namespace kracker::apps::ros

@@ -9,228 +9,228 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "ros_tracker/apps/offline_examples.hpp"
-#include "ros_tracker/filters/kalman_filters.hpp"
-#include "ros_tracker/models/factories.hpp"
-#include "ros_tracker/tracking/association.hpp"
-#include "ros_tracker/tracking/management.hpp"
-#include "ros_tracker/tracking/tracker.hpp"
+#include "kracker/apps/offline_examples.hpp"
+#include "kracker/filters/kalman_filters.hpp"
+#include "kracker/models/factories.hpp"
+#include "kracker/tracking/association.hpp"
+#include "kracker/tracking/management.hpp"
+#include "kracker/tracking/tracker.hpp"
 
 namespace py = pybind11;
 
 namespace
 {
-using namespace ros_tracker;
+  using namespace kracker;
 
-template <typename T>
-T unwrap_result(core::Result<T> result)
-{
-  if (!result.ok())
+  template <typename T>
+  T unwrap_result(core::Result<T> result)
   {
-    throw std::runtime_error(result.status().message);
-  }
-
-  return std::move(result.value());
-}
-
-std::string lifecycle_to_string(const tracking::TrackLifecycle lifecycle)
-{
-  switch (lifecycle)
-  {
-  case tracking::TrackLifecycle::kTentative:
-    return "tentative";
-  case tracking::TrackLifecycle::kConfirmed:
-    return "confirmed";
-  case tracking::TrackLifecycle::kDeleted:
-    return "deleted";
-  }
-
-  throw std::runtime_error("Unknown track lifecycle value.");
-}
-
-struct TrackSnapshot
-{
-  std::size_t id{0U};
-  core::Vector state;
-  core::Matrix covariance;
-  std::string lifecycle;
-  std::size_t age{0U};
-  std::size_t hit_count{0U};
-  std::size_t miss_count{0U};
-  std::size_t consecutive_misses{0U};
-  std::string source_sensor_id;
-  core::Scalar timestamp{0.0};
-  std::string frame_id;
-};
-
-struct TrackerConfig
-{
-  core::Scalar process_noise{0.01};
-  core::Scalar measurement_noise{0.25};
-  core::Scalar initial_covariance{4.0};
-  core::Scalar gating_threshold{16.0};
-  std::size_t confirmation_hits{1U};
-  std::size_t max_consecutive_misses{2U};
-  std::string frame_id{"map"};
-  std::string sensor_id{"python_sensor"};
-};
-
-TrackSnapshot make_track_snapshot(const tracking::Track &track)
-{
-  TrackSnapshot snapshot;
-  snapshot.id = track.id;
-  snapshot.state = track.estimate.state.value;
-  snapshot.covariance = track.estimate.covariance;
-  snapshot.lifecycle = lifecycle_to_string(track.lifecycle);
-  snapshot.age = track.age;
-  snapshot.hit_count = track.hit_count;
-  snapshot.miss_count = track.miss_count;
-  snapshot.consecutive_misses = track.consecutive_misses;
-  snapshot.source_sensor_id = track.source_sensor_id;
-  snapshot.timestamp = track.estimate.state.timestamp;
-  snapshot.frame_id = track.estimate.state.frame_id;
-  return snapshot;
-}
-
-std::vector<TrackSnapshot> make_track_snapshots(
-    const std::vector<tracking::Track> &tracks)
-{
-  std::vector<TrackSnapshot> snapshots;
-  snapshots.reserve(tracks.size());
-
-  for (const tracking::Track &track : tracks)
-  {
-    snapshots.push_back(make_track_snapshot(track));
-  }
-
-  return snapshots;
-}
-
-class PythonTracker
-{
-public:
-  explicit PythonTracker(TrackerConfig config)
-      : config_(std::move(config))
-  {
-    reset();
-  }
-
-  void reset()
-  {
-    auto filter = std::make_shared<filters::KalmanFilter>();
-    auto association =
-        std::make_shared<tracking::NearestNeighborAssociationStrategy>(
-            config_.gating_threshold);
-    auto manager = std::make_shared<tracking::BasicTrackManager>(
-        4,
-        config_.initial_covariance * core::Matrix::Identity(4, 4),
-        std::vector<core::Index>{0, 1},
-        config_.confirmation_hits,
-        config_.max_consecutive_misses);
-
-    tracker_ = std::make_unique<tracking::MultiTargetTracker>(
-        filter,
-        models::make_constant_velocity_system(
-            config_.process_noise * core::Matrix::Identity(4, 4)),
-        models::make_position_sensor(
-            config_.measurement_noise * core::Matrix::Identity(2, 2)),
-        association,
-        manager);
-  }
-
-  std::vector<TrackSnapshot> step(
-      const py::iterable &measurement_values,
-      const core::Scalar timestamp,
-      const core::Scalar dt,
-      std::string frame_id,
-      std::string sensor_id)
-  {
-    std::vector<core::Measurement> measurements;
-
-    const std::string resolved_frame_id =
-        frame_id.empty() ? config_.frame_id : std::move(frame_id);
-    const std::string resolved_sensor_id =
-        sensor_id.empty() ? config_.sensor_id : std::move(sensor_id);
-
-    for (const py::handle value : measurement_values)
+    if (!result.ok())
     {
-      measurements.push_back(core::Measurement{
-          py::cast<core::Vector>(value),
+      throw std::runtime_error(result.status().message);
+    }
+
+    return std::move(result.value());
+  }
+
+  std::string lifecycle_to_string(const tracking::TrackLifecycle lifecycle)
+  {
+    switch (lifecycle)
+    {
+    case tracking::TrackLifecycle::kTentative:
+      return "tentative";
+    case tracking::TrackLifecycle::kConfirmed:
+      return "confirmed";
+    case tracking::TrackLifecycle::kDeleted:
+      return "deleted";
+    }
+
+    throw std::runtime_error("Unknown track lifecycle value.");
+  }
+
+  struct TrackSnapshot
+  {
+    std::size_t id{0U};
+    core::Vector state;
+    core::Matrix covariance;
+    std::string lifecycle;
+    std::size_t age{0U};
+    std::size_t hit_count{0U};
+    std::size_t miss_count{0U};
+    std::size_t consecutive_misses{0U};
+    std::string source_sensor_id;
+    core::Scalar timestamp{0.0};
+    std::string frame_id;
+  };
+
+  struct TrackerConfig
+  {
+    core::Scalar process_noise{0.01};
+    core::Scalar measurement_noise{0.25};
+    core::Scalar initial_covariance{4.0};
+    core::Scalar gating_threshold{16.0};
+    std::size_t confirmation_hits{1U};
+    std::size_t max_consecutive_misses{2U};
+    std::string frame_id{"map"};
+    std::string sensor_id{"python_sensor"};
+  };
+
+  TrackSnapshot make_track_snapshot(const tracking::Track &track)
+  {
+    TrackSnapshot snapshot;
+    snapshot.id = track.id;
+    snapshot.state = track.estimate.state.value;
+    snapshot.covariance = track.estimate.covariance;
+    snapshot.lifecycle = lifecycle_to_string(track.lifecycle);
+    snapshot.age = track.age;
+    snapshot.hit_count = track.hit_count;
+    snapshot.miss_count = track.miss_count;
+    snapshot.consecutive_misses = track.consecutive_misses;
+    snapshot.source_sensor_id = track.source_sensor_id;
+    snapshot.timestamp = track.estimate.state.timestamp;
+    snapshot.frame_id = track.estimate.state.frame_id;
+    return snapshot;
+  }
+
+  std::vector<TrackSnapshot> make_track_snapshots(
+      const std::vector<tracking::Track> &tracks)
+  {
+    std::vector<TrackSnapshot> snapshots;
+    snapshots.reserve(tracks.size());
+
+    for (const tracking::Track &track : tracks)
+    {
+      snapshots.push_back(make_track_snapshot(track));
+    }
+
+    return snapshots;
+  }
+
+  class PythonTracker
+  {
+  public:
+    explicit PythonTracker(TrackerConfig config)
+        : config_(std::move(config))
+    {
+      reset();
+    }
+
+    void reset()
+    {
+      auto filter = std::make_shared<filters::KalmanFilter>();
+      auto association =
+          std::make_shared<tracking::NearestNeighborAssociationStrategy>(
+              config_.gating_threshold);
+      auto manager = std::make_shared<tracking::BasicTrackManager>(
+          4,
+          config_.initial_covariance * core::Matrix::Identity(4, 4),
+          std::vector<core::Index>{0, 1},
+          config_.confirmation_hits,
+          config_.max_consecutive_misses);
+
+      tracker_ = std::make_unique<tracking::MultiTargetTracker>(
+          filter,
+          models::make_constant_velocity_system(
+              config_.process_noise * core::Matrix::Identity(4, 4)),
+          models::make_position_sensor(
+              config_.measurement_noise * core::Matrix::Identity(2, 2)),
+          association,
+          manager);
+    }
+
+    std::vector<TrackSnapshot> step(
+        const py::iterable &measurement_values,
+        const core::Scalar timestamp,
+        const core::Scalar dt,
+        std::string frame_id,
+        std::string sensor_id)
+    {
+      std::vector<core::Measurement> measurements;
+
+      const std::string resolved_frame_id =
+          frame_id.empty() ? config_.frame_id : std::move(frame_id);
+      const std::string resolved_sensor_id =
+          sensor_id.empty() ? config_.sensor_id : std::move(sensor_id);
+
+      for (const py::handle value : measurement_values)
+      {
+        measurements.push_back(core::Measurement{
+            py::cast<core::Vector>(value),
+            timestamp,
+            resolved_sensor_id,
+            resolved_frame_id,
+        });
+      }
+
+      return step_measurements_impl(
+          std::move(measurements),
           timestamp,
-          resolved_sensor_id,
+          dt,
           resolved_frame_id,
-      });
+          resolved_sensor_id);
     }
 
-    return step_measurements_impl(
-        std::move(measurements),
-        timestamp,
-        dt,
-        resolved_frame_id,
-        resolved_sensor_id);
-  }
-
-  std::vector<TrackSnapshot> step_measurements(
-      std::vector<core::Measurement> measurements,
-      const core::Scalar timestamp,
-      const core::Scalar dt,
-      std::string frame_id,
-      std::string sensor_id)
-  {
-    const std::string resolved_frame_id =
-        frame_id.empty() ? config_.frame_id : std::move(frame_id);
-    const std::string resolved_sensor_id =
-        sensor_id.empty() ? config_.sensor_id : std::move(sensor_id);
-
-    for (core::Measurement &measurement : measurements)
+    std::vector<TrackSnapshot> step_measurements(
+        std::vector<core::Measurement> measurements,
+        const core::Scalar timestamp,
+        const core::Scalar dt,
+        std::string frame_id,
+        std::string sensor_id)
     {
-      measurement.timestamp = timestamp;
-      if (measurement.frame_id.empty())
+      const std::string resolved_frame_id =
+          frame_id.empty() ? config_.frame_id : std::move(frame_id);
+      const std::string resolved_sensor_id =
+          sensor_id.empty() ? config_.sensor_id : std::move(sensor_id);
+
+      for (core::Measurement &measurement : measurements)
       {
-        measurement.frame_id = resolved_frame_id;
+        measurement.timestamp = timestamp;
+        if (measurement.frame_id.empty())
+        {
+          measurement.frame_id = resolved_frame_id;
+        }
+        if (measurement.sensor_id.empty())
+        {
+          measurement.sensor_id = resolved_sensor_id;
+        }
       }
-      if (measurement.sensor_id.empty())
-      {
-        measurement.sensor_id = resolved_sensor_id;
-      }
+
+      return step_measurements_impl(
+          std::move(measurements),
+          timestamp,
+          dt,
+          resolved_frame_id,
+          resolved_sensor_id);
     }
 
-    return step_measurements_impl(
-        std::move(measurements),
-        timestamp,
-        dt,
-        resolved_frame_id,
-        resolved_sensor_id);
-  }
+    std::vector<TrackSnapshot> tracks() const
+    {
+      return make_track_snapshots(tracker_->tracks());
+    }
 
-  std::vector<TrackSnapshot> tracks() const
-  {
-    return make_track_snapshots(tracker_->tracks());
-  }
+  private:
+    std::vector<TrackSnapshot> step_measurements_impl(
+        std::vector<core::Measurement> measurements,
+        const core::Scalar timestamp,
+        const core::Scalar dt,
+        const std::string &frame_id,
+        const std::string & /*sensor_id*/)
+    {
+      const auto tracks = tracker_->step(
+          measurements,
+          models::ModelContext{dt, timestamp, frame_id});
+      return make_track_snapshots(unwrap_result(std::move(tracks)));
+    }
 
-private:
-  std::vector<TrackSnapshot> step_measurements_impl(
-      std::vector<core::Measurement> measurements,
-      const core::Scalar timestamp,
-      const core::Scalar dt,
-      const std::string &frame_id,
-      const std::string & /*sensor_id*/)
-  {
-    const auto tracks = tracker_->step(
-        measurements,
-        models::ModelContext{dt, timestamp, frame_id});
-    return make_track_snapshots(unwrap_result(std::move(tracks)));
-  }
-
-  TrackerConfig config_;
-  std::unique_ptr<tracking::MultiTargetTracker> tracker_;
-};
+    TrackerConfig config_;
+    std::unique_ptr<tracking::MultiTargetTracker> tracker_;
+  };
 
 } // namespace
 
-PYBIND11_MODULE(_ros_tracker, module)
+PYBIND11_MODULE(_Kracker, module)
 {
-  module.doc() = "Python bindings for ros_tracker.";
+  module.doc() = "Python bindings for kracker.";
 
   py::class_<core::Measurement>(module, "Measurement")
       .def(
@@ -268,18 +268,17 @@ PYBIND11_MODULE(_ros_tracker, module)
                       std::size_t confirmation_hits,
                       std::size_t max_consecutive_misses,
                       std::string frame_id,
-                      std::string sensor_id) {
-            return PythonTracker(TrackerConfig{
-                process_noise,
-                measurement_noise,
-                initial_covariance,
-                gating_threshold,
-                confirmation_hits,
-                max_consecutive_misses,
-                std::move(frame_id),
-                std::move(sensor_id),
-            });
-          }),
+                      std::string sensor_id)
+                   { return PythonTracker(TrackerConfig{
+                         process_noise,
+                         measurement_noise,
+                         initial_covariance,
+                         gating_threshold,
+                         confirmation_hits,
+                         max_consecutive_misses,
+                         std::move(frame_id),
+                         std::move(sensor_id),
+                     }); }),
           py::arg("process_noise") = 0.01,
           py::arg("measurement_noise") = 0.25,
           py::arg("initial_covariance") = 4.0,
@@ -309,7 +308,8 @@ PYBIND11_MODULE(_ros_tracker, module)
 
   module.def(
       "run_single_target_kalman_example",
-      [](const std::uint64_t seed) {
+      [](const std::uint64_t seed)
+      {
         const auto summary =
             unwrap_result(apps::offline::run_single_target_kalman_example(seed));
 

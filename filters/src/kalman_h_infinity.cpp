@@ -1,12 +1,12 @@
-#include "ros_tracker/filters/kalman_h_infinity.hpp"
+#include "kracker/filters/kalman_h_infinity.hpp"
 
 #include <optional>
 
 #include <Eigen/Cholesky>
 
-#include "ros_tracker/filters/kalman_support.hpp"
+#include "kracker/filters/kalman_support.hpp"
 
-namespace ros_tracker::filters
+namespace kracker::filters
 {
   KalmanFilterHInfinity::KalmanFilterHInfinity(const core::Scalar gamma)
       : gamma_(gamma) {}
@@ -139,4 +139,4 @@ namespace ros_tracker::filters
     return "kalman_hinf";
   }
 
-} // namespace ros_tracker::filters
+} // namespace kracker::filters

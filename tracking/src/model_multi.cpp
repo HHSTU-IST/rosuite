@@ -1,6 +1,6 @@
-#include "ros_tracker/tracking/model_multi.hpp"
+#include "kracker/tracking/model_multi.hpp"
 
-namespace ros_tracker::tracking
+namespace kracker::tracking
 {
   namespace detail
   {
@@ -454,4 +454,4 @@ namespace ros_tracker::tracking
     return filters::validate_estimate(estimate.merged_estimate);
   }
 
-} // namespace ros_tracker::tracking
+} // namespace kracker::tracking

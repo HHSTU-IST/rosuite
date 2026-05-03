@@ -1,6 +1,6 @@
-#include "ros_tracker/filters/kalman_gaussian_transform.hpp"
+#include "kracker/filters/kalman_gaussian_transform.hpp"
 
-namespace ros_tracker::filters::detail
+namespace kracker::filters::detail
 {
   Status validate_sigma_point_set(
       const SigmaPointSet &sigma_points,
@@ -347,4 +347,4 @@ namespace ros_tracker::filters::detail
     return estimate;
   }
 
-} // namespace ros_tracker::filters::detail
+} // namespace kracker::filters::detail
