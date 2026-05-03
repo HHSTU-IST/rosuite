@@ -1,4 +1,4 @@
-# kracker
+# Kracker
 
 `kracker` is a ROS2 object tracking module written in C++17.
 
