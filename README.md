@@ -1,6 +1,6 @@
 # Kracker
 
-`kracker` is a ROS2 object tracking module written in C++17.
+`kracker` is a object tracking package written in C++17 and provided with a ROS2 interface and a python interface.
 
 ## Design Goals
 
@@ -18,6 +18,9 @@
 - Build and tests
   - CMake 3.20+
   - CTest
+- Python interface
+  - Python 3.12+
+  - pybind11 3.0.0+
 
 ## Build Shape
 
