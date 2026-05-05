@@ -1,13 +1,13 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "kracker/apps/apps.hpp"
+#include "rosuite/apps/apps.hpp"
 
 /// Runs the example executable.
 int main()
 {
   const auto summary =
-      kracker::apps::offline::run_single_target_kalman_example(42U);
+      rosuite::apps::offline::run_single_target_kalman_example(42U);
   if (!summary.ok())
   {
     std::cerr << "Offline example failed: "

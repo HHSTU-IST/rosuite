@@ -1,11 +1,11 @@
-#include "kracker/tracking/tracker.hpp"
+#include "rosuite/tracking/tracker.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <memory>
 #include <utility>
 
-namespace kracker::tracking
+namespace rosuite::tracking
 {
   /// Constructs MultiTargetTracker.
   MultiTargetTracker::MultiTargetTracker(
@@ -254,4 +254,4 @@ namespace kracker::tracking
     return default_handle_;
   }
 
-} // namespace kracker::tracking
+} // namespace rosuite::tracking

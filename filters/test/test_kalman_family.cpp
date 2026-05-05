@@ -1,20 +1,20 @@
 #include "support.hpp"
 
-#include "kracker/filters/kalman_filters.hpp"
-#include "kracker/filters/sigma_point_filters.hpp"
-#include "kracker/models/factories.hpp"
+#include "rosuite/filters/kalman_filters.hpp"
+#include "rosuite/filters/sigma_point_filters.hpp"
+#include "rosuite/models/factories.hpp"
 
 namespace
 {
 
-    using kracker::filters::test_support::TestContext;
+    using rosuite::filters::test_support::TestContext;
 
     /// Tests the linear Kalman filter.
     void test_kalman(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
-        using namespace kracker::models;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
+        using namespace rosuite::models;
 
         KalmanFilter filter;
         GaussianEstimate estimate{
@@ -51,9 +51,9 @@ namespace
     /// Tests the constant-gain filter.
     void test_constant_gain_filter(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
-        using namespace kracker::models;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
+        using namespace rosuite::models;
 
         Matrix gain = Matrix::Zero(4, 2);
         gain(0, 0) = 1.0;
@@ -87,9 +87,9 @@ namespace
     /// Tests the extended Kalman filter with a radar model.
     void test_kalman_extended_with_radar(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
-        using namespace kracker::models;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
+        using namespace rosuite::models;
 
         KalmanFilterExtended filter;
         GaussianEstimate estimate{
@@ -120,9 +120,9 @@ namespace
     /// Tests the unscented and cubature Kalman filters.
     void test_unscented_and_cubature_filters(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
-        using namespace kracker::models;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
+        using namespace rosuite::models;
 
         const auto system =
             make_constant_velocity_system(0.1 * Matrix::Identity(4, 4));
@@ -169,9 +169,9 @@ namespace
     /// Tests the ensemble Kalman filter.
     void test_kalman_ensemble(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
-        using namespace kracker::models;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
+        using namespace rosuite::models;
 
         KalmanFilterEnsemble enkf(128, 42U);
         GaussianEstimate estimate{
@@ -207,9 +207,9 @@ namespace
     /// Tests the fading-memory Kalman filter.
     void test_kalman_fading_memory(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
-        using namespace kracker::models;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
+        using namespace rosuite::models;
 
         KalmanFilter classical;
         KalmanFilterFadingMemory fading_memory(1.2);
@@ -252,9 +252,9 @@ namespace
     /// Tests the H-infinity Kalman filter.
     void test_kalman_h_infinity(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
-        using namespace kracker::models;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
+        using namespace rosuite::models;
 
         KalmanFilterHInfinity hinf(25.0);
         GaussianEstimate estimate{
@@ -294,7 +294,7 @@ int main()
     test_kalman_ensemble(context);
     test_kalman_fading_memory(context);
     test_kalman_h_infinity(context);
-    return kracker::filters::test_support::finish(
+    return rosuite::filters::test_support::finish(
         context,
         "All Kalman-family filter tests passed.");
 }

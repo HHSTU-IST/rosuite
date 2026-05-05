@@ -1,41 +1,41 @@
 add_library(
-  kracker_models
+  rosuite_models
   src/motion_models.cpp
 )
-add_library(kracker::models ALIAS kracker_models)
+add_library(rosuite::models ALIAS rosuite_models)
 
-set_target_properties(kracker_models PROPERTIES EXPORT_NAME models)
+set_target_properties(rosuite_models PROPERTIES EXPORT_NAME models)
 
-kracker_apply_project_options(kracker_models)
+rosuite_apply_project_options(rosuite_models)
 
 target_include_directories(
-  kracker_models
+  rosuite_models
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(
-  kracker_models
+  rosuite_models
   PUBLIC
-  kracker::core
+  rosuite::core
 )
 
-target_compile_features(kracker_models PUBLIC cxx_std_17)
+target_compile_features(rosuite_models PUBLIC cxx_std_17)
 
 install(
-  TARGETS kracker_models
-  EXPORT krackerTargets
+  TARGETS rosuite_models
+  EXPORT rosuiteTargets
   ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
   INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
-if(KRACKER_BUILD_TESTS)
-  kracker_add_test(
-    kracker_models_tests
+if(ROSUITE_BUILD_TESTS)
+  rosuite_add_test(
+    rosuite_models_tests
     SOURCES test/test_models.cpp
-    LIBRARIES kracker::models
+    LIBRARIES rosuite::models
   )
 endif()

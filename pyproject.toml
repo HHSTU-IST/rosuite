@@ -1,7 +1,7 @@
 [project]
-name = "kracker"
+name = "rosuite"
 version = "0.1.0"
-description = "Python bindings for the kracker C++ libraries"
+description = "Python bindings for the rosuite C++ libraries"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -19,7 +19,7 @@ build-backend = "scikit_build_core.build"
 build-dir = "build/{wheel_tag}"
 cmake.build-type = "Release"
 cmake.version = ">=3.20"
-wheel.packages = ["python/kracker"]
+wheel.packages = ["python/rosuite"]
 sdist.include = [
   "README.md",
   "CMakeLists.txt",
@@ -34,8 +34,8 @@ sdist.include = [
 ]
 
 [tool.scikit-build.cmake.define]
-KRACKER_BUILD_PYTHON = "ON"
-KRACKER_BUILD_TESTS = "OFF"
+ROSUITE_BUILD_PYTHON = "ON"
+ROSUITE_BUILD_TESTS = "OFF"
 
 [tool.uv]
 package = true

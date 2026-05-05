@@ -1,23 +1,23 @@
-#include "kracker/apps/offline_examples.hpp"
+#include "rosuite/apps/offline_examples.hpp"
 
 #include <memory>
 #include <vector>
 
-#include "kracker/filters/kalman_filters.hpp"
-#include "kracker/models/factories.hpp"
-#include "kracker/tracking/association_tools.hpp"
-#include "kracker/tracking/track_lifecycle.hpp"
+#include "rosuite/filters/kalman_filters.hpp"
+#include "rosuite/models/factories.hpp"
+#include "rosuite/tracking/association_tools.hpp"
+#include "rosuite/tracking/track_lifecycle.hpp"
 
-namespace kracker::apps::offline
+namespace rosuite::apps::offline
 {
 
     core::Result<ExampleRunSummary>
     run_single_target_kalman_example(const std::uint64_t seed)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
-        using namespace kracker::models;
-        using namespace kracker::tracking;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
+        using namespace rosuite::models;
+        using namespace rosuite::tracking;
 
         ConstantVelocityScenarioConfig scenario_config;
         scenario_config.initial_state =
@@ -90,4 +90,4 @@ namespace kracker::apps::offline
         return summary;
     }
 
-} // namespace kracker::apps::offline
+} // namespace rosuite::apps::offline

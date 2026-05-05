@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "kracker/models/models.hpp"
+#include "rosuite/models/models.hpp"
 
 namespace
 {
@@ -22,22 +22,22 @@ namespace
 
   /// Asserts that two scalar values are close.
   void expect_near(
-      const kracker::core::Scalar actual,
-      const kracker::core::Scalar expected,
-      const kracker::core::Scalar tolerance,
+      const rosuite::core::Scalar actual,
+      const rosuite::core::Scalar expected,
+      const rosuite::core::Scalar tolerance,
       const std::string &message)
   {
     expect_true(std::abs(actual - expected) <= tolerance, message);
   }
 
   /// Approximates a measurement Jacobian with finite differences.
-  kracker::core::Matrix finite_difference_jacobian(
-      const kracker::models::MeasurementModel &model,
-      const kracker::models::MeasurementRequest &request,
-      const kracker::core::Scalar epsilon = 1e-6)
+  rosuite::core::Matrix finite_difference_jacobian(
+      const rosuite::models::MeasurementModel &model,
+      const rosuite::models::MeasurementRequest &request,
+      const rosuite::core::Scalar epsilon = 1e-6)
   {
-    using namespace kracker::core;
-    using namespace kracker::models;
+    using namespace rosuite::core;
+    using namespace rosuite::models;
 
     const auto base = model.measure(request);
     Matrix jacobian(base.value().measurement.dimension(), request.state.dimension());
@@ -62,8 +62,8 @@ namespace
   /// Tests the motion-model implementations.
   void test_motion_models()
   {
-    using namespace kracker::core;
-    using namespace kracker::models;
+    using namespace rosuite::core;
+    using namespace rosuite::models;
 
     MotionRequest cv_request{
         State{(Vector(4) << 1.0, 2.0, 0.5, -1.0).finished(), 0.0, "map"},
@@ -121,8 +121,8 @@ namespace
   /// Tests the measurement-model implementations.
   void test_measurement_models()
   {
-    using namespace kracker::core;
-    using namespace kracker::models;
+    using namespace rosuite::core;
+    using namespace rosuite::models;
 
     MeasurementRequest linear_request{
         State{(Vector(4) << 3.0, 4.0, 1.0, 2.0).finished(), 0.0, "map"},
@@ -160,8 +160,8 @@ namespace
   /// Tests the noise models and model composition helpers.
   void test_noise_and_composition()
   {
-    using namespace kracker::core;
-    using namespace kracker::models;
+    using namespace rosuite::core;
+    using namespace rosuite::models;
 
     MotionRequest motion_request{
         State{Vector::Zero(4), 0.0, "map"},

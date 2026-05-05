@@ -1,12 +1,12 @@
-#include "kracker/filters/kalman_h_infinity.hpp"
+#include "rosuite/filters/kalman_h_infinity.hpp"
 
 #include <optional>
 
 #include <Eigen/Cholesky>
 
-#include "kracker/filters/kalman_support.hpp"
+#include "rosuite/filters/kalman_support.hpp"
 
-namespace kracker::filters
+namespace rosuite::filters
 {
   KalmanFilterHInfinity::KalmanFilterHInfinity(const core::Scalar gamma)
       : gamma_(gamma) {}
@@ -139,4 +139,4 @@ namespace kracker::filters
     return "kalman_hinf";
   }
 
-} // namespace kracker::filters
+} // namespace rosuite::filters

@@ -1,6 +1,6 @@
-#include "kracker/filters/kalman_gaussian_transform.hpp"
+#include "rosuite/filters/kalman_gaussian_transform.hpp"
 
-namespace kracker::filters::detail
+namespace rosuite::filters::detail
 {
   Status validate_sigma_point_set(
       const SigmaPointSet &sigma_points,
@@ -347,4 +347,4 @@ namespace kracker::filters::detail
     return estimate;
   }
 
-} // namespace kracker::filters::detail
+} // namespace rosuite::filters::detail

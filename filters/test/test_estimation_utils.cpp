@@ -1,19 +1,19 @@
 #include "support.hpp"
 
-#include "kracker/filters/estimation_tools.hpp"
-#include "kracker/filters/filter_primitives.hpp"
-#include "kracker/filters/sigma_point_filters.hpp"
+#include "rosuite/filters/estimation_tools.hpp"
+#include "rosuite/filters/filter_primitives.hpp"
+#include "rosuite/filters/sigma_point_filters.hpp"
 
 namespace
 {
 
-    using kracker::filters::test_support::TestContext;
+    using rosuite::filters::test_support::TestContext;
 
     /// Tests the least-squares estimator.
     void test_least_squares(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
 
         LeastSquaresEstimator estimator;
         LeastSquaresProblem problem;
@@ -35,8 +35,8 @@ namespace
     /// Tests sigma-point generation utilities.
     void test_sigma_points(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
 
         GaussianEstimate estimate{
             State{(Vector(2) << 1.0, -2.0).finished(), 0.0, "map"},
@@ -63,8 +63,8 @@ namespace
     /// Tests the Rauch-Tung-Striebel smoother.
     void test_rts_smoother(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
 
         GaussianEstimate filtered{
             State{(Vector(2) << 0.0, 1.0).finished(), 0.0, "map"},
@@ -99,7 +99,7 @@ int main()
     test_least_squares(context);
     test_sigma_points(context);
     test_rts_smoother(context);
-    return kracker::filters::test_support::finish(
+    return rosuite::filters::test_support::finish(
         context,
         "All filter estimation-utility tests passed.");
 }

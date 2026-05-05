@@ -1,19 +1,19 @@
 #include "support.hpp"
 
-#include "kracker/filters/particle_filters.hpp"
-#include "kracker/models/factories.hpp"
+#include "rosuite/filters/particle_filters.hpp"
+#include "rosuite/models/factories.hpp"
 
 namespace
 {
 
-    using kracker::filters::test_support::TestContext;
+    using rosuite::filters::test_support::TestContext;
 
     /// Tests the particle filter.
     void test_particle_filter(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
-        using namespace kracker::models;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
+        using namespace rosuite::models;
 
         ParticleFilter pf(256, 42U, 0.3);
         GaussianEstimate estimate{
@@ -56,7 +56,7 @@ int main()
 {
     TestContext context;
     test_particle_filter(context);
-    return kracker::filters::test_support::finish(
+    return rosuite::filters::test_support::finish(
         context,
         "All particle-filter tests passed.");
 }

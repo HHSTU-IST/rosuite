@@ -1,6 +1,6 @@
 # Architecture Notes
 
-This document explains the reasoning behind the recommended structure for ROS Tracker and clarifies how the major modules should evolve over time.
+This document explains the reasoning behind the recommended structure for rosuite and clarifies how the major modules should evolve over time.
 
 ## 1. Architectural Layers
 

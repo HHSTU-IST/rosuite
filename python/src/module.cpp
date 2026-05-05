@@ -9,18 +9,18 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "kracker/apps/offline_examples.hpp"
-#include "kracker/filters/kalman_filters.hpp"
-#include "kracker/models/factories.hpp"
-#include "kracker/tracking/association.hpp"
-#include "kracker/tracking/management.hpp"
-#include "kracker/tracking/tracker.hpp"
+#include "rosuite/apps/offline_examples.hpp"
+#include "rosuite/filters/kalman_filters.hpp"
+#include "rosuite/models/factories.hpp"
+#include "rosuite/tracking/association.hpp"
+#include "rosuite/tracking/management.hpp"
+#include "rosuite/tracking/tracker.hpp"
 
 namespace py = pybind11;
 
 namespace
 {
-  using namespace kracker;
+  using namespace rosuite;
 
   template <typename T>
   T unwrap_result(core::Result<T> result)
@@ -228,9 +228,9 @@ namespace
 
 } // namespace
 
-PYBIND11_MODULE(_kracker, module)
+PYBIND11_MODULE(_rosuite, module)
 {
-  module.doc() = "Python bindings for kracker.";
+  module.doc() = "Python bindings for rosuite.";
 
   py::class_<core::Measurement>(module, "Measurement")
       .def(

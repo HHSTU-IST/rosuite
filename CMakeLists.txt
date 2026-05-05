@@ -1,42 +1,42 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(kracker VERSION 0.1.0 LANGUAGES CXX)
+project(rosuite VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(BUILD_SHARED_LIBS "Build kracker libraries as shared libraries" OFF)
-option(KRACKER_ENABLE_WARNINGS "Enable project-wide compiler warnings" ON)
-option(KRACKER_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
-option(KRACKER_ENABLE_SANITIZERS "Enable sanitizer instrumentation" OFF)
+option(BUILD_SHARED_LIBS "Build rosuite libraries as shared libraries" OFF)
+option(ROSUITE_ENABLE_WARNINGS "Enable project-wide compiler warnings" ON)
+option(ROSUITE_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
+option(ROSUITE_ENABLE_SANITIZERS "Enable sanitizer instrumentation" OFF)
 set(
-  KRACKER_SANITIZERS
+  ROSUITE_SANITIZERS
   "address;undefined"
   CACHE STRING
-  "Semicolon-separated sanitizer list when KRACKER_ENABLE_SANITIZERS is ON"
+  "Semicolon-separated sanitizer list when ROSUITE_ENABLE_SANITIZERS is ON"
 )
-option(KRACKER_ENABLE_COVERAGE "Enable coverage instrumentation" OFF)
-option(KRACKER_ENABLE_CLANG_TIDY "Run clang-tidy during compilation when available" OFF)
-option(KRACKER_BUILD_PYTHON "Build kracker Python bindings" OFF)
+option(ROSUITE_ENABLE_COVERAGE "Enable coverage instrumentation" OFF)
+option(ROSUITE_ENABLE_CLANG_TIDY "Run clang-tidy during compilation when available" OFF)
+option(ROSUITE_BUILD_PYTHON "Build rosuite Python bindings" OFF)
 
-option(KRACKER_BUILD_TESTS "Build kracker tests" ON)
+option(ROSUITE_BUILD_TESTS "Build rosuite tests" ON)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
-include(cmake/krackerProjectOptions.cmake)
+include(cmake/rosuiteProjectOptions.cmake)
 
-set(KRACKER_INSTALL_CMAKEDIR
-  "${CMAKE_INSTALL_LIBDIR}/cmake/kracker")
+set(ROSUITE_INSTALL_CMAKEDIR
+  "${CMAKE_INSTALL_LIBDIR}/cmake/rosuite")
 
 find_package(Eigen3 5.0 REQUIRED NO_MODULE)
 
-if(KRACKER_BUILD_TESTS)
+if(ROSUITE_BUILD_TESTS)
   enable_testing()
 endif()
 
-kracker_init_project_options()
+rosuite_init_project_options()
 
 add_subdirectory(core)
 add_subdirectory(models)
@@ -44,11 +44,11 @@ add_subdirectory(filters)
 add_subdirectory(tracking)
 add_subdirectory(apps)
 
-if(KRACKER_BUILD_PYTHON)
+if(ROSUITE_BUILD_PYTHON)
   add_subdirectory(python)
 endif()
 
-kracker_add_quality_targets()
+rosuite_add_quality_targets()
 
 install(
   DIRECTORY
@@ -61,33 +61,33 @@ install(
 )
 
 configure_package_config_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/krackerConfig.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/krackerConfig.cmake"
-  INSTALL_DESTINATION "${KRACKER_INSTALL_CMAKEDIR}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/rosuiteConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/rosuiteConfig.cmake"
+  INSTALL_DESTINATION "${ROSUITE_INSTALL_CMAKEDIR}"
 )
 
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/krackerConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/rosuiteConfigVersion.cmake"
   VERSION "${PROJECT_VERSION}"
   COMPATIBILITY SameMajorVersion
 )
 
 install(
-  EXPORT krackerTargets
-  FILE krackerTargets.cmake
-  NAMESPACE kracker::
-  DESTINATION "${KRACKER_INSTALL_CMAKEDIR}"
+  EXPORT rosuiteTargets
+  FILE rosuiteTargets.cmake
+  NAMESPACE rosuite::
+  DESTINATION "${ROSUITE_INSTALL_CMAKEDIR}"
 )
 
 install(
   FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/krackerConfig.cmake"
-  "${CMAKE_CURRENT_BINARY_DIR}/krackerConfigVersion.cmake"
-  DESTINATION "${KRACKER_INSTALL_CMAKEDIR}"
+  "${CMAKE_CURRENT_BINARY_DIR}/rosuiteConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/rosuiteConfigVersion.cmake"
+  DESTINATION "${ROSUITE_INSTALL_CMAKEDIR}"
 )
 
 export(
-  EXPORT krackerTargets
-  FILE "${CMAKE_CURRENT_BINARY_DIR}/krackerTargets.cmake"
-  NAMESPACE kracker::
+  EXPORT rosuiteTargets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/rosuiteTargets.cmake"
+  NAMESPACE rosuite::
 )

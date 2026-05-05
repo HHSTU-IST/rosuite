@@ -1,6 +1,6 @@
-#include "kracker/filters/particle_filter.hpp"
+#include "rosuite/filters/particle_filter.hpp"
 
-namespace kracker::filters
+namespace rosuite::filters
 {
   ParticleFilter::ParticleFilter(
       const core::Index particle_count,
@@ -309,4 +309,4 @@ namespace kracker::filters
     return estimate;
   }
 
-} // namespace kracker::filters
+} // namespace rosuite::filters

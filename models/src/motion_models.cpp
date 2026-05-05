@@ -1,6 +1,6 @@
-#include "kracker/models/motion_models.hpp"
+#include "rosuite/models/motion_models.hpp"
 
-namespace kracker::models
+namespace rosuite::models
 {
   Result<TransitionResult> ConstantVelocityMotionModel::propagate(
       const MotionRequest &request) const
@@ -298,4 +298,4 @@ namespace kracker::models
     return "singer";
   }
 
-} // namespace kracker::models
+} // namespace rosuite::models

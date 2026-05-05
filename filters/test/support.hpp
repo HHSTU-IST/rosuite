@@ -5,9 +5,9 @@
 #include <iostream>
 #include <string>
 
-#include "kracker/core/core.hpp"
+#include "rosuite/core/core.hpp"
 
-namespace kracker::filters::test_support
+namespace rosuite::filters::test_support
 {
 
     struct TestContext
@@ -48,4 +48,4 @@ namespace kracker::filters::test_support
         return EXIT_SUCCESS;
     }
 
-} // namespace kracker::filters::test_support
+} // namespace rosuite::filters::test_support

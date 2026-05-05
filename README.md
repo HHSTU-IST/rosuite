@@ -1,6 +1,6 @@
-# Kracker
+# ROSuite
 
-`kracker` is a object tracking package written in C++17 and provided with a ROS2 interface and a python interface.
+ROSuite is an object tracking package written in C++17 and provided with a ROS2 interface and a Python interface.
 
 ## Design Goals
 
@@ -107,33 +107,33 @@ core -> models -> filters -> tracking -> apps
 
 If you only want one include per layer, start from these umbrella headers:
 
-- `#include "kracker/core/core.hpp"`
-- `#include "kracker/models/models.hpp"`
-- `#include "kracker/filters/filters.hpp"`
-- `#include "kracker/tracking/tracking.hpp"`
-- `#include "kracker/apps/apps.hpp"`
+- `#include "rosuite/core/core.hpp"`
+- `#include "rosuite/models/models.hpp"`
+- `#include "rosuite/filters/filters.hpp"`
+- `#include "rosuite/tracking/tracking.hpp"`
+- `#include "rosuite/apps/apps.hpp"`
 
 If you want lighter-weight entry points, prefer the second-level umbrellas:
 
 - `filters`
-  - `#include "kracker/filters/filter_primitives.hpp"`
-  - `#include "kracker/filters/kalman_filters.hpp"`
-  - `#include "kracker/filters/sigma_point_filters.hpp"`
-  - `#include "kracker/filters/particle_filters.hpp"`
-  - `#include "kracker/filters/estimation_tools.hpp"`
+  - `#include "rosuite/filters/filter_primitives.hpp"`
+  - `#include "rosuite/filters/kalman_filters.hpp"`
+  - `#include "rosuite/filters/sigma_point_filters.hpp"`
+  - `#include "rosuite/filters/particle_filters.hpp"`
+  - `#include "rosuite/filters/estimation_tools.hpp"`
 - `tracking`
-  - `#include "kracker/tracking/track_lifecycle.hpp"`
-  - `#include "kracker/tracking/association_tools.hpp"`
-  - `#include "kracker/tracking/model_multi_tools.hpp"`
+  - `#include "rosuite/tracking/track_lifecycle.hpp"`
+  - `#include "rosuite/tracking/association_tools.hpp"`
+  - `#include "rosuite/tracking/model_multi_tools.hpp"`
 
 ### 1. `core`: shared math, types, status, and result helpers
 
 Use `core` whenever you need the common numeric types (`Vector`, `Matrix`, `State`, `Measurement`) or reusable math/statistics helpers.
 
 ```cpp
-#include "kracker/core/core.hpp"
+#include "rosuite/core/core.hpp"
 
-using namespace kracker::core;
+using namespace rosuite::core;
 
 State state {
     (Vector(4) << 0.0, 0.0, 1.0, 0.5).finished(),
@@ -166,10 +166,10 @@ Typical entry points:
 Use `models` to describe system dynamics and sensor behavior independently of any filter.
 
 ```cpp
-#include "kracker/models/models.hpp"
+#include "rosuite/models/models.hpp"
 
-using namespace kracker::core;
-using namespace kracker::models;
+using namespace rosuite::core;
+using namespace rosuite::models;
 
 Matrix h(2, 4);
 h << 1.0, 0.0, 0.0, 0.0,
@@ -201,12 +201,12 @@ Use `DynamicSystemModel` when a filter needs state transition plus process noise
 Use `filters` when you already have a system model, a sensor model, and an estimate, and want to perform Bayesian state estimation. The example below reuses `system` and `sensor` from the `models` section.
 
 ```cpp
-#include "kracker/filters/filters.hpp"
-#include "kracker/models/models.hpp"
+#include "rosuite/filters/filters.hpp"
+#include "rosuite/models/models.hpp"
 
-using namespace kracker::core;
-using namespace kracker::filters;
-using namespace kracker::models;
+using namespace rosuite::core;
+using namespace rosuite::filters;
+using namespace rosuite::models;
 
 KalmanFilter filter;
 GaussianEstimate estimate {
@@ -252,14 +252,14 @@ Choose the estimator according to the model assumptions:
 Use `tracking` once you want track lifecycle management, association, track spawning, and pruning on top of filters and models. The example below reuses `system` and `sensor` from the `models` section.
 
 ```cpp
-#include "kracker/tracking/tracking.hpp"
-#include "kracker/filters/filters.hpp"
-#include "kracker/models/models.hpp"
+#include "rosuite/tracking/tracking.hpp"
+#include "rosuite/filters/filters.hpp"
+#include "rosuite/models/models.hpp"
 
-using namespace kracker::core;
-using namespace kracker::filters;
-using namespace kracker::models;
-using namespace kracker::tracking;
+using namespace rosuite::core;
+using namespace rosuite::filters;
+using namespace rosuite::models;
+using namespace rosuite::tracking;
 
 auto filter = std::make_shared<KalmanFilter>();
 auto association =
@@ -306,10 +306,10 @@ Use `apps` when you want end-to-end wiring rather than building every layer manu
 Offline example:
 
 ```cpp
-#include "kracker/apps/apps.hpp"
+#include "rosuite/apps/apps.hpp"
 
 const auto summary =
-    kracker::apps::offline::run_single_target_kalman_example(42U);
+    rosuite::apps::offline::run_single_target_kalman_example(42U);
 if (!summary.ok()) {
   return 1;
 }
@@ -320,16 +320,16 @@ const auto& metrics = summary.value().metrics;
 ROS-facing adapter:
 
 ```cpp
-#include "kracker/apps/apps.hpp"
+#include "rosuite/apps/apps.hpp"
 
-auto tracker = std::make_shared<kracker::tracking::MultiTargetTracker>(
+auto tracker = std::make_shared<rosuite::tracking::MultiTargetTracker>(
     filter, system, sensor, association, manager);
 
-kracker::apps::ros::TrackerNodeParameters params;
+rosuite::apps::ros::TrackerNodeParameters params;
 params.dt = 1.0;
 params.frame_id = "map";
 
-kracker::apps::ros::TrackerNodeAdapter adapter(tracker, params);
+rosuite::apps::ros::TrackerNodeAdapter adapter(tracker, params);
 
 const auto message = adapter.process_measurements(measurements);
 if (!message.ok()) {
@@ -358,9 +358,9 @@ This creates the project virtual environment and builds the extension module whe
 Use the high-level `Tracker` facade when you want external Python code to drive the tracker directly:
 
 ```python
-import kracker
+import rosuite
 
-tracker = kracker.Tracker(
+tracker = rosuite.Tracker(
     process_noise=0.01,
     measurement_noise=0.25,
     gating_threshold=16.0,
@@ -384,20 +384,20 @@ for track in tracks:
 If you already have fully populated measurement objects, use `step_measurements(...)` instead:
 
 ```python
-import kracker
+import rosuite
 
 measurements = [
-    kracker.Measurement([0.1, -0.1], timestamp=1.0, sensor_id="camera", frame_id="map"),
+    rosuite.Measurement([0.1, -0.1], timestamp=1.0, sensor_id="camera", frame_id="map"),
 ]
 
-tracker = kracker.Tracker()
+tracker = rosuite.Tracker()
 tracks = tracker.step_measurements(measurements, timestamp=1.0, dt=1.0)
 ```
 
 ### Run The Bundled Example
 
 ```bash
-uv run python -c "import kracker; print(kracker.run_single_target_kalman_example(42))"
+uv run python -c "import rosuite; print(rosuite.run_single_target_kalman_example(42))"
 ```
 
 The initial Python surface is intentionally small:

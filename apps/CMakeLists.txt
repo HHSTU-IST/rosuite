@@ -1,35 +1,35 @@
 add_library(
-  kracker_apps
+  rosuite_apps
   src/offline_examples.cpp
   src/ros.cpp
 )
-add_library(kracker::apps ALIAS kracker_apps)
+add_library(rosuite::apps ALIAS rosuite_apps)
 
-set_target_properties(kracker_apps PROPERTIES EXPORT_NAME apps)
+set_target_properties(rosuite_apps PROPERTIES EXPORT_NAME apps)
 
-kracker_apply_project_options(kracker_apps)
+rosuite_apply_project_options(rosuite_apps)
 
 target_include_directories(
-  kracker_apps
+  rosuite_apps
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(
-  kracker_apps
+  rosuite_apps
   PUBLIC
-  kracker::core
-  kracker::models
-  kracker::filters
-  kracker::tracking
+  rosuite::core
+  rosuite::models
+  rosuite::filters
+  rosuite::tracking
 )
 
-target_compile_features(kracker_apps PUBLIC cxx_std_17)
+target_compile_features(rosuite_apps PUBLIC cxx_std_17)
 
 install(
-  TARGETS kracker_apps
-  EXPORT krackerTargets
+  TARGETS rosuite_apps
+  EXPORT rosuiteTargets
   ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
@@ -37,21 +37,21 @@ install(
 )
 
 add_executable(
-  kracker_offline_example
+  rosuite_offline_example
   example/offline_example.cpp
 )
-target_link_libraries(kracker_offline_example PRIVATE kracker::apps)
-kracker_apply_project_options(kracker_offline_example)
+target_link_libraries(rosuite_offline_example PRIVATE rosuite::apps)
+rosuite_apply_project_options(rosuite_offline_example)
 
 install(
-  TARGETS kracker_offline_example
+  TARGETS rosuite_offline_example
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 )
 
-if(KRACKER_BUILD_TESTS)
-  kracker_add_test(
-    kracker_apps_tests
+if(ROSUITE_BUILD_TESTS)
+  rosuite_add_test(
+    rosuite_apps_tests
     SOURCES test/test_apps.cpp
-    LIBRARIES kracker::apps
+    LIBRARIES rosuite::apps
   )
 endif()

@@ -2,19 +2,19 @@
 
 #include <vector>
 
-#include "kracker/tracking/association_tools.hpp"
+#include "rosuite/tracking/association_tools.hpp"
 
 namespace
 {
 
-    using kracker::filters::GaussianEstimate;
-    using kracker::tracking::test_support::TestContext;
+    using rosuite::filters::GaussianEstimate;
+    using rosuite::tracking::test_support::TestContext;
 
     /// Tests nearest-neighbor association strategies.
     void test_nearest_neighbor_association(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::tracking;
+        using namespace rosuite::core;
+        using namespace rosuite::tracking;
 
         NearestNeighborAssociationStrategy strategy(9.0);
 
@@ -26,7 +26,7 @@ namespace
                 Matrix::Identity(4, 4),
                 std::nullopt,
             },
-            kracker::tracking::test_support::make_default_handle(),
+            rosuite::tracking::test_support::make_default_handle(),
             TrackLifecycle::kConfirmed,
             2U,
             2U,
@@ -41,7 +41,7 @@ namespace
                 Matrix::Identity(4, 4),
                 std::nullopt,
             },
-            kracker::tracking::test_support::make_default_handle(),
+            rosuite::tracking::test_support::make_default_handle(),
             TrackLifecycle::kConfirmed,
             2U,
             2U,
@@ -58,8 +58,8 @@ namespace
         const auto result = strategy.associate(
             tracks,
             measurements,
-            kracker::models::make_position_sensor(0.25 * Matrix::Identity(2, 2)),
-            kracker::models::ModelContext{1.0, 1.0, "map"});
+            rosuite::models::make_position_sensor(0.25 * Matrix::Identity(2, 2)),
+            rosuite::models::ModelContext{1.0, 1.0, "map"});
         context.expect_true(result.ok(), "Nearest-neighbor association should succeed.");
         context.expect_true(result.value().matches.size() == 2U,
                             "Nearest-neighbor association should match both tracks.");
@@ -85,7 +85,7 @@ namespace
     /// Tests the global assignment solver interface.
     void test_global_assignment_solver_interface(TestContext &context)
     {
-        using namespace kracker::tracking;
+        using namespace rosuite::tracking;
 
         AssociationProblem problem;
         problem.track_count = 2U;
@@ -116,7 +116,7 @@ int main()
     TestContext context;
     test_nearest_neighbor_association(context);
     test_global_assignment_solver_interface(context);
-    return kracker::tracking::test_support::finish(
+    return rosuite::tracking::test_support::finish(
         context,
         "All tracking association tests passed.");
 }

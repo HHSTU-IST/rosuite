@@ -1,4 +1,4 @@
-#include "kracker/tracking/association.hpp"
+#include "rosuite/tracking/association.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -7,9 +7,9 @@
 #include <memory>
 #include <utility>
 
-#include "kracker/core/math/statistics.hpp"
+#include "rosuite/core/math/statistics.hpp"
 
-namespace kracker::tracking
+namespace rosuite::tracking
 {
   namespace
   {
@@ -432,4 +432,4 @@ namespace kracker::tracking
     return "global_nearest_neighbor";
   }
 
-} // namespace kracker::tracking
+} // namespace rosuite::tracking

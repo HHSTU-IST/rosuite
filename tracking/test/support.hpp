@@ -5,12 +5,12 @@
 #include <memory>
 #include <string>
 
-#include "kracker/filters/kalman_filters.hpp"
-#include "kracker/filters/particle_filters.hpp"
-#include "kracker/models/factories.hpp"
-#include "kracker/tracking/track_lifecycle.hpp"
+#include "rosuite/filters/kalman_filters.hpp"
+#include "rosuite/filters/particle_filters.hpp"
+#include "rosuite/models/factories.hpp"
+#include "rosuite/tracking/track_lifecycle.hpp"
 
-namespace kracker::tracking::test_support
+namespace rosuite::tracking::test_support
 {
 
     struct TestContext
@@ -84,4 +84,4 @@ namespace kracker::tracking::test_support
         return EXIT_SUCCESS;
     }
 
-} // namespace kracker::tracking::test_support
+} // namespace rosuite::tracking::test_support

@@ -4,13 +4,13 @@
 #include <string>
 #include <vector>
 
-#include "kracker/apps/offline_examples.hpp"
-#include "kracker/apps/offline_sim.hpp"
-#include "kracker/apps/ros.hpp"
-#include "kracker/filters/kalman_filters.hpp"
-#include "kracker/models/factories.hpp"
-#include "kracker/tracking/association_tools.hpp"
-#include "kracker/tracking/track_lifecycle.hpp"
+#include "rosuite/apps/offline_examples.hpp"
+#include "rosuite/apps/offline_sim.hpp"
+#include "rosuite/apps/ros.hpp"
+#include "rosuite/filters/kalman_filters.hpp"
+#include "rosuite/models/factories.hpp"
+#include "rosuite/tracking/association_tools.hpp"
+#include "rosuite/tracking/track_lifecycle.hpp"
 
 namespace
 {
@@ -30,8 +30,8 @@ namespace
   /// Tests offline scenario reproducibility.
   void test_offline_scenario_reproducibility()
   {
-    using namespace kracker::apps::offline;
-    using namespace kracker::core;
+    using namespace rosuite::apps::offline;
+    using namespace rosuite::core;
 
     ConstantVelocityScenarioConfig config;
     config.initial_state =
@@ -58,7 +58,7 @@ namespace
   /// Tests offline example metric generation.
   void test_offline_example_metrics()
   {
-    using namespace kracker::apps::offline;
+    using namespace rosuite::apps::offline;
 
     const auto summary = run_single_target_kalman_example(42U);
     expect_true(summary.ok(), "Offline example should run successfully.");
@@ -73,11 +73,11 @@ namespace
   /// Tests the ROS adapter workflow.
   void test_ros_adapter()
   {
-    using namespace kracker::apps::ros;
-    using namespace kracker::core;
-    using namespace kracker::filters;
-    using namespace kracker::models;
-    using namespace kracker::tracking;
+    using namespace rosuite::apps::ros;
+    using namespace rosuite::core;
+    using namespace rosuite::filters;
+    using namespace rosuite::models;
+    using namespace rosuite::tracking;
 
     auto tracker = std::make_shared<MultiTargetTracker>(
         std::make_shared<KalmanFilter>(),

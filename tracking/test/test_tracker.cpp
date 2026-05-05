@@ -2,20 +2,20 @@
 
 #include <vector>
 
-#include "kracker/tracking/association_tools.hpp"
+#include "rosuite/tracking/association_tools.hpp"
 
 namespace
 {
 
-    using kracker::tracking::test_support::SensorAwareTrackHandleFactory;
-    using kracker::tracking::test_support::TestContext;
+    using rosuite::tracking::test_support::SensorAwareTrackHandleFactory;
+    using rosuite::tracking::test_support::TestContext;
 
     /// Tests multi-target tracker lifecycle updates.
     void test_multi_target_tracker_lifecycle(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
-        using namespace kracker::tracking;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
+        using namespace rosuite::tracking;
 
         auto filter = std::make_shared<KalmanFilter>();
         auto association = std::make_shared<NearestNeighborAssociationStrategy>(9.0);
@@ -28,8 +28,8 @@ namespace
 
         MultiTargetTracker tracker(
             filter,
-            kracker::models::make_constant_velocity_system(0.05 * Matrix::Identity(4, 4)),
-            kracker::models::make_position_sensor(0.25 * Matrix::Identity(2, 2)),
+            rosuite::models::make_constant_velocity_system(0.05 * Matrix::Identity(4, 4)),
+            rosuite::models::make_position_sensor(0.25 * Matrix::Identity(2, 2)),
             association,
             manager);
 
@@ -39,7 +39,7 @@ namespace
         };
         const auto tracks0 = tracker.step(
             frame0,
-            kracker::models::ModelContext{0.0, 0.0, "map"});
+            rosuite::models::ModelContext{0.0, 0.0, "map"});
         context.expect_true(tracks0.ok(), "Tracker should initialize tracks from the first frame.");
         context.expect_true(tracks0.value().size() == 2U,
                             "Tracker should initialize two tracks from two measurements.");
@@ -52,7 +52,7 @@ namespace
         };
         const auto tracks1 = tracker.step(
             frame1,
-            kracker::models::ModelContext{1.0, 1.0, "map"});
+            rosuite::models::ModelContext{1.0, 1.0, "map"});
         context.expect_true(tracks1.ok(), "Tracker should predict and correct the second frame.");
         context.expect_true(tracks1.value().size() == 2U,
                             "Tracker should keep both tracks after the second frame.");
@@ -67,7 +67,7 @@ namespace
         };
         const auto tracks2 = tracker.step(
             frame2,
-            kracker::models::ModelContext{1.0, 2.0, "map"});
+            rosuite::models::ModelContext{1.0, 2.0, "map"});
         context.expect_true(tracks2.ok(), "Tracker should tolerate a missed detection.");
         context.expect_true(tracks2.value().size() == 2U,
                             "Tracker should keep a track alive after one missed detection.");
@@ -77,7 +77,7 @@ namespace
         };
         const auto tracks3 = tracker.step(
             frame3,
-            kracker::models::ModelContext{1.0, 3.0, "map"});
+            rosuite::models::ModelContext{1.0, 3.0, "map"});
         context.expect_true(tracks3.ok(), "Tracker should process another frame after a miss.");
         context.expect_true(tracks3.value().size() == 1U,
                             "Tracker should prune a track after too many consecutive misses.");
@@ -92,7 +92,7 @@ namespace
         };
         const auto inconsistent_tracks = tracker.step(
             inconsistent_frame,
-            kracker::models::ModelContext{1.0, 4.0, "map"});
+            rosuite::models::ModelContext{1.0, 4.0, "map"});
         context.expect_true(!inconsistent_tracks.ok(),
                             "Tracker should reject a measurement batch with inconsistent frame_id values.");
     }
@@ -100,8 +100,8 @@ namespace
     /// Tests per-track dependency selection.
     void test_multi_target_tracker_per_track_dependencies(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::tracking;
+        using namespace rosuite::core;
+        using namespace rosuite::tracking;
 
         auto association = std::make_shared<NearestNeighborAssociationStrategy>(9.0);
         auto manager = std::make_shared<BasicTrackManager>(
@@ -113,7 +113,7 @@ namespace
         auto handle_factory = std::make_shared<SensorAwareTrackHandleFactory>();
 
         MultiTargetTracker tracker(
-            kracker::tracking::test_support::make_default_handle(),
+            rosuite::tracking::test_support::make_default_handle(),
             association,
             manager,
             handle_factory);
@@ -124,7 +124,7 @@ namespace
         };
         const auto tracks0 = tracker.step(
             frame0,
-            kracker::models::ModelContext{0.0, 0.0, "map"});
+            rosuite::models::ModelContext{0.0, 0.0, "map"});
         context.expect_true(tracks0.ok(), "Tracker should initialize per-track dependencies.");
         context.expect_true(tracks0.value().size() == 2U,
                             "Tracker should initialize one track per measurement.");
@@ -135,7 +135,7 @@ namespace
         };
         const auto tracks1 = tracker.step(
             frame1,
-            kracker::models::ModelContext{1.0, 1.0, "map"});
+            rosuite::models::ModelContext{1.0, 1.0, "map"});
         context.expect_true(tracks1.ok(), "Tracker should update tracks with their own filters.");
 
         bool saw_particle_track = false;
@@ -172,7 +172,7 @@ int main()
     TestContext context;
     test_multi_target_tracker_lifecycle(context);
     test_multi_target_tracker_per_track_dependencies(context);
-    return kracker::tracking::test_support::finish(
+    return rosuite::tracking::test_support::finish(
         context,
         "All tracker lifecycle tests passed.");
 }

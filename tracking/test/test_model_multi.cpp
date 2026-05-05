@@ -3,28 +3,28 @@
 #include <cmath>
 #include <vector>
 
-#include "kracker/tracking/association_tools.hpp"
-#include "kracker/tracking/model_multi_tools.hpp"
+#include "rosuite/tracking/association_tools.hpp"
+#include "rosuite/tracking/model_multi_tools.hpp"
 
 namespace
 {
 
-    using kracker::filters::GaussianEstimate;
-    using kracker::tracking::test_support::TestContext;
+    using rosuite::filters::GaussianEstimate;
+    using rosuite::tracking::test_support::TestContext;
 
     /// Tests the interacting multiple-model estimator.
     void test_multi_model_estimator(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::filters;
-        using namespace kracker::tracking;
+        using namespace rosuite::core;
+        using namespace rosuite::filters;
+        using namespace rosuite::tracking;
 
         auto shared_filter = std::make_shared<KalmanFilter>();
         const auto low_q_system =
-            kracker::models::make_constant_velocity_system(
+            rosuite::models::make_constant_velocity_system(
                 0.01 * Matrix::Identity(4, 4));
         const auto high_q_system =
-            kracker::models::make_constant_velocity_system(
+            rosuite::models::make_constant_velocity_system(
                 0.5 * Matrix::Identity(4, 4));
 
         std::vector<ModelBankEntry> model_bank{
@@ -63,9 +63,9 @@ namespace
         };
         const auto updated = imm.step(
             initialized.value(),
-            kracker::models::make_position_sensor(0.25 * Matrix::Identity(2, 2)),
+            rosuite::models::make_position_sensor(0.25 * Matrix::Identity(2, 2)),
             measurement,
-            kracker::models::ModelContext{1.0, 1.0, "map"});
+            rosuite::models::ModelContext{1.0, 1.0, "map"});
         context.expect_true(updated.ok(), "IMM predict-correct step should succeed.");
         context.expect_true(updated.value().merged_estimate.state.value[0] > 0.5,
                             "IMM merged estimate should move toward the new measurement.");
@@ -82,8 +82,8 @@ namespace
     /// Tests covariance-intersection fusion.
     void test_covariance_intersection_fusion(TestContext &context)
     {
-        using namespace kracker::core;
-        using namespace kracker::tracking;
+        using namespace rosuite::core;
+        using namespace rosuite::tracking;
 
         CovarianceIntersectionFuser fuser;
         GaussianEstimate estimate_a{
@@ -115,7 +115,7 @@ int main()
     TestContext context;
     test_multi_model_estimator(context);
     test_covariance_intersection_fusion(context);
-    return kracker::tracking::test_support::finish(
+    return rosuite::tracking::test_support::finish(
         context,
         "All multi-model tracking tests passed.");
 }

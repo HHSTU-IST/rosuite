@@ -1,6 +1,6 @@
-#include "kracker/filters/kalman_support.hpp"
+#include "rosuite/filters/kalman_support.hpp"
 
-namespace kracker::filters::detail
+namespace rosuite::filters::detail
 {
   Status validate_motion_support(const models::DynamicSystemModel &model)
   {
@@ -224,4 +224,4 @@ namespace kracker::filters::detail
     return Matrix(cross_covariance * ldlt.solve(identity));
   }
 
-} // namespace kracker::filters::detail
+} // namespace rosuite::filters::detail

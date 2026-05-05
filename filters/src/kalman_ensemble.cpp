@@ -1,13 +1,13 @@
-#include "kracker/filters/kalman_ensemble.hpp"
+#include "rosuite/filters/kalman_ensemble.hpp"
 
 #include <optional>
 
 #include <Eigen/Cholesky>
 
-#include "kracker/core/math/random.hpp"
-#include "kracker/filters/kalman_gaussian_transform.hpp"
+#include "rosuite/core/math/random.hpp"
+#include "rosuite/filters/kalman_gaussian_transform.hpp"
 
-namespace kracker::filters
+namespace rosuite::filters
 {
   namespace
   {
@@ -254,4 +254,4 @@ namespace kracker::filters
     return "kalman_enkf";
   }
 
-} // namespace kracker::filters
+} // namespace rosuite::filters
