@@ -38,14 +38,9 @@
                 "-I",
                 "${env:SCOOP}\\apps\\msys2-cn\\current\\ucrt64\\include",
                 "-I",
-                "${env:SCOOP}\\apps\\msys2-cn\\current\\ucrt64\\include\\eigen",
+                "${env:SCOOP}\\apps\\msys2-cn\\current\\ucrt64\\include\\eigen3",
                 "-L",
-                "${env:SCOOP}\\apps\\msys2-cn\\current\\ucrt64\\lib",
-                "-lopencv_core",
-                "-lopencv_highgui",
-                "-lopencv_imgcodecs",
-                "-lopencv_imgproc",
-                "-lopencv_features2d"
+                "${env:SCOOP}\\apps\\msys2-cn\\current\\ucrt64\\lib"
             ],
             "options": {
                 "cwd": "${env:SCOOP}\\apps\\msys2-cn\\current\\ucrt64\\bin"

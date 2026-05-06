@@ -18,7 +18,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${env:SCOOP}\\apps\\msys2-cn\\current\\ucrt64\\include",
-                "${env:SCOOP}\\apps\\msys2-cn\\current\\ucrt64\\include\\eigen"
+                "${env:SCOOP}\\apps\\msys2-cn\\current\\ucrt64\\include\\eigen3"
             ],
             "defines": [
                 "_DEBUG",
