@@ -1,3 +1,9 @@
 {
-    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/cp313-cp313-macosx_26_0_arm64/compile_commands.json"
+    "python-envs.pythonProjects": [
+        {
+            "path": ".",
+            "envManager": "ms-python.python:conda",
+            "packageManager": "ms-python.python:conda"
+        }
+    ]
 }
